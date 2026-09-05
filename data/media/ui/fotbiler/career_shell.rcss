@@ -58,3 +58,9 @@ body { font-family: "Fotbiler Sans"; }
 .ui-pill--accent, .status-pill.good { background-color: #19d3b1; color: #10202d; }
 .ui-pill--dark, .transfer-pill.accent { background-color: #10283a; color: #ffffff; }
 .ui-badge { display: inline-block; min-width: 24px; height: 24px; line-height: 24px; padding-left: 6px; padding-right: 6px; box-sizing: border-box; border-radius: 12px; text-align: center; background-color: #19d3b1; color: #10202d; font-family: "Fotbiler Display"; font-size: 11px; }
+
+/* M1A.3: reusable progress bar. */
+.ui-progress-track, .progress-track { width: 100%; overflow: hidden; background-color: #d4dde1; }
+.ui-progress-fill, .progress-fill { height: 100%; background-color: #19d3b1; }
+.ui-progress-track--dark { background-color: #27495f; }
+.ui-progress-fill--ink { background-color: #10202d; }
