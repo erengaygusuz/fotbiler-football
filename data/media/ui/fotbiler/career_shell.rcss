@@ -21,8 +21,11 @@ body { font-family: "Fotbiler Sans"; }
 .career-tabs { display: flex; width: 100%; height: 6.5%; border-bottom-width: 1px; border-bottom-color: #496375; color: #b9c5cc; }
 .career-tab { height: 100%; margin-right: 36px; padding-top: 10px; font-size: 17px; letter-spacing: 1px; }
 .career-tab.active { color: #ffffff; border-bottom-width: 4px; border-bottom-color: #19d3b1; }
+/* Keyboard/controller focus is intentionally distinct from the active-page indicator. */
+.career-tab[data-route]:focus { color: #19d3b1; border-bottom-width: 0; }
+.career-tab.active[data-route]:focus { color: #ffffff; border-bottom-width: 4px; border-bottom-color: #19d3b1; }
 .card-kicker { color: #667681; font-size: 13px; letter-spacing: 1.5px; }
-.career-control-strip { display: flex; width: 100%; height: 8.5%; margin-top: 1.5%; padding-left: 12px; padding-right: 12px; box-sizing: border-box; align-items: center; background-color: #07121f; color: #c7d1d7; font-size: 13px; }
+.career-control-strip { display: flex; width: 100%; height: 8.5%; margin-top: 1.5%; padding-left: 12px; padding-right: 24px; box-sizing: border-box; align-items: center; background-color: #07121f; color: #c7d1d7; font-size: 13px; }
 .control-left { width: 72%; }
 .control-right { width: 28%; text-align: right; color: #7f929d; font-size: 11px; letter-spacing: 0.9px; }
 
@@ -78,14 +81,15 @@ body { font-family: "Fotbiler Sans"; }
 .ui-formation-pitch:hover, .ui-formation-pitch:focus, .formation-pitch:hover, .formation-pitch:focus { transform: translateY(-2px); border-color: #19d3b1; }
 .ui-pitch-outline, .pitch-outline { position: absolute; left: 7%; top: 4%; width: 86%; height: 92%; border-width: 2px; border-color: #6c8d9c; }
 .ui-pitch-half-line, .pitch-half-line { position: absolute; left: 7%; top: 50%; width: 86%; height: 2px; background-color: #6c8d9c; }
-.ui-pitch-circle, .pitch-circle { position: absolute; left: 43%; top: 41%; width: 14%; height: 18%; border-width: 2px; border-color: #6c8d9c; border-radius: 50%; }
+.ui-pitch-circle, .pitch-circle { position: absolute; left: 43%; top: 41%; width: 14%; height: 18%; border-width: 2px; border-color: #6c8d9c; border-radius: 999px; }
 .ui-pitch-center-dot, .pitch-center-dot { position: absolute; left: 49.5%; top: 49%; width: 8px; height: 8px; border-radius: 4px; background-color: #6c8d9c; }
 
 /* M1A.3: reusable secondary tab strip. */
 .ui-subtabs, .tactics-subtabs { display: flex; width: 100%; background-color: #e7ecef; border-bottom-width: 1px; border-bottom-color: #cbd4d9; }
-.ui-subtab, .tactics-subtab { position: relative; color: #657a87; letter-spacing: 1px; }
-.ui-subtab.active, .tactics-subtab.active { color: #10202d; font-family: "Fotbiler Display"; }
-.ui-subtab.active:after, .tactics-subtab.active:after { content: ""; position: absolute; left: 18px; right: 18px; bottom: 0; height: 4px; background-color: #19d3b1; }
+.ui-subtab, .tactics-subtab { position: relative; box-sizing: border-box; color: #657a87; letter-spacing: 1px; }
+.ui-subtab.active, .tactics-subtab.active { color: #10202d; font-family: "Fotbiler Display"; border-bottom-width: 4px; border-bottom-color: #19d3b1; }
+.tactics-subtab[data-route]:focus { color: #19d3b1; border-bottom-width: 0; background-color: #dce5e8; }
+.tactics-subtab.active[data-route]:focus { color: #10202d; border-bottom-width: 4px; border-bottom-color: #19d3b1; background-color: #e7ecef; }
 
 /* M1A.3: reusable metric bar for tactical and analytical values. */
 .ui-metric-row, .metric-row { display: flex; width: 100%; justify-content: space-between; }
