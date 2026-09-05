@@ -84,8 +84,6 @@ inline std::vector<const CareerPlayerView*> StartingPlayers(const CareerUiViewMo
 inline void BindCareerUiViewModel(RmlUiSystem& ui, const CareerUiViewModel& view) {
   using namespace detail;
 
-  // Shared shell. Missing ids are intentionally ignored, so the same binder
-  // can be called after any career document is loaded.
   BindText(ui, "career-club-name", view.header.clubName);
   BindText(ui, "career-club-meta", "MANAGER CAREER · " + view.header.seasonLabel);
   BindText(ui, "career-manager-name", view.header.managerName);
@@ -99,7 +97,6 @@ inline void BindCareerUiViewModel(RmlUiSystem& ui, const CareerUiViewModel& view
     BindNumber(ui, "career-league-position", view.season.leaguePosition);
   }
 
-  // Career Central summary.
   BindNumber(ui, "central-form-goals", view.season.goalsFor);
   BindNumber(ui, "central-form-conceded", view.season.goalsAgainst);
   if (view.season.leaguePosition > 0) {
@@ -108,12 +105,12 @@ inline void BindCareerUiViewModel(RmlUiSystem& ui, const CareerUiViewModel& view
   BindNumber(ui, "central-inbox-count", view.header.unreadMessages);
   BindNumber(ui, "central-board-confidence", view.header.boardConfidence);
 
-  // Squad selected player and compact list.
   if (const CareerPlayerView* selected = FindSelectedPlayer(view)) {
     BindText(ui, "selected-player-name", selected->name);
     BindText(ui, "selected-player-meta",
              selected->position + " · AGE " + std::to_string(selected->age));
     BindNumber(ui, "selected-player-overall", selected->overall);
+    BindNumber(ui, "selected-player-overall-copy", selected->overall);
     BindText(ui, "selected-player-value", "VALUE " + selected->value);
     BindText(ui, "selected-player-contract",
              "CONTRACT " + std::to_string(selected->contractYears) + "Y");
@@ -137,7 +134,6 @@ inline void BindCareerUiViewModel(RmlUiSystem& ui, const CareerUiViewModel& view
     BindText(ui, ("formation-pos-" + suffix).c_str(), player.position);
   }
 
-  // Season summary.
   BindNumber(ui, "season-points", view.season.points);
   BindNumber(ui, "season-goals", view.season.goalsFor);
   BindNumber(ui, "season-conceded", view.season.goalsAgainst);
@@ -146,7 +142,6 @@ inline void BindCareerUiViewModel(RmlUiSystem& ui, const CareerUiViewModel& view
     BindNumber(ui, "season-position", view.season.leaguePosition);
   }
 
-  // Transfers use the career scouting shortlist as the canonical source.
   if (!view.transfers.shortlist.empty()) {
     const CareerTransferTargetView& target = view.transfers.shortlist.front();
     BindText(ui, "transfer-target-name", target.name);
@@ -161,7 +156,6 @@ inline void BindCareerUiViewModel(RmlUiSystem& ui, const CareerUiViewModel& view
   BindText(ui, "transfer-active-region", view.transfers.activeRegion);
   BindNumber(ui, "transfer-scout-months", view.transfers.scoutingMonthsRemaining);
 
-  // Office.
   BindNumber(ui, "office-confidence", view.office.boardConfidence);
   BindNumber(ui, "office-inbox-count", view.office.unreadMessages);
   BindText(ui, "office-club-balance", view.office.clubBalance);
@@ -172,13 +166,12 @@ inline void BindCareerUiViewModel(RmlUiSystem& ui, const CareerUiViewModel& view
   BindNumber(ui, "office-fans", view.office.fanBase);
   BindNumber(ui, "office-stadium-capacity", view.office.stadiumCapacity);
 
-  // Tactics.
   BindText(ui, "tactics-plan", view.tactics.activeStrategy);
   BindText(ui, "tactics-training-focus", view.tactics.trainingFocus);
   BindNumber(ui, "tactics-chemistry", view.tactics.chemistry);
 
-  // Inbox page.
   BindNumber(ui, "inbox-unread-count", view.inbox.unreadCount);
+  BindNumber(ui, "inbox-unread-count-copy", view.inbox.unreadCount);
   BindNumber(ui, "inbox-total-count", static_cast<int>(view.inbox.messages.size()));
   for (size_t i = 0; i < view.inbox.messages.size() && i < 6; ++i) {
     const CareerInboxMessageView& message = view.inbox.messages[i];
