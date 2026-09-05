@@ -30,9 +30,13 @@ public:
   void UnloadDocument();
   bool HasDocument() const;
 
-  // Presentation binding primitive. Returns false when the current document
-  // does not contain the requested id, allowing binders to be screen-agnostic.
+  // Presentation binding primitives. They return false when the current
+  // document does not contain the requested id, allowing binders and modal
+  // controllers to stay screen-agnostic.
   bool SetElementText(const std::string& elementId, const std::string& text);
+  bool SetElementProperty(const std::string& elementId, const std::string& property,
+                          const std::string& value);
+  bool FocusElement(const std::string& elementId);
 
   // Returns true when RmlUi consumed the SDL event.
   bool HandleEvent(SDL_Event& event);
