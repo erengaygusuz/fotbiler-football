@@ -97,6 +97,21 @@ struct CareerOfficeView {
   int stadiumCapacity = 0;
 };
 
+struct CareerInboxMessageView {
+  int id = 0;
+  std::string type;
+  std::string subject;
+  std::string body;
+  int weekCreated = 0;
+  bool read = false;
+};
+
+struct CareerInboxView {
+  std::vector<CareerInboxMessageView> messages;
+  int selectedMessageId = 0;
+  int unreadCount = 0;
+};
+
 struct CareerUiViewModel {
   CareerHeaderView header;
   CareerSquadView squad;
@@ -104,6 +119,7 @@ struct CareerUiViewModel {
   CareerTransfersView transfers;
   CareerTacticsView tactics;
   CareerOfficeView office;
+  CareerInboxView inbox;
 };
 
 inline std::string FormatCareerMoney(long long value) {
@@ -153,6 +169,30 @@ inline std::string TrainingFocusLabel(TrainingFocus focus) {
       return "YOUTH";
   }
   return "SHARPNESS";
+}
+
+inline std::string InboxItemTypeLabel(InboxItemType type) {
+  switch (type) {
+    case InboxItemType::BOARD_OBJECTIVE:
+      return "BOARD";
+    case InboxItemType::TRANSFER_OFFER:
+      return "TRANSFER";
+    case InboxItemType::PLAYER_COMPLAINT:
+      return "PLAYER";
+    case InboxItemType::SCOUT_REPORT:
+      return "SCOUT";
+    case InboxItemType::INJURY_UPDATE:
+      return "MEDICAL";
+    case InboxItemType::FINANCE_UPDATE:
+      return "FINANCE";
+    case InboxItemType::YOUTH_PROMOTION:
+      return "ACADEMY";
+    case InboxItemType::PRESS_SNIPPET:
+      return "MEDIA";
+    case InboxItemType::DERBY_HYPE:
+      return "MATCHDAY";
+  }
+  return "CLUB";
 }
 
 inline CareerUiViewModel BuildCareerUiViewModel(const CareerSave& save) {
@@ -254,6 +294,25 @@ inline CareerUiViewModel BuildCareerUiViewModel(const CareerSave& save) {
   view.office.reputation = save.club.reputation;
   view.office.fanBase = save.fanBase;
   view.office.stadiumCapacity = save.stadium.capacity;
+
+  view.inbox.unreadCount = view.header.unreadMessages;
+  view.inbox.messages.reserve(save.inbox.size());
+  for (const InboxItem& item : save.inbox) {
+    CareerInboxMessageView message;
+    message.id = item.id;
+    message.type = InboxItemTypeLabel(item.type);
+    message.subject = item.subject;
+    message.body = item.body;
+    message.weekCreated = item.weekCreated;
+    message.read = item.read;
+    if (view.inbox.selectedMessageId == 0 && !item.read) {
+      view.inbox.selectedMessageId = item.id;
+    }
+    view.inbox.messages.push_back(std::move(message));
+  }
+  if (view.inbox.selectedMessageId == 0 && !view.inbox.messages.empty()) {
+    view.inbox.selectedMessageId = view.inbox.messages.front().id;
+  }
 
   return view;
 }
