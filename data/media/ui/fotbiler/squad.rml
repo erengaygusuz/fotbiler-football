@@ -21,6 +21,13 @@
       <div class="career-tabs">
         <div class="career-tab" tabindex="0" data-route="career-central">CENTRAL</div><div class="career-tab active" tabindex="0" data-route="squad">SQUAD</div><div class="career-tab" tabindex="0" data-route="transfers">TRANSFERS</div><div class="career-tab" tabindex="0" data-route="office">OFFICE</div><div class="career-tab" tabindex="0" data-route="season">SEASON</div>
       </div>
+      <div class="ui-subtabs squad-subtabs">
+        <div class="ui-subtab active" tabindex="0" data-route="squad">TEAM SHEET</div>
+        <div class="ui-subtab" tabindex="0" data-route="tactics">TACTICS</div>
+        <div class="ui-subtab">ROLES</div>
+        <div class="ui-subtab">INSTRUCTIONS</div>
+        <div class="ui-subtab" tabindex="0" data-route="youth-academy">YOUTH ACADEMY</div>
+      </div>
       <div class="squad-content">
         <div class="squad-main">
           <div class="squad-toolbar"><div><div class="card-kicker">STARTING XI</div><div class="squad-title">TEAM MANAGEMENT</div></div><div class="squad-toolbar-right">BALANCED · 4-2-3-1</div></div>
