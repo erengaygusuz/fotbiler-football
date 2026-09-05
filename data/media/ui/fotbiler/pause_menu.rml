@@ -3,6 +3,7 @@
   <title>Pause</title>
   <link type="text/rcss" href="theme.rcss" />
   <link type="text/rcss" href="runtime_shell.rcss" />
+  <link type="text/rcss" href="confirmation_modal.rcss" />
 </head>
 <body>
   <div class="runtime-screen">
@@ -19,7 +20,7 @@
             <div class="runtime-nav-item" tabindex="0" data-route="match-stats">MATCH FACTS</div>
             <div class="runtime-nav-item" tabindex="0" data-route="replay-modern">INSTANT REPLAY</div>
             <div class="runtime-nav-item" tabindex="0" data-route="runtime-settings">SETTINGS</div>
-            <div class="runtime-nav-item danger" tabindex="0" data-action="exit-match">EXIT MATCH</div>
+            <div id="pause-exit-match" class="runtime-nav-item danger" tabindex="0" data-action="exit-match">EXIT MATCH</div>
           </div>
         </div>
         <div class="runtime-column-side">
@@ -32,6 +33,19 @@
         </div>
       </div>
       <div class="runtime-footer"><div><span class="runtime-hint"><span class="runtime-key">ESC</span>Resume</span><span class="runtime-hint"><span class="runtime-key">ENTER</span>Select</span></div><div>FOTBILER · MATCH</div></div>
+    </div>
+
+    <div id="exit-match-confirm-overlay" class="confirm-overlay">
+      <div class="confirm-panel">
+        <div class="confirm-kicker">MATCH IN PROGRESS</div>
+        <div class="confirm-title">EXIT MATCH?</div>
+        <div class="confirm-copy">Are you sure you want to leave this match? The current match will not be completed.</div>
+        <div class="confirm-actions">
+          <div id="exit-match-cancel" class="confirm-button" tabindex="0" data-action="cancel-exit-match">CANCEL</div>
+          <div id="exit-match-accept" class="confirm-button danger" tabindex="0" data-action="confirm-exit-match">YES, EXIT MATCH</div>
+        </div>
+        <div class="confirm-hint">ESC / B &nbsp; Cancel &nbsp;&nbsp;·&nbsp;&nbsp; ENTER / A &nbsp; Select</div>
+      </div>
     </div>
   </div>
 </body>
