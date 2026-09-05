@@ -41,3 +41,7 @@ body { font-family: "Fotbiler Sans"; }
 .ui-card-header, .card-header-row, .squad-list-header, .shortlist-header, .office-card-header, .season-header, .instructions-head { display: flex; width: 100%; justify-content: space-between; }
 .ui-card-header--center, .season-header { align-items: center; }
 .ui-card-header__link, .card-link, .small-link { color: #467084; font-size: 11px; letter-spacing: 1px; }
+
+/* M1A.3: reusable table container and header structure. */
+.ui-table { width: 100%; }
+.ui-table-head, .table-head, .list-head, .shortlist-head, .season-table-head { display: flex; width: 100%; box-sizing: border-box; color: #81919b; border-bottom-width: 1px; border-bottom-color: #d4dbdf; }
