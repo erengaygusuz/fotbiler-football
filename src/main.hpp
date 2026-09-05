@@ -7,6 +7,7 @@
 #include "hid/ihidevice.hpp"
 #include "menu/menutask.hpp"
 #include "sqlite3.h"
+#include "systems/audio/audio_system.hpp"
 #include "systems/graphics/graphics_system.hpp"
 #include "utils/database.hpp"
 
@@ -36,6 +37,7 @@ std::string GetConfigFilename();
 std::shared_ptr<Scene2D> GetScene2D();
 std::shared_ptr<Scene3D> GetScene3D();
 GraphicsSystem* GetGraphicsSystem();
+AudioSystem* GetAudioSystem();
 std::shared_ptr<GameTask> GetGameTask();
 std::shared_ptr<MenuTask> GetMenuTask();
 
