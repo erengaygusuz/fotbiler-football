@@ -1,33 +1,33 @@
 body { font-family: "Fotbiler Sans"; }
 
 .mode-shell { position: absolute; left: 5%; top: 4.5%; width: 90%; height: 91%; }
-.mode-topbar { display: flex; width: 100%; height: 9%; color: #ffffff; align-items: center; }
+.mode-topbar { display: flex; width: 100%; height: 8%; color: #ffffff; align-items: center; }
 .mode-brand { width: 62%; font-family: "Fotbiler Display"; font-size: 29px; letter-spacing: 1.6px; }
 .mode-profile { width: 38%; text-align: right; color: #bcc9d1; font-size: 12px; letter-spacing: 1px; }
-.mode-heading { height: 13%; box-sizing: border-box; padding-top: 13px; border-bottom-width: 1px; border-bottom-color: #436175; color: #ffffff; }
+.mode-heading { height: 10%; box-sizing: border-box; padding-top: 8px; border-bottom-width: 1px; border-bottom-color: #436175; color: #ffffff; }
 .mode-kicker { display: block; color: #8ea2ae; font-size: 11px; letter-spacing: 1.4px; }
-.mode-title { display: block; margin-top: 4px; font-family: "Fotbiler Display"; font-size: 38px; line-height: 39px; }
-.mode-copy { display: block; margin-top: 3px; color: #aebdc6; font-size: 12px; }
+.mode-title { display: block; margin-top: 3px; font-family: "Fotbiler Display"; font-size: 36px; line-height: 37px; }
+.mode-copy { display: block; margin-top: 2px; color: #aebdc6; font-size: 11px; }
 
-.mode-grid { width: 100%; height: 64%; padding-top: 14px; box-sizing: border-box; }
-.mode-row { display: flex; width: 100%; height: 48.5%; }
+.mode-grid { position: absolute; left: 0; right: 0; top: 18%; bottom: 8.5%; box-sizing: border-box; padding-top: 10px; }
+.mode-row { display: flex; width: 100%; height: 49%; }
 .mode-row-bottom { margin-top: 2%; }
-.mode-card { position: relative; width: 31.7%; height: 100%; margin-right: 2.45%; padding: 22px 24px; box-sizing: border-box; overflow: hidden; background-color: #f5f7f8; border-width: 1px; border-color: #e2e7ea; color: #10202d; nav: auto; }
+.mode-card { position: relative; width: 31.7%; height: 100%; margin-right: 2.45%; padding: 20px 22px; box-sizing: border-box; overflow: hidden; background-color: #f5f7f8; border-width: 1px; border-color: #e2e7ea; color: #10202d; nav: auto; }
 .mode-card.third { width: 31.6%; margin-right: 0; }
 .mode-card.bottom { width: 49%; margin-right: 2%; }
 .mode-card.bottom.last { width: 49%; margin-right: 0; }
 .mode-card:focus { background-color: #dce5e9; border-color: #ffffff; }
 .mode-card.manager { background-color: #19d3b1; border-color: #ffffff; }
 .mode-card.manager:focus { background-color: #19d3b1; }
-.mode-number { position: absolute; right: 18px; top: 8px; color: #dfe5e8; font-family: "Fotbiler Display"; font-size: 70px; }
+.mode-number { position: absolute; right: 16px; top: 7px; color: #dfe5e8; font-family: "Fotbiler Display"; font-size: 64px; }
 .mode-card.manager .mode-number { color: #32bfa6; }
 .mode-card-kicker { display: block; color: #647884; font-size: 10px; letter-spacing: 1.2px; }
 .mode-card.manager .mode-card-kicker { color: #185247; }
-.mode-card-title { display: block; margin-top: 8px; font-family: "Fotbiler Display"; font-size: 28px; line-height: 29px; }
-.mode-card-copy { display: block; width: 80%; margin-top: 9px; color: #687b86; font-size: 12px; line-height: 16px; }
+.mode-card-title { display: block; margin-top: 7px; font-family: "Fotbiler Display"; font-size: 27px; line-height: 28px; }
+.mode-card-copy { display: block; width: 82%; margin-top: 8px; color: #687b86; font-size: 11px; line-height: 15px; }
 .mode-card.manager .mode-card-copy { color: #205449; }
-.mode-state { position: absolute; left: 24px; bottom: 18px; display: inline-block; padding: 5px 8px; background-color: #17334a; color: #ffffff; font-size: 9px; letter-spacing: 0.8px; }
+.mode-state { position: absolute; left: 22px; bottom: 16px; display: inline-block; padding: 5px 8px; background-color: #17334a; color: #ffffff; font-size: 9px; letter-spacing: 0.8px; }
 .mode-card.manager .mode-state { background-color: #ffffff; color: #10202d; }
-.mode-footer { display: flex; width: 100%; height: 7%; margin-top: 8px; padding: 0 12px; box-sizing: border-box; background-color: #07121f; color: #c5d0d6; align-items: center; font-size: 12px; }
+.mode-footer { position: absolute; left: 0; right: 0; bottom: 0; display: flex; width: 100%; height: 6.5%; margin-top: 0; padding: 0 12px; box-sizing: border-box; background-color: #07121f; color: #c5d0d6; align-items: center; font-size: 12px; }
 .mode-footer-left { width: 65%; }
 .mode-footer-right { width: 35%; text-align: right; color: #8295a1; letter-spacing: 1px; }
