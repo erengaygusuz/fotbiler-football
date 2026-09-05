@@ -31,7 +31,14 @@
         <div class="squad-main">
           <div class="squad-toolbar"><div><div class="card-kicker">STARTING XI</div><div class="squad-title">TEAM MANAGEMENT</div></div><div class="squad-toolbar-right">BALANCED · 4-2-3-1</div></div>
           <div id="formation-pitch" class="formation-pitch" tabindex="0">
-            <div class="pitch-half-line"></div><div class="pitch-circle"></div><div class="pitch-box top-box"></div><div class="pitch-box bottom-box"></div>
+            <div class="pitch-outline"></div>
+            <div class="pitch-half-line"></div>
+            <div class="pitch-circle"></div>
+            <div class="pitch-center-dot"></div>
+            <div class="pitch-box top-box"></div>
+            <div class="pitch-six top-six"></div>
+            <div class="pitch-box bottom-box"></div>
+            <div class="pitch-six bottom-six"></div>
             <div class="player-node pos-st"><div class="player-disc">78</div><div class="player-name">KAYA</div><div class="player-pos">ST</div></div>
             <div class="player-node pos-lw"><div class="player-disc">75</div><div class="player-name">DEMIR</div><div class="player-pos">LW</div></div>
             <div class="player-node selected pos-cam"><div class="player-disc">81</div><div class="player-name">YILMAZ</div><div class="player-pos">CAM</div></div>
@@ -50,8 +57,14 @@
             <div class="selected-accent"></div>
             <div class="selected-top"><div><div class="card-kicker">SELECTED PLAYER</div><div class="selected-name">EMRE YILMAZ</div><div class="selected-meta">CAM · #10 · TURKEY</div></div><div class="overall-block"><span class="overall-number">81</span><span class="overall-label">OVR</span></div></div>
             <div class="selected-status-row"><span class="status-pill good">FIT 94%</span><span class="status-pill">FORM GOOD</span><span class="status-pill">MORALE HAPPY</span></div>
-            <div class="attribute-row"><span>PAC</span><strong>78</strong><span>SHO</span><strong>76</strong><span>PAS</span><strong>84</strong></div>
-            <div class="attribute-row"><span>DRI</span><strong>83</strong><span>DEF</span><strong>52</strong><span>PHY</span><strong>68</strong></div>
+            <div class="attribute-grid">
+              <div class="attribute-cell"><span>PAC</span><strong>78</strong></div>
+              <div class="attribute-cell"><span>SHO</span><strong>76</strong></div>
+              <div class="attribute-cell accent"><span>PAS</span><strong>84</strong></div>
+              <div class="attribute-cell accent"><span>DRI</span><strong>83</strong></div>
+              <div class="attribute-cell"><span>DEF</span><strong>52</strong></div>
+              <div class="attribute-cell"><span>PHY</span><strong>68</strong></div>
+            </div>
             <div class="selected-footer"><span>VALUE €24M</span><span>CONTRACT 2029</span></div>
           </div>
           <div id="squad-list" class="squad-card squad-list-card" tabindex="0">

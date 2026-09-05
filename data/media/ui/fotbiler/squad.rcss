@@ -9,31 +9,36 @@ body { font-family: "Fotbiler Sans"; }
 
 .formation-pitch { position: relative; width: 100%; height: 86%; margin-top: 2%; box-sizing: border-box; overflow: hidden; background-color: #173e52; border-width: 2px; border-color: #ffffff; nav: auto; transition: transform border-color 0.15s sine-out; }
 .formation-pitch:hover, .formation-pitch:focus { transform: translateY(-2px); border-color: #19d3b1; }
-.formation-pitch:before { position: absolute; left: 8%; top: 5%; width: 84%; height: 90%; border-width: 2px; border-color: rgba(255,255,255,0.42); content: ""; }
-.pitch-half-line { position: absolute; left: 8%; top: 50%; width: 84%; height: 1px; background-color: rgba(255,255,255,0.40); }
-.pitch-circle { position: absolute; left: 43%; top: 41%; width: 14%; height: 18%; border-width: 2px; border-color: rgba(255,255,255,0.40); border-radius: 50%; }
-.pitch-box { position: absolute; left: 31%; width: 38%; height: 14%; border-width: 2px; border-color: rgba(255,255,255,0.40); }
-.top-box { top: 5%; border-top-width: 0; }
-.bottom-box { bottom: 5%; border-bottom-width: 0; }
+.pitch-outline { position: absolute; left: 7%; top: 4%; width: 86%; height: 92%; border-width: 2px; border-color: #6c8d9c; }
+.pitch-half-line { position: absolute; left: 7%; top: 50%; width: 86%; height: 2px; background-color: #6c8d9c; }
+.pitch-circle { position: absolute; left: 43%; top: 41%; width: 14%; height: 18%; border-width: 2px; border-color: #6c8d9c; border-radius: 50%; }
+.pitch-center-dot { position: absolute; left: 49.5%; top: 49%; width: 8px; height: 8px; border-radius: 4px; background-color: #6c8d9c; }
+.pitch-box { position: absolute; left: 31%; width: 38%; height: 14%; border-width: 2px; border-color: #6c8d9c; }
+.pitch-six { position: absolute; left: 40%; width: 20%; height: 7%; border-width: 2px; border-color: #6c8d9c; }
+.top-box { top: 4%; border-top-width: 0; }
+.top-six { top: 4%; border-top-width: 0; }
+.bottom-box { bottom: 4%; border-bottom-width: 0; }
+.bottom-six { bottom: 4%; border-bottom-width: 0; }
 
-.player-node { position: absolute; width: 82px; text-align: center; color: #ffffff; }
-.player-disc { width: 48px; height: 48px; margin-left: auto; margin-right: auto; line-height: 48px; border-radius: 24px; background-color: #f7f8f9; color: #10202d; font-family: "Fotbiler Display"; font-size: 18px; border-width: 3px; border-color: #dfe5e9; }
-.player-name { display: block; margin-top: 4px; font-family: "Fotbiler Display"; font-size: 13px; letter-spacing: 0.6px; }
-.player-pos { display: block; margin-top: 1px; color: #9eb7c4; font-size: 10px; letter-spacing: 0.8px; }
+.player-node { position: absolute; width: 92px; text-align: center; color: #ffffff; }
+.player-disc { width: 54px; height: 54px; margin-left: auto; margin-right: auto; line-height: 54px; border-radius: 27px; background-color: #f7f8f9; color: #10202d; font-family: "Fotbiler Display"; font-size: 20px; border-width: 3px; border-color: #dfe5e9; }
+.player-name { display: block; margin-top: 5px; font-family: "Fotbiler Display"; font-size: 14px; letter-spacing: 0.6px; }
+.player-pos { display: block; margin-top: 1px; color: #b4c7d0; font-size: 10px; letter-spacing: 0.9px; }
 .player-node.selected .player-disc { background-color: #19d3b1; border-color: #ffffff; color: #07121f; }
 .player-node.selected .player-name { color: #19d3b1; }
+.player-node.selected .player-pos { color: #d7fff7; }
 
-.pos-st { left: 44%; top: 8%; }
-.pos-lw { left: 18%; top: 22%; }
-.pos-cam { left: 44%; top: 24%; }
-.pos-rw { right: 18%; top: 22%; }
-.pos-lcm { left: 32%; top: 43%; }
-.pos-rcm { right: 32%; top: 43%; }
-.pos-lb { left: 12%; top: 64%; }
-.pos-lcb { left: 34%; top: 64%; }
-.pos-rcb { right: 34%; top: 64%; }
-.pos-rb { right: 12%; top: 64%; }
-.pos-gk { left: 44%; top: 80%; }
+.pos-st { left: 44%; top: 7%; }
+.pos-lw { left: 17%; top: 21%; }
+.pos-cam { left: 44%; top: 23%; }
+.pos-rw { right: 17%; top: 21%; }
+.pos-lcm { left: 31%; top: 42%; }
+.pos-rcm { right: 31%; top: 42%; }
+.pos-lb { left: 11%; top: 63%; }
+.pos-lcb { left: 33%; top: 63%; }
+.pos-rcb { right: 33%; top: 63%; }
+.pos-rb { right: 11%; top: 63%; }
+.pos-gk { left: 44%; top: 79%; }
 
 .squad-card { position: relative; box-sizing: border-box; overflow: hidden; background-color: #f7f8f9; border-width: 2px; border-color: #f7f8f9; color: #10202d; nav: auto; transition: transform border-color 0.15s sine-out; }
 .squad-card:hover, .squad-card:focus { transform: translateY(-2px); border-color: #ffffff; }
@@ -46,13 +51,15 @@ body { font-family: "Fotbiler Sans"; }
 .overall-block { width: 74px; text-align: center; }
 .overall-number { display: block; font-family: "Fotbiler Display"; font-size: 50px; line-height: 48px; color: #19d3b1; }
 .overall-label { display: block; margin-top: 2px; color: #a9bbc6; font-size: 10px; letter-spacing: 1px; }
-.selected-status-row { margin-top: 18px; }
+.selected-status-row { margin-top: 15px; }
 .status-pill { display: inline-block; margin-right: 5px; padding: 5px 7px; background-color: #244961; color: #d4dde2; font-size: 10px; letter-spacing: 0.5px; }
 .status-pill.good { background-color: #19d3b1; color: #10202d; }
-.attribute-row { display: flex; width: 100%; margin-top: 12px; color: #9fb2bd; font-size: 11px; align-items: center; }
-.attribute-row span { width: 11%; }
-.attribute-row strong { width: 22%; color: #ffffff; font-family: "Fotbiler Display"; font-size: 17px; }
-.selected-footer { display: flex; width: 100%; margin-top: 14px; padding-top: 9px; border-top-width: 1px; border-top-color: #34546a; color: #b4c3cb; font-size: 11px; justify-content: space-between; }
+.attribute-grid { display: flex; flex-wrap: wrap; width: 100%; margin-top: 14px; }
+.attribute-cell { width: 31%; margin-right: 2%; margin-bottom: 8px; padding: 7px 9px; box-sizing: border-box; background-color: #203f55; }
+.attribute-cell span { display: block; color: #9fb2bd; font-size: 10px; letter-spacing: 0.7px; }
+.attribute-cell strong { display: block; margin-top: 2px; color: #ffffff; font-family: "Fotbiler Display"; font-size: 18px; }
+.attribute-cell.accent strong { color: #19d3b1; }
+.selected-footer { display: flex; width: 100%; margin-top: 5px; padding-top: 9px; border-top-width: 1px; border-top-color: #34546a; color: #b4c3cb; font-size: 11px; justify-content: space-between; }
 
 .squad-list-card { width: 100%; height: 51%; margin-top: 2%; padding: 19px 21px; }
 .squad-list-header { display: flex; width: 100%; justify-content: space-between; }
