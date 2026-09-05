@@ -52,3 +52,9 @@ body { font-family: "Fotbiler Sans"; }
 
 /* M1A.3: reusable active/selected table row state. */
 .ui-row-active, .table-row.current, .list-row.active, .shortlist-row.active, .season-table-row.current-team, .instruction-row.active { background-color: #19d3b1; color: #10202d; }
+
+/* M1A.3: reusable badge and pill family. */
+.ui-pill, .status-pill, .transfer-pill { display: inline-block; margin-right: 6px; padding: 5px 8px; background-color: #244961; color: #d4dde2; font-size: 10px; letter-spacing: 0.6px; }
+.ui-pill--accent, .status-pill.good { background-color: #19d3b1; color: #10202d; }
+.ui-pill--dark, .transfer-pill.accent { background-color: #10283a; color: #ffffff; }
+.ui-badge { display: inline-block; min-width: 24px; height: 24px; line-height: 24px; padding-left: 6px; padding-right: 6px; box-sizing: border-box; border-radius: 12px; text-align: center; background-color: #19d3b1; color: #10202d; font-family: "Fotbiler Display"; font-size: 11px; }
