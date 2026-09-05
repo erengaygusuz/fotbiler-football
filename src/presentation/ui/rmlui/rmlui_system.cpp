@@ -225,6 +225,20 @@ bool RmlUiSystem::HasDocument() const {
   return impl && impl->document;
 }
 
+bool RmlUiSystem::SetElementText(const std::string& elementId, const std::string& text) {
+  if (!impl || !impl->document || elementId.empty()) {
+    return false;
+  }
+
+  Rml::Element* element = impl->document->GetElementById(elementId);
+  if (!element) {
+    return false;
+  }
+
+  element->SetInnerRML(text);
+  return true;
+}
+
 bool RmlUiSystem::HandleEvent(SDL_Event& event) {
   if (!impl->context || !impl->window) {
     return false;
