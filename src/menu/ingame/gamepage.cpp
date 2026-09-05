@@ -137,6 +137,15 @@ void GamePage::Process() {
           match->sig_OnExtendedReplayMoment.connect([this](...) { GoExtendedReplayPage(); });
       conn_GameOver = match->sig_OnGameOver.connect([this](...) { GoGameOverPage(); });
 
+      if (ModernUiSessionActive()) {
+        // The runtime window starts with Fotbiler's RmlUi loading document.
+        // Only dismiss it after GameTask exposes a real live Match, otherwise
+        // the legacy menu/background can flash between initialization phases.
+        GetMenuTask()->SetMenuBackgroundVisible(false);
+        PublishModernMatchSnapshot(match);
+        ui::runtime::SetScreen(ui::runtime::Screen::None);
+      }
+
       if (MenuSmokeQuickMatchEnabled() || MenuSmokeFullMatchEnabled()) {
         matchReadyTime_ms = EnvironmentManager::GetInstance().GetTime_ms();
         printf("[menu-smoke] Gameplay page reached and live match is active\n");
