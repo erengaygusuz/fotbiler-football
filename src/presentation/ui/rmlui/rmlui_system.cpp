@@ -251,6 +251,30 @@ bool RmlUiSystem::SetElementText(const std::string& elementId, const std::string
   return true;
 }
 
+bool RmlUiSystem::SetElementProperty(const std::string& elementId, const std::string& property,
+                                     const std::string& value) {
+  if (!impl || !impl->document || elementId.empty() || property.empty()) {
+    return false;
+  }
+
+  Rml::Element* element = impl->document->GetElementById(elementId);
+  if (!element) {
+    return false;
+  }
+
+  element->SetProperty(property, value);
+  return true;
+}
+
+bool RmlUiSystem::FocusElement(const std::string& elementId) {
+  if (!impl || !impl->document || elementId.empty()) {
+    return false;
+  }
+
+  Rml::Element* element = impl->document->GetElementById(elementId);
+  return element && element->Focus(true);
+}
+
 bool RmlUiSystem::HandleEvent(SDL_Event& event) {
   if (!impl->context || !impl->window) {
     return false;
