@@ -35,6 +35,11 @@ public:
 
   MessageQueue<Overlay2DQueueEntry>& GetOverlay2DQueue();
 
+  // Applies Fotbiler's display settings on the renderer thread and refreshes
+  // the cached effective drawable size after SDL/compositor negotiation.
+  bool ApplyDisplaySettings(int requestedWidth, int requestedHeight, bool requestedFullscreen,
+                            bool vsync);
+
   void GetContextSize(int& width, int& height, int& bpp) {
     width = this->width;
     height = this->height;
