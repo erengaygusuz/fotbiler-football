@@ -9,6 +9,7 @@
 #include "../../data/matchhistory.hpp"
 #include "../../league/leaguecode.hpp"
 #include "../../onthepitch/match.hpp"
+#include "../../presentation/ui/rmlui/frontend_runtime_bridge.hpp"
 #include "../career/career_database.hpp"
 #include "../pagefactory.hpp"
 #include "main.hpp"
@@ -25,9 +26,17 @@ bool MenuSmokeFullMatchEnabled() {
   return GetConfiguration()->GetBool("menu_smoke_test_full_match", false);
 }
 
+bool EnvironmentFlagEnabled(const char* name) {
+  const char* value = std::getenv(name);
+  return value && value[0] != '\0' && std::string(value) != "0";
+}
+
 bool ModernUiSessionActive() {
-  const char* session = std::getenv("FOTBILER_UI_MODERN_SESSION");
-  return session && session[0] != '\0' && std::string(session) != "0";
+  return EnvironmentFlagEnabled("FOTBILER_UI_MODERN_SESSION");
+}
+
+bool ModernFrontendAppActive() {
+  return EnvironmentFlagEnabled("FOTBILER_UI_MODERN_APP");
 }
 
 Gui2Caption* MakeStat(Gui2WindowManager* windowManager, const std::string& id,
@@ -40,9 +49,7 @@ Gui2Caption* MakeStat(Gui2WindowManager* windowManager, const std::string& id,
 }
 
 void SaveMatchHistoryIfNeeded(Match* match) {
-  if (!match || !match->GetMatchData() || match->GetMatchData()->IsHistorySaved()) {
-    return;
-  }
+  if (!match || !match->GetMatchData() || match->GetMatchData()->IsHistorySaved()) return;
 
   MatchData* md = match->GetMatchData();
   md->SetHistorySaved(true);
@@ -93,9 +100,7 @@ GameOverPage::GameOverPage(Gui2WindowManager* windowManager, const Gui2PageData&
       match(GetGameTask()->GetMatch()),
       pageCreatedTime_ms(EnvironmentManager::GetInstance().GetTime_ms()),
       autoQuitTriggered(false) {
-  if (!match || !match->GetMatchData()) {
-    return;
-  }
+  if (!match || !match->GetMatchData()) return;
   match->Pause(true);
 
   MatchData* md = match->GetMatchData();
@@ -270,10 +275,17 @@ void GameOverPage::GoMainMenu() {
   if (resumeCareer) GetConfiguration()->SetBool("career_resume_hub", true);
   if (leagueMatchPlayed) GetConfiguration()->SetBool("league_resume_hub", true);
 
-  // The modern frontend owns the outer application flow. Once the 3D runtime
-  // has persisted the result, terminate this child process instead of dropping
-  // into the legacy Gui2 main/career menu. ui_preview then resumes Career Central
-  // for a career session or Main Menu for a quick match.
+  if (ModernFrontendAppActive()) {
+    const ui::frontend::ReturnTarget target =
+        (resumeCareer || ui::frontend::GetSessionKind() == ui::frontend::SessionKind::Career)
+            ? ui::frontend::ReturnTarget::CareerCentral
+            : ui::frontend::ReturnTarget::MatchSetup;
+    this->Exit();
+    GetMenuTask()->ReturnToFotbilerFrontend(target);
+    delete this;
+    return;
+  }
+
   if (ModernUiSessionActive()) {
     this->Exit();
     EnvironmentManager::GetInstance().SignalQuit();
