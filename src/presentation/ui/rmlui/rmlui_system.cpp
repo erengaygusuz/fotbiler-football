@@ -2,10 +2,15 @@
 
 #include <memory>
 #include <string>
+#include <unordered_map>
+#include <utility>
 
 #include <RmlUi/Core/Context.h>
 #include <RmlUi/Core/Core.h>
+#include <RmlUi/Core/Element.h>
 #include <RmlUi/Core/ElementDocument.h>
+#include <RmlUi/Core/Event.h>
+#include <RmlUi/Core/EventListener.h>
 
 #include "RmlUi_Platform_SDL.h"
 #include "RmlUi_Renderer_GL3.h"
@@ -36,6 +41,27 @@ bool LoadFotbilerFonts() {
   return sansLoaded && displayLoaded;
 }
 
+class RouteEventListener final : public Rml::EventListener {
+public:
+  explicit RouteEventListener(std::string& pendingRoute) : pendingRoute(pendingRoute) {}
+
+  void ProcessEvent(Rml::Event& event) override {
+    Rml::Element* element = event.GetTargetElement();
+    while (element) {
+      const Rml::String route =
+          element->GetAttribute<Rml::String>("data-route", Rml::String());
+      if (!route.empty()) {
+        pendingRoute = route;
+        return;
+      }
+      element = element->GetParentNode();
+    }
+  }
+
+private:
+  std::string& pendingRoute;
+};
+
 }  // namespace
 
 class RmlUiSystem::Impl {
@@ -44,8 +70,12 @@ public:
   std::unique_ptr<SystemInterface_SDL> systemInterface;
   std::unique_ptr<RenderInterface_GL3> renderInterface;
   std::unique_ptr<TextInputMethodEditor_SDL> textInputHandler;
+  std::unique_ptr<RouteEventListener> routeEventListener;
   Rml::Context* context = nullptr;
   Rml::ElementDocument* document = nullptr;
+  std::string pendingRoute;
+  std::string currentDocumentPath;
+  std::unordered_map<std::string, std::string> focusByDocument;
   bool glInitialized = false;
   bool rmlInitialized = false;
 };
@@ -101,6 +131,8 @@ bool RmlUiSystem::Initialize(SDL_Window* window, int width, int height) {
     return false;
   }
 
+  impl->routeEventListener = std::make_unique<RouteEventListener>(impl->pendingRoute);
+  impl->context->AddEventListener("click", impl->routeEventListener.get());
   impl->renderInterface->SetViewport(width, height);
   return true;
 }
@@ -112,6 +144,11 @@ void RmlUiSystem::Shutdown() {
 
   impl->document = nullptr;
   if (impl->context) {
+    if (impl->routeEventListener) {
+      impl->context->RemoveEventListener("click", impl->routeEventListener.get());
+    }
+    impl->routeEventListener.reset();
+
     const Rml::String contextName = impl->context->GetName();
     Rml::RemoveContext(contextName);
     impl->context = nullptr;
@@ -131,6 +168,9 @@ void RmlUiSystem::Shutdown() {
     impl->glInitialized = false;
   }
 
+  impl->pendingRoute.clear();
+  impl->currentDocumentPath.clear();
+  impl->focusByDocument.clear();
   impl->window = nullptr;
 }
 
@@ -158,7 +198,9 @@ bool RmlUiSystem::LoadDocument(const std::string& path) {
     return false;
   }
 
+  impl->currentDocumentPath = path;
   impl->document->Show();
+  FocusDefaultElement();
   return true;
 }
 
@@ -167,8 +209,16 @@ void RmlUiSystem::UnloadDocument() {
     return;
   }
 
+  if (!impl->currentDocumentPath.empty()) {
+    Rml::Element* focused = impl->document->GetFocusLeafNode();
+    if (focused && focused != impl->document && !focused->GetId().empty()) {
+      impl->focusByDocument[impl->currentDocumentPath] = focused->GetId();
+    }
+  }
+
   impl->context->UnloadDocument(impl->document);
   impl->document = nullptr;
+  impl->currentDocumentPath.clear();
 }
 
 bool RmlUiSystem::HasDocument() const {
@@ -181,6 +231,58 @@ bool RmlUiSystem::HandleEvent(SDL_Event& event) {
   }
 
   return !RmlSDL::InputEventHandler(impl->context, impl->window, event);
+}
+
+std::string RmlUiSystem::ConsumeRouteRequest() {
+  if (!impl) {
+    return {};
+  }
+
+  std::string request = std::move(impl->pendingRoute);
+  impl->pendingRoute.clear();
+  return request;
+}
+
+bool RmlUiSystem::ActivateFocusedElement() {
+  if (!impl || !impl->document) {
+    return false;
+  }
+
+  Rml::Element* focused = impl->document->GetFocusLeafNode();
+  if (!focused || focused == impl->document) {
+    return false;
+  }
+
+  focused->Click();
+  return true;
+}
+
+bool RmlUiSystem::FocusDefaultElement() {
+  if (!impl || !impl->document) {
+    return false;
+  }
+
+  if (!impl->currentDocumentPath.empty()) {
+    const auto remembered = impl->focusByDocument.find(impl->currentDocumentPath);
+    if (remembered != impl->focusByDocument.end()) {
+      if (Rml::Element* element = impl->document->GetElementById(remembered->second)) {
+        if (element->Focus(true)) {
+          return true;
+        }
+      }
+    }
+  }
+
+  const char* selectors[] = {"[autofocus]", "[data-route]", "[tabindex]"};
+  for (const char* selector : selectors) {
+    if (Rml::Element* element = impl->document->QuerySelector(selector)) {
+      if (element->Focus(true)) {
+        return true;
+      }
+    }
+  }
+
+  return false;
 }
 
 bool RmlUiSystem::Update() {
