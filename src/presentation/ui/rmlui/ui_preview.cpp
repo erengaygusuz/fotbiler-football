@@ -16,6 +16,7 @@ constexpr int kInitialHeight = 900;
 constexpr const char* kMainMenuDocument = "media/ui/fotbiler/main_menu.rml";
 constexpr const char* kCareerCentralDocument = "media/ui/fotbiler/career_central.rml";
 constexpr const char* kSquadDocument = "media/ui/fotbiler/squad.rml";
+constexpr const char* kTransfersDocument = "media/ui/fotbiler/transfers.rml";
 
 void UpdateDrawableSize(SDL_Window* window, blunted::ui::RmlUiSystem& ui) {
   int width = 0;
@@ -111,6 +112,8 @@ int main() {
         LoadPreviewDocument(ui, kCareerCentralDocument);
       } else if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_F3) {
         LoadPreviewDocument(ui, kSquadDocument);
+      } else if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_F4) {
+        LoadPreviewDocument(ui, kTransfersDocument);
       } else if (event.type == SDL_WINDOWEVENT &&
                  (event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED ||
                   event.window.event == SDL_WINDOWEVENT_RESIZED)) {
