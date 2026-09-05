@@ -301,10 +301,33 @@ void NavigatePendingRoute(blunted::ui::RmlUiSystem& ui, blunted::ui::ScreenRoute
   }
 }
 
+void ShowQuitConfirmation(blunted::ui::RmlUiSystem& ui, bool& open) {
+  if (!ui.SetElementProperty("quit-confirm-overlay", "display", "block")) return;
+  open = true;
+  ui.FocusElement("quit-confirm-cancel");
+}
+
+void HideQuitConfirmation(blunted::ui::RmlUiSystem& ui, bool& open) {
+  ui.SetElementProperty("quit-confirm-overlay", "display", "none");
+  open = false;
+  if (!ui.FocusElement("tile-career")) ui.FocusDefaultElement();
+}
+
 PreviewExitAction ConsumePendingAction(blunted::ui::RmlUiSystem& ui, QuickMatchSetupState& quickMatch,
-                                       RuntimeSettingsState& settings) {
+                                       RuntimeSettingsState& settings, bool& quitConfirmOpen,
+                                       bool& quitRequested) {
   const std::string action = ui.ConsumeActionRequest();
   if (action.empty()) return PreviewExitAction::None;
+
+  if (action == "cancel-quit-game") {
+    HideQuitConfirmation(ui, quitConfirmOpen);
+    return PreviewExitAction::None;
+  }
+  if (action == "confirm-quit-game") {
+    quitRequested = true;
+    return PreviewExitAction::None;
+  }
+  if (quitConfirmOpen) return PreviewExitAction::None;
 
   if (action == "start-quick-match") {
     std::fprintf(stdout, "Fotbiler UI Preview: handing START MATCH to gameplayfootball runtime.\n");
@@ -377,6 +400,10 @@ void SetEnvFloat(const char* name, float value) {
   SDL_setenv(name, text, 1);
 }
 
+void SetEnvString(const char* name, const std::string& value) {
+  SDL_setenv(name, value.c_str(), 1);
+}
+
 void PublishWindowPlacement(SDL_Window* window) {
   if (!window) return;
   const int displayIndex = SDL_GetWindowDisplayIndex(window);
@@ -390,7 +417,9 @@ void PublishWindowPlacement(SDL_Window* window) {
 
 int LaunchGameplayFootball(const std::string& executablePath, PreviewExitAction action,
                            const QuickMatchSetupState& quickMatch,
-                           const RuntimeSettingsState& settings, SDL_Window* frontendWindow) {
+                           const RuntimeSettingsState& settings,
+                           const blunted::ui::CareerUiViewModel& careerView,
+                           SDL_Window* frontendWindow) {
   if (executablePath.empty() || !std::filesystem::exists(executablePath)) {
     std::fprintf(stderr, "Fotbiler UI Preview: gameplay executable not found at %s\n", executablePath.c_str());
     return 1;
@@ -398,14 +427,34 @@ int LaunchGameplayFootball(const std::string& executablePath, PreviewExitAction 
 
   PublishWindowPlacement(frontendWindow);
   SaveRuntimeSettings(settings);
+
+  int contextWidth = settings.Width();
+  int contextHeight = settings.Height();
+  if (frontendWindow) {
+    int drawableWidth = 0;
+    int drawableHeight = 0;
+    SDL_GL_GetDrawableSize(frontendWindow, &drawableWidth, &drawableHeight);
+    if (drawableWidth > 0 && drawableHeight > 0) {
+      contextWidth = drawableWidth;
+      contextHeight = drawableHeight;
+    }
+  }
+
+  // Use the exact current drawable geometry, not just the saved logical
+  // resolution. This keeps the frontend loading document and gameplay loading
+  // document pixel-identical across fullscreen/HiDPI monitor handoff.
   SetEnvInt("FOTBILER_UI_CONTEXT_FULLSCREEN", settings.fullscreen ? 1 : 0);
-  SetEnvInt("FOTBILER_UI_CONTEXT_X", settings.Width());
-  SetEnvInt("FOTBILER_UI_CONTEXT_Y", settings.Height());
+  SetEnvInt("FOTBILER_UI_CONTEXT_X", contextWidth);
+  SetEnvInt("FOTBILER_UI_CONTEXT_Y", contextHeight);
 
   if (action == PreviewExitAction::LaunchCareerMatch) {
     SDL_setenv("FOTBILER_UI_CAREER_MATCH", "1", 1);
     SDL_setenv("FOTBILER_UI_QUICK_MATCH", "0", 1);
     SDL_setenv("FOTBILER_UI_MODERN_SESSION", "career", 1);
+    const std::string clubName =
+        careerView.header.clubName.empty() ? "CAREER CLUB" : careerView.header.clubName;
+    SetEnvString("FOTBILER_UI_LOADING_HOME_NAME", clubName);
+    SetEnvString("FOTBILER_UI_LOADING_AWAY_NAME", "NEXT LEAGUE OPPONENT");
   } else {
     SDL_setenv("FOTBILER_UI_QUICK_MATCH", "1", 1);
     SDL_setenv("FOTBILER_UI_CAREER_MATCH", "0", 1);
@@ -415,6 +464,8 @@ int LaunchGameplayFootball(const std::string& executablePath, PreviewExitAction 
     SetEnvInt("FOTBILER_UI_MATCH_DURATION_MINUTES", quickMatch.MatchLengthMinutes());
     SetEnvFloat("FOTBILER_UI_MATCH_DIFFICULTY", quickMatch.Difficulty());
     SetEnvInt("FOTBILER_UI_CONTROL_SIDE", quickMatch.controlSide);
+    SetEnvString("FOTBILER_UI_LOADING_HOME_NAME", quickMatch.Home().name);
+    SetEnvString("FOTBILER_UI_LOADING_AWAY_NAME", quickMatch.Away().name);
   }
 
   const std::string command = "\"" + executablePath + "\"";
@@ -556,6 +607,8 @@ int main() {
 
   bool running = true;
   bool handoffPending = false;
+  bool quitConfirmOpen = false;
+  bool quitRequested = false;
   Uint64 handoffDeadlineMs = 0;
   PreviewExitAction exitAction = PreviewExitAction::None;
 
@@ -581,43 +634,97 @@ int main() {
         running = false;
         forwardToUi = false;
       } else if (event.type == SDL_KEYDOWN && event.key.repeat == 0) {
-        switch (event.key.keysym.sym) {
-          case SDLK_ESCAPE:
-            if (!router.Back()) running = false;
-            forwardToUi = false;
-            break;
-          case SDLK_RETURN:
-          case SDLK_KP_ENTER:
-            activateFocusedElement = true;
-            forwardToUi = false;
-            break;
-          case SDLK_F1: router.Navigate(blunted::ui::ScreenId::MainMenu); forwardToUi = false; break;
-          case SDLK_F2: router.Navigate(blunted::ui::ScreenId::CareerCentral); forwardToUi = false; break;
-          case SDLK_F3: router.Navigate(blunted::ui::ScreenId::Squad); forwardToUi = false; break;
-          case SDLK_F4: router.Navigate(blunted::ui::ScreenId::Transfers); forwardToUi = false; break;
-          case SDLK_F5: router.Navigate(blunted::ui::ScreenId::Office); forwardToUi = false; break;
-          case SDLK_F6: router.Navigate(blunted::ui::ScreenId::Season); forwardToUi = false; break;
-          case SDLK_F7: router.Navigate(blunted::ui::ScreenId::Tactics); forwardToUi = false; break;
-          case SDLK_F8: router.Navigate(blunted::ui::ScreenId::CareerModeSelect); forwardToUi = false; break;
-          case SDLK_F9: router.Navigate(blunted::ui::ScreenId::MatchSetup); forwardToUi = false; break;
-          case SDLK_F10: router.Navigate(blunted::ui::ScreenId::RuntimeSettings); forwardToUi = false; break;
-          case SDLK_F11: router.Navigate(blunted::ui::ScreenId::PauseMenu); forwardToUi = false; break;
-          case SDLK_F12: router.Navigate(blunted::ui::ScreenId::MatchHud); forwardToUi = false; break;
-          case SDLK_h: router.Navigate(blunted::ui::ScreenId::Halftime); forwardToUi = false; break;
-          case SDLK_j: router.Navigate(blunted::ui::ScreenId::Fulltime); forwardToUi = false; break;
-          case SDLK_m: router.Navigate(blunted::ui::ScreenId::MatchStats); forwardToUi = false; break;
-          default: break;
+        if (quitConfirmOpen) {
+          switch (event.key.keysym.sym) {
+            case SDLK_ESCAPE:
+              HideQuitConfirmation(ui, quitConfirmOpen);
+              break;
+            case SDLK_LEFT:
+            case SDLK_UP:
+              ui.FocusElement("quit-confirm-cancel");
+              break;
+            case SDLK_RIGHT:
+            case SDLK_DOWN:
+              ui.FocusElement("quit-confirm-accept");
+              break;
+            case SDLK_RETURN:
+            case SDLK_KP_ENTER:
+              activateFocusedElement = true;
+              break;
+            default:
+              break;
+          }
+          forwardToUi = false;
+        } else {
+          switch (event.key.keysym.sym) {
+            case SDLK_ESCAPE:
+              if (router.Current() && *router.Current() == blunted::ui::ScreenId::MainMenu) {
+                ShowQuitConfirmation(ui, quitConfirmOpen);
+              } else if (!router.Back()) {
+                router.Reset(blunted::ui::ScreenId::MainMenu);
+              }
+              forwardToUi = false;
+              break;
+            case SDLK_RETURN:
+            case SDLK_KP_ENTER:
+              activateFocusedElement = true;
+              forwardToUi = false;
+              break;
+            case SDLK_F1: router.Navigate(blunted::ui::ScreenId::MainMenu); forwardToUi = false; break;
+            case SDLK_F2: router.Navigate(blunted::ui::ScreenId::CareerCentral); forwardToUi = false; break;
+            case SDLK_F3: router.Navigate(blunted::ui::ScreenId::Squad); forwardToUi = false; break;
+            case SDLK_F4: router.Navigate(blunted::ui::ScreenId::Transfers); forwardToUi = false; break;
+            case SDLK_F5: router.Navigate(blunted::ui::ScreenId::Office); forwardToUi = false; break;
+            case SDLK_F6: router.Navigate(blunted::ui::ScreenId::Season); forwardToUi = false; break;
+            case SDLK_F7: router.Navigate(blunted::ui::ScreenId::Tactics); forwardToUi = false; break;
+            case SDLK_F8: router.Navigate(blunted::ui::ScreenId::CareerModeSelect); forwardToUi = false; break;
+            case SDLK_F9: router.Navigate(blunted::ui::ScreenId::MatchSetup); forwardToUi = false; break;
+            case SDLK_F10: router.Navigate(blunted::ui::ScreenId::RuntimeSettings); forwardToUi = false; break;
+            case SDLK_F11: router.Navigate(blunted::ui::ScreenId::PauseMenu); forwardToUi = false; break;
+            case SDLK_F12: router.Navigate(blunted::ui::ScreenId::MatchHud); forwardToUi = false; break;
+            case SDLK_h: router.Navigate(blunted::ui::ScreenId::Halftime); forwardToUi = false; break;
+            case SDLK_j: router.Navigate(blunted::ui::ScreenId::Fulltime); forwardToUi = false; break;
+            case SDLK_m: router.Navigate(blunted::ui::ScreenId::MatchStats); forwardToUi = false; break;
+            default: break;
+          }
         }
       } else if (event.type == SDL_CONTROLLERBUTTONDOWN) {
         forwardToUi = false;
-        switch (event.cbutton.button) {
-          case SDL_CONTROLLER_BUTTON_DPAD_UP: SendNavigationKey(ui, SDLK_UP); break;
-          case SDL_CONTROLLER_BUTTON_DPAD_DOWN: SendNavigationKey(ui, SDLK_DOWN); break;
-          case SDL_CONTROLLER_BUTTON_DPAD_LEFT: SendNavigationKey(ui, SDLK_LEFT); break;
-          case SDL_CONTROLLER_BUTTON_DPAD_RIGHT: SendNavigationKey(ui, SDLK_RIGHT); break;
-          case SDL_CONTROLLER_BUTTON_A: activateFocusedElement = true; break;
-          case SDL_CONTROLLER_BUTTON_B: if (!router.Back()) running = false; break;
-          default: break;
+        if (quitConfirmOpen) {
+          switch (event.cbutton.button) {
+            case SDL_CONTROLLER_BUTTON_DPAD_UP:
+            case SDL_CONTROLLER_BUTTON_DPAD_LEFT:
+              ui.FocusElement("quit-confirm-cancel");
+              break;
+            case SDL_CONTROLLER_BUTTON_DPAD_DOWN:
+            case SDL_CONTROLLER_BUTTON_DPAD_RIGHT:
+              ui.FocusElement("quit-confirm-accept");
+              break;
+            case SDL_CONTROLLER_BUTTON_A:
+              activateFocusedElement = true;
+              break;
+            case SDL_CONTROLLER_BUTTON_B:
+              HideQuitConfirmation(ui, quitConfirmOpen);
+              break;
+            default:
+              break;
+          }
+        } else {
+          switch (event.cbutton.button) {
+            case SDL_CONTROLLER_BUTTON_DPAD_UP: SendNavigationKey(ui, SDLK_UP); break;
+            case SDL_CONTROLLER_BUTTON_DPAD_DOWN: SendNavigationKey(ui, SDLK_DOWN); break;
+            case SDL_CONTROLLER_BUTTON_DPAD_LEFT: SendNavigationKey(ui, SDLK_LEFT); break;
+            case SDL_CONTROLLER_BUTTON_DPAD_RIGHT: SendNavigationKey(ui, SDLK_RIGHT); break;
+            case SDL_CONTROLLER_BUTTON_A: activateFocusedElement = true; break;
+            case SDL_CONTROLLER_BUTTON_B:
+              if (router.Current() && *router.Current() == blunted::ui::ScreenId::MainMenu) {
+                ShowQuitConfirmation(ui, quitConfirmOpen);
+              } else if (!router.Back()) {
+                router.Reset(blunted::ui::ScreenId::MainMenu);
+              }
+              break;
+            default: break;
+          }
         }
       } else if (event.type == SDL_CONTROLLERDEVICEADDED) {
         forwardToUi = false;
@@ -636,9 +743,14 @@ int main() {
 
       if (forwardToUi) ui.HandleEvent(event);
       if (activateFocusedElement) ui.ActivateFocusedElement();
-      NavigatePendingRoute(ui, router);
+      if (!quitConfirmOpen) NavigatePendingRoute(ui, router);
 
-      const PreviewExitAction action = ConsumePendingAction(ui, quickMatch, settings);
+      const PreviewExitAction action =
+          ConsumePendingAction(ui, quickMatch, settings, quitConfirmOpen, quitRequested);
+      if (quitRequested) {
+        running = false;
+        break;
+      }
       if (action != PreviewExitAction::None) {
         exitAction = action;
         if (BeginRuntimeHandoff(action, ui, router, quickMatch, careerView)) {
@@ -665,7 +777,7 @@ int main() {
       exitAction = PreviewExitAction::None;
 
       const int runtimeResult = LaunchGameplayFootball(
-          GetGameplayExecutablePath(), completedAction, quickMatch, settings, window);
+          GetGameplayExecutablePath(), completedAction, quickMatch, settings, careerView, window);
       if (runtimeResult != 0) {
         std::fprintf(stderr, "Fotbiler UI Preview: gameplay runtime returned status %d.\n",
                      runtimeResult);
