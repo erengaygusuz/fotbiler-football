@@ -46,8 +46,6 @@ GamePlanPage::GamePlanPage(Gui2WindowManager* windowManager, const Gui2PageData&
   pitchPanel->AddView(formation);
   formation->Show();
 
-  // Keep the existing PlanMap functionality, but give it the dominant left-side
-  // presentation used by modern football team-management screens.
   map = new Gui2PlanMap(windowManager, "gameplan_planmap", 4, 11, 45, 45, teamData);
   pitchPanel->AddView(map);
   map->Show();
@@ -67,8 +65,10 @@ GamePlanPage::GamePlanPage(Gui2WindowManager* windowManager, const Gui2PageData&
   actionPanel->AddView(actionTitle);
   actionTitle->Show();
 
-  grid = new Gui2Grid(windowManager, "gameplan_grid", 0, 0, 1, 1);
-  gridNav = new Gui2Grid(windowManager, "gameplan_grid_navigation", 2, 12, 23, 31);
+  // GamePlanSubMenu expects to replace row 1 of this main grid. Keep one real
+  // host grid inside the action panel instead of parenting gridNav twice.
+  grid = new Gui2Grid(windowManager, "gameplan_grid", 2, 11, 23, 47);
+  gridNav = new Gui2Grid(windowManager, "gameplan_grid_navigation", 0, 0, 23, 31);
 
   buttonLineup = new Gui2Button(windowManager, "gameplan_button_lineup", 0, 0, 23, 4,
                                 Localization::GetInstance().Translate("gameplan_lineup"));
@@ -93,12 +93,11 @@ GamePlanPage::GamePlanPage(Gui2WindowManager* windowManager, const Gui2PageData&
   gridNav->AddView(buttonFormation, 2, 0);
   gridNav->AddView(buttonBack, 3, 0);
   gridNav->UpdateLayout(0.7f);
-  actionPanel->AddView(gridNav);
-  gridNav->Show();
-
-  // This hidden host grid is still used by the established submenu implementation.
-  frame->AddView(grid);
   grid->AddView(gridNav, 1, 0);
+  grid->UpdateLayout(0.0f);
+  actionPanel->AddView(grid);
+  grid->Show();
+  gridNav->Show();
 
   Gui2Caption* hint = new Gui2Caption(windowManager, "gameplan_hint", 3, 82, 82, 2.3f,
                                       "ENTER Select  ·  Choose two players in Lineup to swap positions");
@@ -127,6 +126,7 @@ void GamePlanPage::Deactivate() {
 
 void GamePlanPage::Reactivate() {
   grid->AddView(gridNav, 1, 0);
+  grid->UpdateLayout(0.0f);
   gridNav->Show();
   buttonTactics->SetFocus();
 }
