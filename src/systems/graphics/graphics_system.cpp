@@ -45,7 +45,7 @@ void GraphicsSystem::Initialize(const Properties& config) {
   ResourceManagerPool::GetInstance().RegisterManager(e_ResourceType_Texture,
                                                      textureResourceManager);
   ResourceManagerPool::GetInstance().RegisterManager(e_ResourceType_VertexBuffer,
-                                                     vertexResourceManager);
+                                                     vertexBufferResourceManager);
 
   // start thread for renderer
   if (config.Get("graphics3d_renderer", "opengl") == "opengl")
@@ -98,7 +98,7 @@ void GraphicsSystem::Exit() {
   task = nullptr;
 
   textureResourceManager.reset();
-  vertexResourceManager.reset();
+  vertexBufferResourceManager.reset();
 
   // shutdown renderer thread
   boost::intrusive_ptr<Message_Shutdown> R3Dshutdown(new Message_Shutdown());
