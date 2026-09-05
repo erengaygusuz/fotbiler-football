@@ -6,20 +6,15 @@
 #include <SDL2/SDL_opengl.h>
 
 #include <cstdio>
+#include <string>
 
 #include "presentation/ui/rmlui/rmlui_system.hpp"
+#include "presentation/ui/rmlui/screen_router.hpp"
 
 namespace {
 
 constexpr int kInitialWidth = 1600;
 constexpr int kInitialHeight = 900;
-constexpr const char* kMainMenuDocument = "media/ui/fotbiler/main_menu.rml";
-constexpr const char* kCareerCentralDocument = "media/ui/fotbiler/career_central.rml";
-constexpr const char* kSquadDocument = "media/ui/fotbiler/squad.rml";
-constexpr const char* kTransfersDocument = "media/ui/fotbiler/transfers.rml";
-constexpr const char* kOfficeDocument = "media/ui/fotbiler/office.rml";
-constexpr const char* kSeasonDocument = "media/ui/fotbiler/season.rml";
-constexpr const char* kTacticsDocument = "media/ui/fotbiler/tactics.rml";
 
 void UpdateDrawableSize(SDL_Window* window, blunted::ui::RmlUiSystem& ui) {
   int width = 0;
@@ -31,11 +26,11 @@ void UpdateDrawableSize(SDL_Window* window, blunted::ui::RmlUiSystem& ui) {
   }
 }
 
-bool LoadPreviewDocument(blunted::ui::RmlUiSystem& ui, const char* path) {
+bool LoadPreviewDocument(blunted::ui::RmlUiSystem& ui, const std::string& path) {
   if (ui.LoadDocument(path)) {
     return true;
   }
-  std::fprintf(stderr, "Fotbiler UI Preview: could not load %s\n", path);
+  std::fprintf(stderr, "Fotbiler UI Preview: could not load %s\n", path.c_str());
   return false;
 }
 
@@ -91,7 +86,9 @@ int main() {
     return 1;
   }
 
-  if (!LoadPreviewDocument(ui, kMainMenuDocument)) {
+  blunted::ui::ScreenRouter router(
+      [&ui](const std::string& path) { return LoadPreviewDocument(ui, path); });
+  if (!router.Navigate(blunted::ui::ScreenId::MainMenu)) {
     ui.Shutdown();
     SDL_GL_DeleteContext(glContext);
     SDL_DestroyWindow(window);
@@ -108,21 +105,23 @@ int main() {
       if (event.type == SDL_QUIT) {
         running = false;
       } else if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE) {
-        running = false;
+        if (!router.Back()) {
+          running = false;
+        }
       } else if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_F1) {
-        LoadPreviewDocument(ui, kMainMenuDocument);
+        router.Navigate(blunted::ui::ScreenId::MainMenu);
       } else if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_F2) {
-        LoadPreviewDocument(ui, kCareerCentralDocument);
+        router.Navigate(blunted::ui::ScreenId::CareerCentral);
       } else if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_F3) {
-        LoadPreviewDocument(ui, kSquadDocument);
+        router.Navigate(blunted::ui::ScreenId::Squad);
       } else if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_F4) {
-        LoadPreviewDocument(ui, kTransfersDocument);
+        router.Navigate(blunted::ui::ScreenId::Transfers);
       } else if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_F5) {
-        LoadPreviewDocument(ui, kOfficeDocument);
+        router.Navigate(blunted::ui::ScreenId::Office);
       } else if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_F6) {
-        LoadPreviewDocument(ui, kSeasonDocument);
+        router.Navigate(blunted::ui::ScreenId::Season);
       } else if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_F7) {
-        LoadPreviewDocument(ui, kTacticsDocument);
+        router.Navigate(blunted::ui::ScreenId::Tactics);
       } else if (event.type == SDL_WINDOWEVENT &&
                  (event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED ||
                   event.window.event == SDL_WINDOWEVENT_RESIZED)) {
