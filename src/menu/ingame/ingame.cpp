@@ -1,7 +1,10 @@
 #include "ingame.hpp"
 
 #include <cstdio>
+#include <cstdlib>
+#include <string>
 
+#include "../career/career_database.hpp"
 #include "../controllerselect.hpp"
 #include "../gameplan.hpp"
 #include "../pagefactory.hpp"
@@ -15,6 +18,11 @@
 using namespace blunted;
 
 namespace {
+
+bool ModernUiSessionActive() {
+  const char* session = std::getenv("FOTBILER_UI_MODERN_SESSION");
+  return session && session[0] != '\0' && std::string(session) != "0";
+}
 
 Gui2Caption* AddSectionLabel(Gui2WindowManager* windowManager, Gui2Grid* grid, int row,
                              const std::string& id, const std::string& caption) {
@@ -150,9 +158,11 @@ IngamePage::IngamePage(Gui2WindowManager* windowManager, const Gui2PageData& pag
 
   AddSectionLabel(windowManager, grid, row++, "caption_ingame_section_exit", "EXIT");
 
+  const std::string exitCaption = ModernUiSessionActive()
+                                      ? "EXIT MATCH"
+                                      : Localization::GetInstance().Translate("ingame_forfeit_match");
   Gui2Button* buttonPreQuit =
-      new Gui2Button(windowManager, "button_quit", 0, 0, 36, 3.4f,
-                     Localization::GetInstance().Translate("ingame_forfeit_match"));
+      new Gui2Button(windowManager, "button_quit", 0, 0, 36, 3.4f, exitCaption);
   buttonPreQuit->sig_OnClick.connect([this](...) { GoPreQuit(); });
   grid->AddView(buttonPreQuit, row++, 0);
 
@@ -297,15 +307,19 @@ PreQuitPage::PreQuitPage(Gui2WindowManager* windowManager, const Gui2PageData& p
   frame->AddView(kicker);
   kicker->Show();
 
+  const std::string confirmText = ModernUiSessionActive()
+                                      ? "Exit this match and return to Fotbiler? The fixture will remain unplayed."
+                                      : Localization::GetInstance().Translate("ingame_forfeit_confirm");
   Gui2Caption* restartCaption =
-      new Gui2Caption(windowManager, "caption_prequit_info", 3, 6, 44, 3,
-                      Localization::GetInstance().Translate("ingame_forfeit_confirm"));
+      new Gui2Caption(windowManager, "caption_prequit_info", 3, 6, 44, 3, confirmText);
   frame->AddView(restartCaption);
   restartCaption->Show();
 
+  const std::string confirmCaption = ModernUiSessionActive()
+                                          ? "EXIT MATCH"
+                                          : Localization::GetInstance().Translate("ingame_forfeit");
   Gui2Button* okButton =
-      new Gui2Button(windowManager, "button_prequit_ok", 0, 0, 42, 3.6f,
-                     Localization::GetInstance().Translate("ingame_forfeit"));
+      new Gui2Button(windowManager, "button_prequit_ok", 0, 0, 42, 3.6f, confirmCaption);
   Gui2Button* cancelButton =
       new Gui2Button(windowManager, "button_prequit_cancel", 0, 0, 42, 3.6f,
                      Localization::GetInstance().Translate("ingame_continue_match"));
@@ -327,7 +341,20 @@ PreQuitPage::~PreQuitPage() {}
 
 void PreQuitPage::GoMenu() {
   LeagueClearPendingFixture();
+  CareerDatabase::GetInstance().ClearPendingFixture();
   this->Exit();
+
+  // A match launched by the modern Fotbiler frontend is a one-shot runtime
+  // session. Returning to MenuTask here used to re-enter QuickStart(), open the
+  // legacy LoadingMatch page and start the same match again. End the runtime
+  // session instead; the outer modern host decides which Fotbiler screen to
+  // resume. Legacy League-Soccer sessions keep their original menu behavior.
+  if (ModernUiSessionActive()) {
+    EnvironmentManager::GetInstance().SignalQuit();
+    delete this;
+    return;
+  }
+
   GetMenuTask()->SetMenuAction(e_MenuAction_Menu);
   delete this;
 }
