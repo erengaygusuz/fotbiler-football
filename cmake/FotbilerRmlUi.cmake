@@ -86,9 +86,9 @@ function(fotbiler_enable_sdl_window_bridge target)
   target_link_libraries(${target} PRIVATE fotbiler_sdl_window_bridge)
 endfunction()
 
-# OpenGLRenderer3D owns the production SDL window, event pump and final buffer
-# swap. Intercept only those stable SDL boundaries. Legacy sessions pass through
-# unchanged; FOTBILER_UI_MODERN_SESSION activates the in-window RmlUi host.
+# OpenGLRenderer3D owns the production SDL window, event pump, final buffer swap
+# and GL context teardown. Intercept only those stable SDL boundaries. Legacy
+# sessions pass through unchanged; FOTBILER_UI_MODERN_SESSION activates RmlUi.
 set_property(SOURCE
   ${PROJECT_SOURCE_DIR}/src/systems/graphics/rendering/opengl_renderer3d.cpp
   APPEND PROPERTY COMPILE_DEFINITIONS
@@ -96,6 +96,7 @@ set_property(SOURCE
     SDL_DestroyWindow=FotbilerSDLDestroyWindow
     SDL_PollEvent=FotbilerSDLPollEvent
     SDL_GL_SwapWindow=FotbilerSDLGLSwapWindow
+    SDL_GL_DeleteContext=FotbilerSDLGLDeleteContext
 )
 
 # gameplayfootball is created later in the parent CMakeLists. Make the bridge
