@@ -31,6 +31,17 @@ enum class ScreenId {
   CompetitionDetails,
   CalendarDetails,
   MatchDetails,
+  RuntimeSettings,
+  PauseMenu,
+  MatchStats,
+  TeamManagement,
+  ControllerSelectModern,
+  CameraSettings,
+  VisualSettings,
+  ReplayModern,
+  Halftime,
+  Fulltime,
+  MatchHud,
 };
 
 struct ScreenRoute {
@@ -106,8 +117,8 @@ public:
   }
 
 private:
-  static const std::array<ScreenRoute, 20>& Routes() {
-    static constexpr std::array<ScreenRoute, 20> routes = {{
+  static const std::array<ScreenRoute, 31>& Routes() {
+    static constexpr std::array<ScreenRoute, 31> routes = {{
         {ScreenId::MainMenu, "main-menu", "media/ui/fotbiler/main_menu.rml"},
         {ScreenId::CareerModeSelect, "career-mode-select", "media/ui/fotbiler/mode_select.rml"},
         {ScreenId::MatchSetup, "match-setup", "media/ui/fotbiler/match_setup.rml"},
@@ -128,6 +139,17 @@ private:
         {ScreenId::CompetitionDetails, "competition-details", "media/ui/fotbiler/competition_details.rml"},
         {ScreenId::CalendarDetails, "calendar-details", "media/ui/fotbiler/calendar_details.rml"},
         {ScreenId::MatchDetails, "match-details", "media/ui/fotbiler/match_details.rml"},
+        {ScreenId::RuntimeSettings, "runtime-settings", "media/ui/fotbiler/runtime_settings.rml"},
+        {ScreenId::PauseMenu, "pause-menu", "media/ui/fotbiler/pause_menu.rml"},
+        {ScreenId::MatchStats, "match-stats", "media/ui/fotbiler/match_stats.rml"},
+        {ScreenId::TeamManagement, "team-management", "media/ui/fotbiler/team_management.rml"},
+        {ScreenId::ControllerSelectModern, "controller-select-modern", "media/ui/fotbiler/controller_select_modern.rml"},
+        {ScreenId::CameraSettings, "camera-settings", "media/ui/fotbiler/camera_settings.rml"},
+        {ScreenId::VisualSettings, "visual-settings", "media/ui/fotbiler/visual_settings.rml"},
+        {ScreenId::ReplayModern, "replay-modern", "media/ui/fotbiler/replay_modern.rml"},
+        {ScreenId::Halftime, "halftime", "media/ui/fotbiler/halftime.rml"},
+        {ScreenId::Fulltime, "fulltime", "media/ui/fotbiler/fulltime.rml"},
+        {ScreenId::MatchHud, "match-hud", "media/ui/fotbiler/match_hud.rml"},
     }};
     return routes;
   }
