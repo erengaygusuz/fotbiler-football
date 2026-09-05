@@ -104,11 +104,11 @@ add_executable(gameplayfootball_career_tests
   ${PROJECT_SOURCE_DIR}/src/data/draftdata.cpp
   ${PROJECT_SOURCE_DIR}/src/data/scoutingdata.cpp
   ${PROJECT_SOURCE_DIR}/src/menu/career/career_board.cpp
-  ${PROJECT_SOURCE_DIR}/src/menu/career/career_common.cpp
+  ${PROJECT_SOURCE_DIR}/src/core/career/career_common.cpp
   ${PROJECT_SOURCE_DIR}/src/menu/career/career_database.cpp
   ${PROJECT_SOURCE_DIR}/src/menu/career/career_finance.cpp
   ${PROJECT_SOURCE_DIR}/src/menu/career/career_persistence.cpp
-  ${PROJECT_SOURCE_DIR}/src/menu/career/career_sim.cpp
+  ${PROJECT_SOURCE_DIR}/src/core/career/career_sim.cpp
   ${PROJECT_SOURCE_DIR}/src/menu/career/career_sponsors.cpp
   ${PROJECT_SOURCE_DIR}/src/menu/career/career_staff.cpp
   ${PROJECT_SOURCE_DIR}/src/menu/career/career_training.cpp
