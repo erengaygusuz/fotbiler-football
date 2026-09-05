@@ -223,3 +223,28 @@ body {
   transform: translateY(-2px);
   border-color: #ffffff;
 }
+
+/* M1A.3: dark card modifier used for high-emphasis information surfaces. */
+.ui-card-dark,
+.career-news,
+.selected-player-card,
+.negotiation-card,
+.finance-card,
+.competitions-card,
+.stats-card,
+.identity-card {
+  background-color: #17334a;
+  border-color: #17334a;
+  color: #ffffff;
+}
+
+.ui-card-dark .card-kicker,
+.career-news .card-kicker,
+.selected-player-card .card-kicker,
+.negotiation-card .card-kicker,
+.finance-card .card-kicker,
+.competitions-card .card-kicker,
+.stats-card .card-kicker,
+.identity-card .card-kicker {
+  color: #a9bbc6;
+}
