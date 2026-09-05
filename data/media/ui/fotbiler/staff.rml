@@ -14,6 +14,7 @@
         <div class="career-status"><div class="status-block"><div class="status-label">STAFF</div><div id="staff-count" class="status-value">8</div></div><div class="status-block date-block"><div class="status-label">PAYROLL</div><div id="staff-payroll" class="status-value">€730K</div></div></div>
       </div>
       <div class="career-tabs"><div class="career-tab" tabindex="0" data-route="career-central">CENTRAL</div><div class="career-tab" tabindex="0" data-route="squad">SQUAD</div><div class="career-tab" tabindex="0" data-route="transfers">TRANSFERS</div><div class="career-tab active" tabindex="0" data-route="office">OFFICE</div><div class="career-tab" tabindex="0" data-route="season">SEASON</div></div>
+      <div class="career-detail-nav"><div class="career-detail-nav-item" tabindex="0" data-route="inbox">INBOX</div><div class="career-detail-nav-item" tabindex="0" data-route="finances">FINANCES</div><div class="career-detail-nav-item" tabindex="0" data-route="contracts">CONTRACTS</div><div class="career-detail-nav-item active" tabindex="0" data-route="staff">STAFF</div></div>
 
       <div class="career-detail-content">
         <div class="career-detail-main">
