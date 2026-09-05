@@ -1,6 +1,8 @@
 #include "loadingmatch.hpp"
 
+#include <cstdlib>
 #include <filesystem>
+#include <string>
 
 #include "../pagefactory.hpp"
 #include "main.hpp"
@@ -12,6 +14,11 @@ using namespace blunted;
 namespace {
 
 const char* kLoadingFallbackLogo = "media/menu/league.png";
+
+bool ModernUiSessionActive() {
+  const char* session = std::getenv("FOTBILER_UI_MODERN_SESSION");
+  return session && session[0] != '\0' && std::string(session) != "0";
+}
 
 std::string ResolveTeamLogo(const TeamData* teamData) {
   const std::string& logoPath = teamData->GetLogoUrl();
@@ -25,9 +32,22 @@ std::string ResolveTeamLogo(const TeamData* teamData) {
 
 LoadingMatchPage::LoadingMatchPage(Gui2WindowManager* windowManager, const Gui2PageData& pageData)
     : Gui2Page(windowManager, pageData) {
-  // logos
+  // LoadingMatch still owns the legacy state transition that creates MatchData.
+  // Modern Fotbiler sessions keep that state-machine responsibility for now,
+  // but must never expose the old Gui2 loading presentation between the RmlUi
+  // loading screen and the 3D match.
   MatchData* matchData = new MatchData(GetMenuTask()->GetTeamID(0), GetMenuTask()->GetTeamID(1));
   GetMenuTask()->SetMatchData(matchData);
+
+  GetMenuTask()->SetActiveJoystickID(0);
+  GetMenuTask()->EnableKeyboard();
+  windowManager->GetPagePath()->Clear();
+  sentStartGameSignal = false;
+
+  if (ModernUiSessionActive()) {
+    return;
+  }
+
   TeamData* teamData1 = matchData->GetTeamData(0);
   TeamData* teamData2 = matchData->GetTeamData(1);
   constexpr float kTeamLogoHeight = 12.5f;
@@ -83,14 +103,7 @@ LoadingMatchPage::LoadingMatchPage(Gui2WindowManager* windowManager, const Gui2P
   logo2->Show();
 
   this->SetFocus();
-
   this->Show();
-
-  GetMenuTask()->SetActiveJoystickID(0);
-  GetMenuTask()->EnableKeyboard();
-  windowManager->GetPagePath()->Clear();
-
-  sentStartGameSignal = false;
 }
 
 LoadingMatchPage::~LoadingMatchPage() {}
@@ -100,8 +113,12 @@ void LoadingMatchPage::Process() {
 
   if (!sentStartGameSignal) {
     sentStartGameSignal = true;
-    // Allow one rendered loading frame before the heavier match setup begins.
-    EnvironmentManager::GetInstance().Pause_ms(100);
+    // Legacy sessions retain a visible loading frame. The modern frontend has
+    // already rendered its own loading transition, so do not insert an extra
+    // 100 ms legacy presentation gap there.
+    if (!ModernUiSessionActive()) {
+      EnvironmentManager::GetInstance().Pause_ms(100);
+    }
     GetMenuTask()->SetMenuAction(e_MenuAction_Game);
   }
 }
