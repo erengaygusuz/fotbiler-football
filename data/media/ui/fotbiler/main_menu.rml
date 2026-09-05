@@ -54,7 +54,7 @@
           </div>
 
           <div class="row utility-row">
-            <div id="tile-settings" class="tile utility first" tabindex="0">
+            <div id="tile-settings" class="tile utility first" tabindex="0" data-route="runtime-settings">
               <div class="tile-kicker">SYSTEM</div>
               <div class="tile-title">SETTINGS</div>
               <div class="tile-copy">Gameplay, controls, video and audio.</div>
