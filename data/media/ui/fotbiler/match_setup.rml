@@ -27,7 +27,7 @@
             <div class="match-setting-row"><span>SEASON</span><strong>SUMMER</strong></div>
             <div class="match-setting-row"><span>REFEREE</span><strong>STRICT</strong></div>
             <span class="match-note">Presentation is ready. The real kick-off action will be connected during M1A.7 integration.</span>
-            <span class="match-action">START MATCH</span>
+            <span class="match-action" tabindex="0" data-action="start-quick-match">START MATCH</span>
           </div>
         </div>
         <div class="match-row match-row-bottom">
@@ -40,8 +40,8 @@
           </div>
           <div class="match-card match-side-bottom" tabindex="0">
             <span class="match-section-kicker">QUICK LINKS</span><span class="match-section-title">BEFORE KICK-OFF</span>
-            <span class="match-action secondary">CHANGE HOME TEAM</span>
-            <span class="match-action secondary">CHANGE AWAY TEAM</span>
+            <span class="match-action secondary" tabindex="0" data-action="change-home-team">CHANGE HOME TEAM</span>
+            <span class="match-action secondary" tabindex="0" data-action="change-away-team">CHANGE AWAY TEAM</span>
           </div>
         </div>
       </div>
