@@ -1,5 +1,7 @@
 #include "menutask.hpp"
 
+#include <cstdlib>
+
 #include "../onthepitch/match.hpp"
 #include "career/career_database.hpp"
 #include "data/careerdata.hpp"
@@ -16,6 +18,15 @@
 #include "visualoptions.hpp"
 
 using namespace blunted;
+
+namespace {
+
+bool FotbilerUiQuickMatchLaunchEnabled() {
+  const char* value = std::getenv("FOTBILER_UI_QUICK_MATCH");
+  return value && value[0] != '\0' && std::string(value) != "0";
+}
+
+}  // namespace
 
 void SetActiveController(int side, bool keyboard) {
   bool keyboardActive = true;
@@ -177,9 +188,12 @@ void MenuTask::ProcessPhase() {
 }
 
 bool MenuTask::QuickStart() {
-  // Keep the normal main-menu flow available in debug builds unless quick-start is explicitly
-  // enabled in the config for local iteration.
-  return !IsReleaseVersion() && GetConfiguration()->GetBool("quick_start", false) &&
+  // The modern Fotbiler UI may hand off directly to the proven legacy match-loading
+  // pipeline. Keep the old config-only quick-start for local debug iteration as well.
+  const bool uiHandoff = FotbilerUiQuickMatchLaunchEnabled();
+  const bool developerQuickStart =
+      !IsReleaseVersion() && GetConfiguration()->GetBool("quick_start", false);
+  return (uiHandoff || developerQuickStart) &&
          EnvironmentManager::GetInstance().GetTime_ms() <
              10000;  // after 10 seconds, quickstart disabled
 }
