@@ -58,19 +58,42 @@ if(UNIX AND NOT APPLE)
   target_link_libraries(fotbiler_rmlui PRIVATE dl m)
 endif()
 
-# Preserve the display/window placement as Fotbiler transitions between the
-# modern frontend and the 3D runtime during the migration. The wrapper is
-# deliberately target-scoped so third-party SDL/RmlUi targets and test-only
-# binaries are not affected.
+# Small target-independent SDL bridge used while the RmlUi frontend and the
+# legacy renderer still own separate windows. The preview records its display
+# when it closes; OpenGLRenderer3D consumes that placement for the match window.
+add_library(fotbiler_sdl_window_bridge STATIC
+  ${PROJECT_SOURCE_DIR}/src/platform/fotbiler_sdl_window_bridge.cpp
+)
+target_compile_features(fotbiler_sdl_window_bridge PRIVATE cxx_std_17)
+target_include_directories(fotbiler_sdl_window_bridge PRIVATE ${SDL2_INCLUDE_DIR})
+if(GF_SDL2_TARGET)
+  target_link_libraries(fotbiler_sdl_window_bridge PRIVATE ${GF_SDL2_TARGET})
+elseif(SDL2_LIBRARIES)
+  target_link_libraries(fotbiler_sdl_window_bridge PRIVATE ${SDL2_LIBRARIES})
+endif()
+
 function(fotbiler_enable_sdl_window_bridge target)
-  target_sources(${target} PRIVATE
-    ${PROJECT_SOURCE_DIR}/src/platform/fotbiler_sdl_window_bridge.cpp
-  )
   target_compile_definitions(${target} PRIVATE
     SDL_CreateWindow=FotbilerSDLCreateWindow
     SDL_DestroyWindow=FotbilerSDLDestroyWindow
   )
+  target_link_libraries(${target} PRIVATE fotbiler_sdl_window_bridge)
 endfunction()
+
+# OpenGLRenderer3D is compiled later as part of systemsgraphicslib. Apply the
+# wrapper only to the translation unit that owns the production SDL window;
+# this avoids leaking the macro into unrelated engine/test code.
+set_property(SOURCE
+  ${PROJECT_SOURCE_DIR}/src/systems/graphics/rendering/opengl_renderer3d.cpp
+  APPEND PROPERTY COMPILE_DEFINITIONS
+    SDL_CreateWindow=FotbilerSDLCreateWindow
+    SDL_DestroyWindow=FotbilerSDLDestroyWindow
+)
+
+# gameplayfootball is created later in the parent CMakeLists. Make the bridge
+# available to subsequently-created executables so the wrapped renderer symbol
+# resolves without coupling the legacy renderer library to RmlUi itself.
+link_libraries(fotbiler_sdl_window_bridge)
 
 # Standalone 2D UI lab. It intentionally uses the same RmlUiSystem and assets
 # as the game, but creates its own SDL/OpenGL window so FIFA-era menu design can
