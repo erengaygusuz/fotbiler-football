@@ -8,7 +8,7 @@ set(RMLUI_SAMPLES OFF CACHE BOOL "" FORCE)
 set(RMLUI_LUA_BINDINGS OFF CACHE BOOL "" FORCE)
 set(RMLUI_LOTTIE_PLUGIN OFF CACHE BOOL "" FORCE)
 set(RMLUI_SVG_PLUGIN OFF CACHE BOOL "" FORCE)
-set(RMLUI_HARFBUZZ_SAMPLE OFF CACHE STRING "" FORCE)
+set(RMLUI_HARFBUZZ_SAMPLE OFF CACHE BOOL "" FORCE)
 set(RMLUI_FONT_ENGINE freetype CACHE STRING "" FORCE)
 
 FetchContent_Declare(
@@ -63,9 +63,9 @@ if(UNIX AND NOT APPLE)
   target_link_libraries(fotbiler_rmlui PRIVATE dl m)
 endif()
 
-# Reusable modern frontend host. Its career persistence dependency is attached
-# later, after the parent CMakeLists has created menulib, so target ordering is
-# explicit and static-link resolution stays deterministic.
+# Reusable modern frontend host. menulib is declared later by the parent
+# CMakeLists; CMake resolves the target at generation and carries the real
+# career persistence implementation into the production link graph.
 add_library(fotbiler_single_process_frontend STATIC
   ${PROJECT_SOURCE_DIR}/src/presentation/ui/rmlui/single_process_frontend.cpp
   ${PROJECT_SOURCE_DIR}/src/presentation/ui/rmlui/single_process_frontend.hpp
@@ -78,7 +78,7 @@ target_include_directories(fotbiler_single_process_frontend PRIVATE
 )
 target_link_libraries(fotbiler_single_process_frontend
   PUBLIC fotbiler_rmlui
-  PRIVATE SQLite::SQLite3
+  PRIVATE SQLite::SQLite3 menulib
 )
 if(FOTBILER_BASE_SDL2_TARGET)
   target_link_libraries(fotbiler_single_process_frontend PRIVATE ${FOTBILER_BASE_SDL2_TARGET})
