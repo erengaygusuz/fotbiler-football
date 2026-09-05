@@ -45,3 +45,7 @@ body { font-family: "Fotbiler Sans"; }
 /* M1A.3: reusable table container and header structure. */
 .ui-table { width: 100%; }
 .ui-table-head, .table-head, .list-head, .shortlist-head, .season-table-head { display: flex; width: 100%; box-sizing: border-box; color: #81919b; border-bottom-width: 1px; border-bottom-color: #d4dbdf; }
+
+/* M1A.3: reusable table row structure. */
+.ui-table-row, .table-row, .list-row, .shortlist-row, .season-table-row, .instruction-row { display: flex; width: 100%; box-sizing: border-box; border-bottom-width: 1px; border-bottom-color: #e1e6e8; }
+.ui-table-row { padding: 7px 5px; font-size: 11px; }
