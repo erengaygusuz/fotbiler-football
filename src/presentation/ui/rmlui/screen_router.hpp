@@ -1,0 +1,116 @@
+#ifndef FOTBILER_SCREEN_ROUTER_HPP
+#define FOTBILER_SCREEN_ROUTER_HPP
+
+#include <array>
+#include <functional>
+#include <optional>
+#include <string>
+#include <string_view>
+#include <vector>
+
+namespace blunted::ui {
+
+enum class ScreenId {
+  MainMenu,
+  CareerCentral,
+  Squad,
+  Transfers,
+  Office,
+  Season,
+  Tactics,
+};
+
+struct ScreenRoute {
+  ScreenId id;
+  std::string_view name;
+  std::string_view documentPath;
+};
+
+class ScreenRouter {
+public:
+  using DocumentLoader = std::function<bool(const std::string&)>;
+
+  explicit ScreenRouter(DocumentLoader loader) : loader(std::move(loader)) {}
+
+  bool Navigate(ScreenId target) {
+    if (current && *current == target) {
+      return true;
+    }
+
+    const ScreenRoute* route = FindRoute(target);
+    if (!route || !loader || !loader(std::string(route->documentPath))) {
+      return false;
+    }
+
+    if (current) {
+      history.push_back(*current);
+    }
+    current = target;
+    return true;
+  }
+
+  bool NavigateByName(std::string_view name) {
+    const ScreenRoute* route = FindRoute(name);
+    return route ? Navigate(route->id) : false;
+  }
+
+  bool Back() {
+    if (history.empty() || !loader) {
+      return false;
+    }
+
+    const ScreenId target = history.back();
+    history.pop_back();
+    const ScreenRoute* route = FindRoute(target);
+    if (!route || !loader(std::string(route->documentPath))) {
+      history.push_back(target);
+      return false;
+    }
+
+    current = target;
+    return true;
+  }
+
+  std::optional<ScreenId> Current() const { return current; }
+  bool CanGoBack() const { return !history.empty(); }
+
+  static const ScreenRoute* FindRoute(ScreenId id) {
+    for (const ScreenRoute& route : Routes()) {
+      if (route.id == id) {
+        return &route;
+      }
+    }
+    return nullptr;
+  }
+
+  static const ScreenRoute* FindRoute(std::string_view name) {
+    for (const ScreenRoute& route : Routes()) {
+      if (route.name == name) {
+        return &route;
+      }
+    }
+    return nullptr;
+  }
+
+private:
+  static const std::array<ScreenRoute, 7>& Routes() {
+    static constexpr std::array<ScreenRoute, 7> routes = {{
+        {ScreenId::MainMenu, "main-menu", "media/ui/fotbiler/main_menu.rml"},
+        {ScreenId::CareerCentral, "career-central", "media/ui/fotbiler/career_central.rml"},
+        {ScreenId::Squad, "squad", "media/ui/fotbiler/squad.rml"},
+        {ScreenId::Transfers, "transfers", "media/ui/fotbiler/transfers.rml"},
+        {ScreenId::Office, "office", "media/ui/fotbiler/office.rml"},
+        {ScreenId::Season, "season", "media/ui/fotbiler/season.rml"},
+        {ScreenId::Tactics, "tactics", "media/ui/fotbiler/tactics.rml"},
+    }};
+    return routes;
+  }
+
+  DocumentLoader loader;
+  std::optional<ScreenId> current;
+  std::vector<ScreenId> history;
+};
+
+}  // namespace blunted::ui
+
+#endif  // FOTBILER_SCREEN_ROUTER_HPP
