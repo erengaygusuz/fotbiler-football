@@ -119,6 +119,24 @@ body {
   border-bottom-color: var(--accent);
 }
 
+/* data-route is the common navigation contract used by mouse, keyboard and controller input. */
+[data-route] {
+  nav: auto;
+}
+
+.tab[data-route]:focus {
+  color: var(--white);
+  border-bottom-width: 4px;
+  border-bottom-color: var(--accent);
+}
+
+.career-tab[data-route]:focus,
+.tactics-subtab[data-route]:focus {
+  color: #ffffff;
+  border-bottom-width: 4px;
+  border-bottom-color: #19d3b1;
+}
+
 .content {
   display: flex;
   width: 100%;
