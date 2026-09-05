@@ -15,7 +15,6 @@ namespace {
 
 constexpr float kControllerThumbnailAspectRatio = 300.0f / 200.0f;
 constexpr float kControllerThumbnailHeight = 10.0f;
-
 constexpr unsigned long kMenuSmokeAdvanceDelay_ms = 250;
 
 bool MenuSmokeQuickMatchEnabled() {
@@ -45,8 +44,8 @@ Gui2Caption* AddControllerSelectNotice(Gui2Page* page, Gui2WindowManager* window
 }
 
 Gui2Button* AddControllerSelectBackButton(Gui2Page* page, Gui2WindowManager* windowManager,
-                                          const std::string& name, float yPercent = 72.0f) {
-  Gui2Button* backButton = new Gui2Button(windowManager, name, 38, yPercent, 24, 3,
+                                          const std::string& name, float yPercent = 86.0f) {
+  Gui2Button* backButton = new Gui2Button(windowManager, name, 38, yPercent, 24, 3.8f,
                                           Localization::GetInstance().Translate("action_back"));
   backButton->sig_OnClick.connect([page](...) { page->GoBack(); });
   page->AddView(backButton);
@@ -63,33 +62,48 @@ ControllerSelectPage::ControllerSelectPage(Gui2WindowManager* windowManager,
       autoAdvanceTriggered(false) {
   inGame = pageData.properties->GetBool("isInGame");
 
-  // Elegant semi-transparent background frame
   Gui2Frame* ctrlFrame =
-      new Gui2Frame(windowManager, "frame_controllerselect", 10, 5, 80, 85, true);
+      new Gui2Frame(windowManager, "frame_controllerselect", 6, 5, 88, 88, true);
   this->AddView(ctrlFrame);
   ctrlFrame->Show();
 
+  Gui2Caption* kicker = new Gui2Caption(windowManager, "caption_controllerselect_kicker", 3, 2, 82,
+                                        2.3f, inGame ? "MATCHDAY  ·  CONTROLS" : "KICK OFF  ·  CONTROLS");
+  kicker->SetColor(windowManager->GetStyle()->GetColor(e_DecorationType_Bright2));
+  ctrlFrame->AddView(kicker);
+  kicker->Show();
+
+  Gui2Caption* title = new Gui2Caption(windowManager, "caption_controllerselect_title", 3, 5, 82,
+                                       4, "SELECT SIDES");
+  ctrlFrame->AddView(title);
+  title->Show();
+
+  Gui2Caption* subtitle = new Gui2Caption(windowManager, "caption_controllerselect_subtitle", 3, 9,
+                                          82, 2.4f,
+                                          "Move each input device between Home, Neutral and Away.");
+  ctrlFrame->AddView(subtitle);
+  subtitle->Show();
+
+  Gui2Frame* sidesPanel = new Gui2Frame(windowManager, "frame_controllerselect_sides", 3, 15, 82, 58,
+                                        true);
+  ctrlFrame->AddView(sidesPanel);
+  sidesPanel->Show();
+
   Gui2Caption* t1 =
-      new Gui2Caption(windowManager, "caption_controllerselect_t1", 0, 0, 28, 3, TR("ctrl_home"));
-  Gui2Caption* t2 =
-      new Gui2Caption(windowManager, "caption_controllerselect_t2", 0, 0, 28, 3, TR("ctrl_away"));
+      new Gui2Caption(windowManager, "caption_controllerselect_t1", 2, 3, 24, 3, "HOME");
   Gui2Caption* tNeutral =
-      new Gui2Caption(windowManager, "caption_controllerselect_tn", 0, 0, 28, 3, TR("ctrl_unassigned"));
-
-  t1->SetPosition(25 - t1->GetTextWidthPercent() * 0.5, 10);
-  t2->SetPosition(75 - t2->GetTextWidthPercent() * 0.5, 10);
-  tNeutral->SetPosition(50 - tNeutral->GetTextWidthPercent() * 0.5, 10);
-
+      new Gui2Caption(windowManager, "caption_controllerselect_tn", 29, 3, 24, 3, "NEUTRAL");
+  Gui2Caption* t2 =
+      new Gui2Caption(windowManager, "caption_controllerselect_t2", 56, 3, 24, 3, "AWAY");
   t1->SetColor(windowManager->GetStyle()->GetColor(e_DecorationType_Bright2));
   t2->SetColor(windowManager->GetStyle()->GetColor(e_DecorationType_Bright2));
   tNeutral->SetColor(windowManager->GetStyle()->GetColor(e_DecorationType_Dark2));
-
-  ctrlFrame->AddView(t1);
+  sidesPanel->AddView(t1);
+  sidesPanel->AddView(tNeutral);
+  sidesPanel->AddView(t2);
   t1->Show();
-  ctrlFrame->AddView(t2);
-  t2->Show();
-  ctrlFrame->AddView(tNeutral);
   tNeutral->Show();
+  t2->Show();
 
   this->SetFocus();
 
@@ -106,18 +120,13 @@ ControllerSelectPage::ControllerSelectPage(Gui2WindowManager* windowManager,
     return;
   }
 
-  if (inGame) {
-    sides = GetMenuTask()->GetControllerSetup();
-  }
+  if (inGame) sides = GetMenuTask()->GetControllerSetup();
   for (unsigned int i = 0; i < controllers.size(); i++) {
     SideSelection side;
     side.controllerID = i;
     if (inGame && i < sides.size()) {
       side.side = sides.at(i).side;
     } else {
-      // Always start on No Team (side 0): no device should auto-participate.
-      // Only the first gamepad is auto-selected as Player 1; the keyboard never
-      // is, so it is not forced into every match (think gamepad-only testing).
       side.side = 0;
       if (!autoAssignedPlayerOne && controllers.at(i)->GetDeviceType() == e_HIDeviceType_Gamepad) {
         side.side = -1;
@@ -135,38 +144,28 @@ ControllerSelectPage::ControllerSelectPage(Gui2WindowManager* windowManager,
       side.controllerImage->LoadImage("media/menu/controller/keyboard_small.png");
     }
     side.controllerImage->Show();
-    if (!inGame || i >= sides.size())
-      sides.push_back(side);
-    else
-      sides.at(i) = side;
+    if (!inGame || i >= sides.size()) sides.push_back(side);
+    else sides.at(i) = side;
     delay.push_back(0);
   }
 
-  if (sides.size() > controllers.size()) {
-    sides.resize(controllers.size());
-  }
-
+  if (sides.size() > controllers.size()) sides.resize(controllers.size());
   SetImagePositions();
 
   Gui2Caption* hintGamepad = new Gui2Caption(
-      windowManager, "caption_ctrl_hint_gp", 5, 72.0f, 70, 2.0f, TR("ctrl_hint_gamepad"));
+      windowManager, "caption_ctrl_hint_gp", 3, 77.0f, 80, 2.0f, TR("ctrl_hint_gamepad"));
   hintGamepad->SetColor(windowManager->GetStyle()->GetColor(e_DecorationType_Bright2));
   ctrlFrame->AddView(hintGamepad);
   hintGamepad->Show();
 
   Gui2Caption* hintKbd = new Gui2Caption(
-      windowManager, "caption_ctrl_hint_kbd", 5, 75.0f, 70, 2.0f, TR("ctrl_hint_keyboard"));
-  hintKbd->SetColor(windowManager->GetStyle()->GetColor(e_DecorationType_Bright2));
+      windowManager, "caption_ctrl_hint_kbd", 3, 80.0f, 80, 2.0f, TR("ctrl_hint_keyboard"));
   ctrlFrame->AddView(hintKbd);
   hintKbd->Show();
 
   Gui2Button* backButton =
-      AddControllerSelectBackButton(this, windowManager, "button_controllerselect_back", 88.0f);
-  if (!MenuSmokeAutoQuickMatchEnabled()) {
-    // Keep focus on the page for side selection; Back remains clickable.
-    (void)backButton;
-  }
-
+      AddControllerSelectBackButton(this, windowManager, "button_controllerselect_back", 90.0f);
+  (void)backButton;
   this->Show();
 }
 
@@ -181,9 +180,6 @@ void ControllerSelectPage::ConfirmSelection() {
 
     if (MenuSmokeFullMatchEnabled()) {
       if (MenuSmokeGamepadMatchEnabled()) {
-        // "gamepad controls" smoke: the scripted controller is Player 1, the
-        // other team is CPU. This drives the real HumanController path from a
-        // scripted HID device for the whole match.
         const std::vector<IHIDevice*>& controllers = GetControllers();
         for (auto& side : sides) {
           bool scripted = side.controllerID >= 0 &&
@@ -192,15 +188,11 @@ void ControllerSelectPage::ConfirmSelection() {
           side.side = scripted ? -1 : 0;
         }
         SetImagePositions();
-        printf(
-            "[menu-smoke] Controller select: scripted gamepad drives Player 1, other team CPU\n");
+        printf("[menu-smoke] Controller select: scripted gamepad drives Player 1, other team CPU\n");
       } else {
-        for (auto& side : sides) {
-          side.side = 0;
-        }
+        for (auto& side : sides) side.side = 0;
         SetImagePositions();
-        printf(
-            "[menu-smoke] Controller select switched to CPU vs CPU for full-match verification\n");
+        printf("[menu-smoke] Controller select switched to CPU vs CPU for full-match verification\n");
       }
     }
 
@@ -215,7 +207,7 @@ void ControllerSelectPage::SetImagePositions() {
     const float controllerImageWidth = windowManager->GetWidthPercentForHeight(
         kControllerThumbnailHeight, kControllerThumbnailAspectRatio);
     const float centerX = 50.0f + sides.at(i).side * 25.0f;
-    sides.at(i).controllerImage->SetPosition(centerX - controllerImageWidth * 0.5f, 20 + i * 15);
+    sides.at(i).controllerImage->SetPosition(centerX - controllerImageWidth * 0.5f, 28 + i * 14);
   }
 }
 
@@ -223,38 +215,20 @@ void ControllerSelectPage::Process() {
   Gui2Page::Process();
 
   if (!autoAdvanceTriggered && MenuSmokeAutoQuickMatchEnabled() && !inGame &&
-      EnvironmentManager::GetInstance().GetTime_ms() >=
-          pageCreatedTime_ms + kMenuSmokeAdvanceDelay_ms) {
+      EnvironmentManager::GetInstance().GetTime_ms() >= pageCreatedTime_ms + kMenuSmokeAdvanceDelay_ms) {
     autoAdvanceTriggered = true;
     ConfirmSelection();
-    // ConfirmSelection() transitions to the next page via CreatePage(), which
-    // does `delete this` (see Gui2Page::CreatePage). We must not touch any
-    // member of this page after that point, so stop here instead of falling
-    // through to the input-polling loop below — doing so was a use-after-free
-    // that deterministically segfaulted the headless smoke tests on Linux.
     return;
   }
 
-  // Move the side selection by polling each device's HID state directly here in
-  // Process(). This is deliberate: input must not depend on GUI focus (the
-  // keyboard otherwise stays stuck on its default side when focus is held by
-  // another widget), and it must not depend on SDL event delivery (a still
-  // gamepad in a deadzone generates no joystick events). Polling every device
-  // each frame puts the keyboard and every gamepad on equal, focus-independent
-  // footing.
   const std::vector<IHIDevice*>& controllers = GetControllers();
-  if (controllers.empty() || sides.empty() || delay.empty()) {
-    return;
-  }
+  if (controllers.empty() || sides.empty() || delay.empty()) return;
   unsigned long now_ms = EnvironmentManager::GetInstance().GetTime_ms();
   for (unsigned int i = 0; i < controllers.size() && i < sides.size() && i < delay.size(); i++) {
-    if (delay.at(i) >= now_ms - 250) {
-      continue;
-    }
+    if (delay.at(i) >= now_ms - 250) continue;
 
     IHIDevice* controller = controllers.at(i);
     bool moved = false;
-
     if (controller->GetDeviceType() == e_HIDeviceType_Keyboard) {
       HIDKeyboard* keyboard = static_cast<HIDKeyboard*>(controller);
       if (keyboard->GetButtonValue(e_ButtonFunction_Left) > 0.5) {
@@ -265,9 +239,6 @@ void ControllerSelectPage::Process() {
         sides.at(i).side += 1;
         moved = true;
       }
-      // One-keystroke hotkeys: jump straight to a team instead of tapping arrows.
-      // "1" = Team 1, "2" = Team 2. Most useful for keyboard-only players who now
-      // start on No Team by default.
       if (UserEventManager::GetInstance().GetKeyboardState(SDLK_1)) {
         sides.at(i).side = -1;
         moved = true;
@@ -304,21 +275,11 @@ void ControllerSelectPage::Process() {
       delay.at(i) = now_ms;
     }
   }
-
   SetImagePositions();
 }
 
-void ControllerSelectPage::ProcessKeyboardEvent(KeyboardEvent* event) {
-  // Keyboard side selection is handled by polling the HID state in Process() so
-  // that it works regardless of GUI focus. Nothing to do with the event itself.
-  (void)event;
-}
-
-void ControllerSelectPage::ProcessJoystickEvent(JoystickEvent* event) {
-  // Gamepad side selection is also handled by polling in Process(), exactly
-  // like the keyboard, so it does not rely on joystick events being delivered.
-  (void)event;
-}
+void ControllerSelectPage::ProcessKeyboardEvent(KeyboardEvent* event) { (void)event; }
+void ControllerSelectPage::ProcessJoystickEvent(JoystickEvent* event) { (void)event; }
 
 void ControllerSelectPage::ProcessWindowingEvent(WindowingEvent* event) {
   if (event->IsActivate()) {
@@ -328,7 +289,6 @@ void ControllerSelectPage::ProcessWindowingEvent(WindowingEvent* event) {
         return;
       }
       GetMenuTask()->SetControllerSetup(sides);
-
       CreatePage(e_PageID_TeamSelect);
       return;
     }
