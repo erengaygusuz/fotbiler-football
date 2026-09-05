@@ -9,6 +9,7 @@ namespace blunted::ui::runtime {
 
 enum class Screen : int {
   None = 0,
+  Loading,
   Pause,
   MatchStats,
   TeamManagement,
