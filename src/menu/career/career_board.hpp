@@ -1,20 +1,8 @@
-#ifndef CAREER_BOARD_HPP
-#define CAREER_BOARD_HPP
+#ifndef CAREER_BOARD_COMPAT_HPP
+#define CAREER_BOARD_COMPAT_HPP
 
-#include "../../data/careerdata.hpp"
-#include "career_common.hpp"
+// Transitional compatibility include for legacy menu/career consumers.
+// New code should include "core/career/career_board.hpp" directly.
+#include "core/career/career_board.hpp"
 
-namespace blunted {
-namespace CareerBoard {
-
-// Seeds the default board objectives for the upcoming season.
-void GenerateBoardObjectives(CareerSave& save);
-
-// Evaluates the board objectives against the current season and applies the
-// reputation / confidence consequences.
-void EvaluateBoardObjectives(CareerSave& save, CareerCommon::CareerEvents& events);
-
-}  // namespace CareerBoard
-}  // namespace blunted
-
-#endif  // CAREER_BOARD_HPP
+#endif  // CAREER_BOARD_COMPAT_HPP
