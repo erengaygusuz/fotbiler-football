@@ -1,0 +1,38 @@
+<rml>
+<head>
+  <title>Camera Settings</title>
+  <link type="text/rcss" href="theme.rcss" />
+  <link type="text/rcss" href="runtime_shell.rcss" />
+</head>
+<body>
+  <div class="runtime-screen">
+    <div class="runtime-bg-blue"></div><div class="runtime-bg-light"></div><div class="runtime-bg-pink"></div>
+    <div class="runtime-shell">
+      <div class="runtime-topbar"><div class="runtime-brand"><span class="runtime-brand-mark">F</span>OTBILER FOOTBALL</div><div class="runtime-meta">SETTINGS · CAMERA</div></div>
+      <div class="runtime-heading"><div class="runtime-kicker">MATCH PRESENTATION</div><div class="runtime-title">CAMERA SETTINGS</div><div class="runtime-subtitle">Tune match framing without changing gameplay.</div></div>
+      <div class="runtime-content">
+        <div class="runtime-column-main">
+          <div class="runtime-card dark" style="height:100%;">
+            <div class="runtime-card-kicker">MATCH CAMERA</div><div class="runtime-card-title">TELE BROADCAST</div>
+            <div class="runtime-row" tabindex="0" autofocus data-action="cycle-camera-type"><div class="runtime-label">CAMERA TYPE</div><div class="runtime-value">TELE BROADCAST</div></div>
+            <div class="runtime-row" tabindex="0" data-action="cycle-camera-height"><div class="runtime-label">HEIGHT</div><div class="runtime-value">12</div></div>
+            <div class="runtime-row" tabindex="0" data-action="cycle-camera-zoom"><div class="runtime-label">ZOOM</div><div class="runtime-value">8</div></div>
+            <div class="runtime-row" tabindex="0" data-action="toggle-camera-follow"><div class="runtime-label">BALL TRACKING</div><div class="runtime-value">BALANCED</div></div>
+            <div class="runtime-row" tabindex="0" data-action="toggle-camera-shake"><div class="runtime-label">CAMERA SHAKE</div><div class="runtime-value">LOW</div></div>
+          </div>
+        </div>
+        <div class="runtime-column-side">
+          <div class="runtime-card" style="height:100%;">
+            <div class="runtime-card-kicker">PREVIEW</div><div class="runtime-card-title">PITCH FRAMING</div>
+            <div style="height:180px; background-color:#2f805c; margin-bottom:16px;"><div class="runtime-center" style="padding-top:78px; color:#dcefe5;">CAMERA PREVIEW</div></div>
+            <div class="runtime-row"><div class="runtime-label">HORIZON</div><div class="runtime-value">WIDE</div></div>
+            <div class="runtime-row"><div class="runtime-label">PLAYER SCALE</div><div class="runtime-value">MEDIUM</div></div>
+            <div class="runtime-nav-item" tabindex="0" data-action="reset-camera">RESET DEFAULTS</div>
+          </div>
+        </div>
+      </div>
+      <div class="runtime-footer"><div><span class="runtime-hint"><span class="runtime-key">ENTER</span>Change</span><span class="runtime-hint"><span class="runtime-key">ESC</span>Back</span></div><div>M1C · CAMERA</div></div>
+    </div>
+  </div>
+</body>
+</rml>
