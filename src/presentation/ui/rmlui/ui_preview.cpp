@@ -8,6 +8,9 @@
 #include <cstdio>
 #include <string>
 
+#include "presentation/ui/rmlui/career_ui_binder.hpp"
+#include "presentation/ui/rmlui/career_ui_preview_data.hpp"
+#include "presentation/ui/rmlui/career_ui_view_model.hpp"
 #include "presentation/ui/rmlui/rmlui_system.hpp"
 #include "presentation/ui/rmlui/screen_router.hpp"
 
@@ -141,8 +144,17 @@ int main() {
     return 1;
   }
 
-  blunted::ui::ScreenRouter router(
-      [&ui](const std::string& path) { return LoadPreviewDocument(ui, path); });
+  const CareerSave previewSave = blunted::ui::BuildCareerPreviewSave();
+  const blunted::ui::CareerUiViewModel careerView =
+      blunted::ui::BuildCareerUiViewModel(previewSave);
+
+  blunted::ui::ScreenRouter router([&ui, &careerView](const std::string& path) {
+    if (!LoadPreviewDocument(ui, path)) {
+      return false;
+    }
+    blunted::ui::BindCareerUiViewModel(ui, careerView);
+    return true;
+  });
   if (!router.Navigate(blunted::ui::ScreenId::MainMenu)) {
     ui.Shutdown();
     SDL_GL_DeleteContext(glContext);
