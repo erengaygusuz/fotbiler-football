@@ -2,6 +2,7 @@
 <head>
   <title>Fotbiler Football</title>
   <link type="text/rcss" href="theme.rcss" />
+  <link type="text/rcss" href="confirmation_modal.rcss" />
 </head>
 <body>
   <div class="screen">
@@ -72,9 +73,22 @@
         <div class="footer-left">
           <span class="hint"><span class="hint-key">ENTER</span> Select</span>
           <span class="hint"><span class="hint-key">ARROWS</span> Navigate</span>
-          <span class="hint"><span class="hint-key">ESC</span> Back</span>
+          <span class="hint"><span class="hint-key">ESC</span> Exit Game</span>
         </div>
         <div class="footer-right"><span class="version">M1A · FIFA-ERA 2D UI PROTOTYPE</span></div>
+      </div>
+    </div>
+
+    <div id="quit-confirm-overlay" class="confirm-overlay">
+      <div class="confirm-panel">
+        <div class="confirm-kicker">FOTBILER FOOTBALL</div>
+        <div class="confirm-title">QUIT GAME?</div>
+        <div class="confirm-copy">Are you sure you want to quit Fotbiler Football and return to the desktop?</div>
+        <div class="confirm-actions">
+          <div id="quit-confirm-cancel" class="confirm-button" tabindex="0" data-action="cancel-quit-game">CANCEL</div>
+          <div id="quit-confirm-accept" class="confirm-button danger" tabindex="0" data-action="confirm-quit-game">YES, QUIT</div>
+        </div>
+        <div class="confirm-hint">ESC / B &nbsp; Cancel &nbsp;&nbsp;·&nbsp;&nbsp; ENTER / A &nbsp; Select</div>
       </div>
     </div>
   </div>
