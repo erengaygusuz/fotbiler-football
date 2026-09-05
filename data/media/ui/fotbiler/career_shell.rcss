@@ -64,3 +64,11 @@ body { font-family: "Fotbiler Sans"; }
 .ui-progress-fill, .progress-fill { height: 100%; background-color: #19d3b1; }
 .ui-progress-track--dark { background-color: #27495f; }
 .ui-progress-fill--ink { background-color: #10202d; }
+
+/* M1A.3: reusable player chip used by Squad and Tactics boards. */
+.ui-player-chip, .player-node { position: absolute; text-align: center; color: #ffffff; }
+.ui-player-chip__disc, .player-disc { margin-left: auto; margin-right: auto; text-align: center; background-color: #f7f8f9; color: #10202d; font-family: "Fotbiler Display"; border-width: 3px; border-color: #dfe5e9; }
+.ui-player-chip__name, .player-name { display: block; font-family: "Fotbiler Display"; letter-spacing: 0.6px; }
+.ui-player-chip__position, .player-pos { display: block; color: #b4c7d0; letter-spacing: 0.9px; }
+.ui-player-chip--selected .ui-player-chip__disc, .player-node.selected .player-disc { background-color: #19d3b1; border-color: #ffffff; color: #07121f; }
+.ui-player-chip--selected .ui-player-chip__name, .player-node.selected .player-name { color: #19d3b1; }
