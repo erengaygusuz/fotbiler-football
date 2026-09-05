@@ -1,0 +1,32 @@
+<rml>
+<head>
+  <title>Fotbiler Competition Details</title>
+  <link type="text/rcss" href="theme.rcss" />
+  <link type="text/rcss" href="career_shell.rcss" />
+  <link type="text/rcss" href="career_detail.rcss" />
+</head>
+<body>
+  <div class="career-screen">
+    <div class="career-bg-deep"></div><div class="career-bg-blue"></div><div class="career-bg-accent"></div>
+    <div class="career-shell">
+      <div class="career-topbar">
+        <div class="club-identity"><div class="club-crest">F</div><div class="club-copy"><div id="career-club-name" class="club-name">FOTBILER FC</div><div id="career-club-meta" class="club-meta">MANAGER CAREER · SEASON 2026/27</div></div></div>
+        <div class="career-status"><div class="status-block"><div class="status-label">LEAGUE POSITION</div><div id="competition-position" class="status-value">3</div></div><div class="status-block date-block"><div class="status-label">POINTS</div><div id="competition-points" class="status-value">4</div></div></div>
+      </div>
+      <div class="career-tabs"><div class="career-tab" tabindex="0" data-route="career-central">CENTRAL</div><div class="career-tab" tabindex="0" data-route="squad">SQUAD</div><div class="career-tab" tabindex="0" data-route="transfers">TRANSFERS</div><div class="career-tab" tabindex="0" data-route="office">OFFICE</div><div class="career-tab active" tabindex="0" data-route="season">SEASON</div></div>
+
+      <div class="career-detail-content">
+        <div class="career-detail-main">
+          <div class="ui-card career-detail-card top dark" tabindex="0"><div class="card-kicker">COMPETITION</div><div id="competition-name" class="career-detail-title light">FOTBILER PREMIER LEAGUE</div><div class="career-detail-subtitle">Current campaign overview.</div><div class="detail-stat-grid"><div class="detail-stat accent"><span>POSITION</span><strong id="competition-position-copy">3</strong></div><div class="detail-stat"><span>PLAYED</span><strong id="competition-played">2</strong></div><div class="detail-stat"><span>POINTS</span><strong id="competition-points-copy">4</strong></div><div class="detail-stat"><span>WINS</span><strong id="competition-wins">1</strong></div><div class="detail-stat"><span>DRAWS</span><strong id="competition-draws">1</strong></div><div class="detail-stat"><span>LOSSES</span><strong id="competition-losses">0</strong></div></div></div>
+          <div class="ui-card career-detail-card bottom" tabindex="0"><div class="card-kicker">GOAL RECORD</div><div class="career-detail-title">TEAM OUTPUT</div><div class="detail-stat-grid"><div class="detail-stat accent"><span>GOALS FOR</span><strong id="competition-gf">5</strong></div><div class="detail-stat"><span>GOALS AGAINST</span><strong id="competition-ga">2</strong></div><div class="detail-stat"><span>DIFFERENCE</span><strong>+3</strong></div></div></div>
+        </div>
+        <div class="career-detail-side">
+          <div class="ui-card career-detail-card full muted" tabindex="0"><div class="card-kicker">SEASON STATUS</div><div class="career-detail-title">CAMPAIGN PROGRESS</div><div class="detail-hero-number"><span id="competition-progress">8</span>%</div><div class="detail-hero-label">SEASON COMPLETE</div><div class="detail-progress-track"><div class="detail-progress-fill" style="width:8%"></div></div><div class="detail-note">The competition summary is mapped from CareerSave season results. Full multi-club standings will use the live league database during integration.</div><span class="detail-action primary" data-route="season">BACK TO SEASON</span></div>
+        </div>
+      </div>
+
+      <div class="career-control-strip"><div class="control-left"><span class="hint"><span class="hint-key">ENTER</span>Select</span><span class="hint"><span class="hint-key">ARROWS</span>Navigate</span><span class="hint"><span class="hint-key">ESC</span>Back</span></div><div class="control-right">SEASON · COMPETITION</div></div>
+    </div>
+  </div>
+</body>
+</rml>
