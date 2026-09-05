@@ -35,6 +35,15 @@ inline const CareerPlayerView* FindSelectedPlayer(const CareerUiViewModel& view)
   return view.squad.players.empty() ? nullptr : &view.squad.players.front();
 }
 
+inline const CareerInboxMessageView* FindSelectedInboxMessage(const CareerUiViewModel& view) {
+  for (const CareerInboxMessageView& message : view.inbox.messages) {
+    if (message.id == view.inbox.selectedMessageId) {
+      return &message;
+    }
+  }
+  return view.inbox.messages.empty() ? nullptr : &view.inbox.messages.front();
+}
+
 inline std::vector<const CareerPlayerView*> StartingPlayers(const CareerUiViewModel& view) {
   std::vector<const CareerPlayerView*> result;
   result.reserve(11);
@@ -167,6 +176,24 @@ inline void BindCareerUiViewModel(RmlUiSystem& ui, const CareerUiViewModel& view
   BindText(ui, "tactics-plan", view.tactics.activeStrategy);
   BindText(ui, "tactics-training-focus", view.tactics.trainingFocus);
   BindNumber(ui, "tactics-chemistry", view.tactics.chemistry);
+
+  // Inbox page.
+  BindNumber(ui, "inbox-unread-count", view.inbox.unreadCount);
+  BindNumber(ui, "inbox-total-count", static_cast<int>(view.inbox.messages.size()));
+  for (size_t i = 0; i < view.inbox.messages.size() && i < 6; ++i) {
+    const CareerInboxMessageView& message = view.inbox.messages[i];
+    const std::string suffix = std::to_string(i);
+    BindText(ui, ("inbox-row-type-" + suffix).c_str(), message.type);
+    BindText(ui, ("inbox-row-subject-" + suffix).c_str(), message.subject);
+    BindText(ui, ("inbox-row-state-" + suffix).c_str(), message.read ? "READ" : "NEW");
+  }
+  if (const CareerInboxMessageView* selected = FindSelectedInboxMessage(view)) {
+    BindText(ui, "inbox-selected-type", selected->type);
+    BindText(ui, "inbox-selected-subject", selected->subject);
+    BindText(ui, "inbox-selected-body",
+             selected->body.empty() ? "No additional details were provided." : selected->body);
+    BindText(ui, "inbox-selected-week", "WEEK " + std::to_string(selected->weekCreated));
+  }
 }
 
 }  // namespace blunted::ui
