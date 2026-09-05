@@ -99,9 +99,20 @@ set_property(SOURCE
     SDL_GL_DeleteContext=FotbilerSDLGLDeleteContext
 )
 
-# gameplayfootball is created later in the parent CMakeLists. Make the bridge
-# (and therefore its RmlUi link dependency) available to the final executable.
-link_libraries(fotbiler_sdl_window_bridge)
+# Do not use directory-wide link_libraries() here. This file is included before
+# the project's own targets and before GoogleTest, so a directory-wide bridge
+# dependency leaks into gtest/gmock and breaks their install(EXPORT ...) graph.
+# Instead wrap the SDL target that the parent CMakeLists already adds only to
+# gameplayfootball's final LIBRARIES list. The bridge and RmlUi therefore stay
+# scoped to the production executable while tests keep their original graph.
+add_library(fotbiler_runtime_sdl INTERFACE)
+if(GF_SDL2_TARGET)
+  target_link_libraries(fotbiler_runtime_sdl INTERFACE ${GF_SDL2_TARGET})
+elseif(SDL2_LIBRARIES)
+  target_link_libraries(fotbiler_runtime_sdl INTERFACE ${SDL2_LIBRARIES})
+endif()
+target_link_libraries(fotbiler_runtime_sdl INTERFACE fotbiler_sdl_window_bridge)
+set(GF_SDL2_TARGET fotbiler_runtime_sdl)
 
 # Standalone 2D UI lab. It intentionally uses the same RmlUiSystem and assets
 # as the game, but creates its own SDL/OpenGL window for fast design iteration.
