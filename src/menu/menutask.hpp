@@ -89,6 +89,17 @@ public:
 
   void SetMenuAction(e_MenuAction menuAction) { this->menuAction = menuAction; }
 
+  // Modern direct-match sessions still reuse the legacy MenuTask state machine,
+  // but its full-screen stadium background must not bleed through Fotbiler's
+  // RmlUi loading/3D presentation.
+  void SetMenuBackgroundVisible(bool visible) {
+    if (!menuBackground) return;
+    if (visible)
+      menuBackground->Show();
+    else
+      menuBackground->Hide();
+  }
+
 protected:
   bool PrepareFotbilerUiDirectMatch();
   bool PrepareFotbilerUiQuickMatch();
