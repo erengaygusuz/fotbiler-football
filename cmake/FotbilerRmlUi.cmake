@@ -58,6 +58,20 @@ if(UNIX AND NOT APPLE)
   target_link_libraries(fotbiler_rmlui PRIVATE dl m)
 endif()
 
+# Preserve the display/window placement as Fotbiler transitions between the
+# modern frontend and the 3D runtime during the migration. The wrapper is
+# deliberately target-scoped so third-party SDL/RmlUi targets and test-only
+# binaries are not affected.
+function(fotbiler_enable_sdl_window_bridge target)
+  target_sources(${target} PRIVATE
+    ${PROJECT_SOURCE_DIR}/src/platform/fotbiler_sdl_window_bridge.cpp
+  )
+  target_compile_definitions(${target} PRIVATE
+    SDL_CreateWindow=FotbilerSDLCreateWindow
+    SDL_DestroyWindow=FotbilerSDLDestroyWindow
+  )
+endfunction()
+
 # Standalone 2D UI lab. It intentionally uses the same RmlUiSystem and assets
 # as the game, but creates its own SDL/OpenGL window so FIFA-era menu design can
 # be iterated without destabilising the legacy Gui2 runtime during migration.
@@ -69,6 +83,7 @@ add_executable(fotbiler_ui_preview
   ${PROJECT_SOURCE_DIR}/src/core/career/career_common.cpp
   ${PROJECT_SOURCE_DIR}/src/menu/career/career_persistence.cpp
 )
+fotbiler_enable_sdl_window_bridge(fotbiler_ui_preview)
 target_compile_features(fotbiler_ui_preview PRIVATE cxx_std_17)
 target_include_directories(fotbiler_ui_preview PRIVATE
   ${PROJECT_SOURCE_DIR}/src
