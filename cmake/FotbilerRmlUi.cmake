@@ -72,7 +72,13 @@ target_include_directories(fotbiler_sdl_window_bridge PRIVATE
   ${PROJECT_SOURCE_DIR}/src
   ${SDL2_INCLUDE_DIR}
 )
-target_link_libraries(fotbiler_sdl_window_bridge PUBLIC fotbiler_rmlui PRIVATE SQLite::SQLite3)
+# menulib is declared later by the parent CMakeLists. CMake resolves this plain
+# target name at generate time; the dependency gives the frontend host access to
+# the same career persistence implementation used by gameplayfootball.
+target_link_libraries(fotbiler_sdl_window_bridge
+  PUBLIC fotbiler_rmlui
+  PRIVATE SQLite::SQLite3 menulib
+)
 if(GF_SDL2_TARGET)
   target_link_libraries(fotbiler_sdl_window_bridge PRIVATE ${GF_SDL2_TARGET})
 elseif(SDL2_LIBRARIES)
