@@ -53,9 +53,9 @@ public:
 
   void ReleaseAllButtons();
 
-  // Single-process Fotbiler lifecycle. Match pages call this instead of
-  // terminating gameplayfootball. The frontend is revealed only after the
-  // match and audio teardown pipeline has fully drained.
+  // Single-process Fotbiler lifecycle. Match pages request a return here;
+  // MenuTask stops the live match, drains graphics/audio teardown commands,
+  // then reveals the frontend in the same process/window.
   void ReturnToFotbilerFrontend(blunted::ui::frontend::ReturnTarget target);
 
   void SetControllerSetup(const std::vector<SideSelection>& sides) {
@@ -108,14 +108,11 @@ protected:
   bool PrepareFotbilerUiCareerMatch();
   void SetSingleControlledSide(int side);
   void ApplyFotbilerDisplaySettings(const blunted::ui::frontend::DisplaySettingsRequest& request);
-  bool IsFotbilerMatchTeardownDrained() const;
-  void ProcessFotbilerFrontendReturnBarrier();
+  void DrainFotbilerRuntimePipelines();
 
   e_MenuAction menuAction;
   bool uiDirectMatchReady;
   bool frontendReturnPending;
-  bool frontendReturnWaitingForTeardown;
-  int frontendReturnStableTicks;
   blunted::ui::frontend::ReturnTarget frontendReturnTarget;
 
   Gui2Image* menuBackground;
