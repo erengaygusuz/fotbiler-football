@@ -8,116 +8,19 @@
 </head>
 <body>
   <div class="career-screen">
-    <div class="career-bg-deep"></div>
-    <div class="career-bg-blue"></div>
-    <div class="career-bg-accent"></div>
+    <div class="career-bg-deep"></div><div class="career-bg-blue"></div><div class="career-bg-accent"></div>
     <div class="career-shell">
-      <div class="career-topbar">
-        <div class="club-identity">
-          <div class="club-crest">F</div>
-          <div class="club-copy">
-            <div class="club-name">FOTBILER FC</div>
-            <div class="club-meta">MANAGER CAREER · SEASON 2026/27</div>
-          </div>
-        </div>
-        <div class="career-status">
-          <div class="status-block"><div class="status-label">TACTICAL PLAN</div><div class="status-value">BALANCED</div></div>
-          <div class="status-block date-block"><div class="status-label">FORMATION</div><div class="status-value">4-2-3-1</div></div>
-        </div>
-      </div>
-
-      <div class="career-tabs">
-        <div class="career-tab">CENTRAL</div><div class="career-tab active">SQUAD</div><div class="career-tab">TRANSFERS</div><div class="career-tab">OFFICE</div><div class="career-tab">SEASON</div>
-      </div>
-
+      <div class="career-topbar"><div class="club-identity"><div class="club-crest">F</div><div class="club-copy"><div class="club-name">FOTBILER FC</div><div class="club-meta">MANAGER CAREER · SEASON 2026/27</div></div></div><div class="career-status"><div class="status-block"><div class="status-label">TACTICAL PLAN</div><div class="status-value">BALANCED</div></div><div class="status-block date-block"><div class="status-label">FORMATION</div><div class="status-value">4-2-3-1</div></div></div></div>
+      <div class="career-tabs"><div class="career-tab" tabindex="0" data-route="career-central">CENTRAL</div><div class="career-tab active" tabindex="0" data-route="squad">SQUAD</div><div class="career-tab" tabindex="0" data-route="transfers">TRANSFERS</div><div class="career-tab" tabindex="0" data-route="office">OFFICE</div><div class="career-tab" tabindex="0" data-route="season">SEASON</div></div>
       <div class="tactics-content">
-        <div class="tactics-subtabs">
-          <div class="tactics-subtab">TEAM SHEET</div>
-          <div class="tactics-subtab active">TACTICS</div>
-          <div class="tactics-subtab">ROLES</div>
-          <div class="tactics-subtab">INSTRUCTIONS</div>
-        </div>
-
+        <div class="tactics-subtabs"><div class="tactics-subtab" tabindex="0" data-route="squad">TEAM SHEET</div><div class="tactics-subtab active" tabindex="0" data-route="tactics">TACTICS</div><div class="tactics-subtab">ROLES</div><div class="tactics-subtab">INSTRUCTIONS</div></div>
         <div class="tactics-main-row">
-          <div class="tactics-left">
-            <div class="tactics-toolbar">
-              <div><div class="card-kicker">SHAPE</div><div class="tactics-title">4-2-3-1 WIDE</div></div>
-              <div class="shape-meta">POSSESSION · 52%</div>
-            </div>
-
-            <div class="formation-pitch tactics-pitch" tabindex="0">
-              <div class="pitch-outline"></div>
-              <div class="pitch-half-line"></div>
-              <div class="pitch-circle"></div>
-              <div class="pitch-center-dot"></div>
-              <div class="pitch-box top-box"></div>
-              <div class="pitch-six top-six"></div>
-              <div class="pitch-box bottom-box"></div>
-              <div class="pitch-six bottom-six"></div>
-
-              <div class="tactic-line attacking-line"></div>
-              <div class="tactic-line midfield-line"></div>
-              <div class="tactic-line defensive-line"></div>
-
-              <div class="player-node tactic-node pos-st"><div class="player-disc">78</div><div class="player-name">KAYA</div><div class="player-pos">ST</div></div>
-              <div class="player-node tactic-node pos-lw"><div class="player-disc">75</div><div class="player-name">DEMIR</div><div class="player-pos">LW</div></div>
-              <div class="player-node tactic-node selected pos-cam"><div class="player-disc">81</div><div class="player-name">YILMAZ</div><div class="player-pos">CAM</div></div>
-              <div class="player-node tactic-node pos-rw"><div class="player-disc">76</div><div class="player-name">ASLAN</div><div class="player-pos">RW</div></div>
-              <div class="player-node tactic-node pos-lcm"><div class="player-disc">77</div><div class="player-name">AKSOY</div><div class="player-pos">CDM</div></div>
-              <div class="player-node tactic-node pos-rcm"><div class="player-disc">74</div><div class="player-name">EREN</div><div class="player-pos">CDM</div></div>
-              <div class="player-node tactic-node pos-lb"><div class="player-disc">72</div><div class="player-name">CAN</div><div class="player-pos">LB</div></div>
-              <div class="player-node tactic-node pos-lcb"><div class="player-disc">79</div><div class="player-name">TUNA</div><div class="player-pos">CB</div></div>
-              <div class="player-node tactic-node pos-rcb"><div class="player-disc">78</div><div class="player-name">ARDA</div><div class="player-pos">CB</div></div>
-              <div class="player-node tactic-node pos-rb"><div class="player-disc">73</div><div class="player-name">MERT</div><div class="player-pos">RB</div></div>
-              <div class="player-node tactic-node pos-gk"><div class="player-disc">80</div><div class="player-name">OZAN</div><div class="player-pos">GK</div></div>
-            </div>
-          </div>
-
-          <div class="tactics-right">
-            <div class="tactic-card identity-card" tabindex="0">
-              <div class="card-kicker light-kicker">TEAM STYLE</div>
-              <div class="tactic-card-title light-title">TACTICAL IDENTITY</div>
-
-              <div class="style-section">
-                <div class="style-heading"><span>DEFENCE</span><strong>PRESS AFTER POSSESSION LOSS</strong></div>
-                <div class="metric-row"><span>WIDTH</span><strong>45</strong></div>
-                <div class="metric-track"><div class="metric-fill width-45"></div></div>
-                <div class="metric-row"><span>DEPTH</span><strong>58</strong></div>
-                <div class="metric-track"><div class="metric-fill width-58"></div></div>
-              </div>
-
-              <div class="style-section attack-section">
-                <div class="style-heading"><span>ATTACK</span><strong>BALANCED · FORWARD RUNS</strong></div>
-                <div class="metric-row"><span>WIDTH</span><strong>55</strong></div>
-                <div class="metric-track"><div class="metric-fill width-55"></div></div>
-                <div class="metric-row"><span>PLAYERS IN BOX</span><strong>6</strong></div>
-                <div class="metric-track"><div class="metric-fill width-60"></div></div>
-              </div>
-            </div>
-
-            <div class="tactic-card instructions-card" tabindex="0">
-              <div class="instructions-head"><div><div class="card-kicker">KEY INSTRUCTIONS</div><div class="tactic-card-title">PLAYER BEHAVIOUR</div></div><div class="small-link">EDIT ALL</div></div>
-              <div class="instruction-row active"><span class="instruction-pos">ST</span><span class="instruction-player">KAYA</span><span class="instruction-text">GET IN BEHIND</span></div>
-              <div class="instruction-row"><span class="instruction-pos">CAM</span><span class="instruction-player">YILMAZ</span><span class="instruction-text">FREE ROAM</span></div>
-              <div class="instruction-row"><span class="instruction-pos">LB</span><span class="instruction-player">CAN</span><span class="instruction-text">OVERLAP</span></div>
-              <div class="instruction-row"><span class="instruction-pos">RB</span><span class="instruction-player">MERT</span><span class="instruction-text">STAY BACK</span></div>
-            </div>
-          </div>
+          <div class="tactics-left"><div class="tactics-toolbar"><div><div class="card-kicker">SHAPE</div><div class="tactics-title">4-2-3-1 WIDE</div></div><div class="shape-meta">POSSESSION · 52%</div></div><div class="formation-pitch tactics-pitch" tabindex="0"><div class="pitch-outline"></div><div class="pitch-half-line"></div><div class="pitch-circle"></div><div class="pitch-center-dot"></div><div class="pitch-box top-box"></div><div class="pitch-six top-six"></div><div class="pitch-box bottom-box"></div><div class="pitch-six bottom-six"></div><div class="tactic-line attacking-line"></div><div class="tactic-line midfield-line"></div><div class="tactic-line defensive-line"></div><div class="player-node tactic-node pos-st"><div class="player-disc">78</div><div class="player-name">KAYA</div><div class="player-pos">ST</div></div><div class="player-node tactic-node pos-lw"><div class="player-disc">75</div><div class="player-name">DEMIR</div><div class="player-pos">LW</div></div><div class="player-node tactic-node selected pos-cam"><div class="player-disc">81</div><div class="player-name">YILMAZ</div><div class="player-pos">CAM</div></div><div class="player-node tactic-node pos-rw"><div class="player-disc">76</div><div class="player-name">ASLAN</div><div class="player-pos">RW</div></div><div class="player-node tactic-node pos-lcm"><div class="player-disc">77</div><div class="player-name">AKSOY</div><div class="player-pos">CDM</div></div><div class="player-node tactic-node pos-rcm"><div class="player-disc">74</div><div class="player-name">EREN</div><div class="player-pos">CDM</div></div><div class="player-node tactic-node pos-lb"><div class="player-disc">72</div><div class="player-name">CAN</div><div class="player-pos">LB</div></div><div class="player-node tactic-node pos-lcb"><div class="player-disc">79</div><div class="player-name">TUNA</div><div class="player-pos">CB</div></div><div class="player-node tactic-node pos-rcb"><div class="player-disc">78</div><div class="player-name">ARDA</div><div class="player-pos">CB</div></div><div class="player-node tactic-node pos-rb"><div class="player-disc">73</div><div class="player-name">MERT</div><div class="player-pos">RB</div></div><div class="player-node tactic-node pos-gk"><div class="player-disc">80</div><div class="player-name">OZAN</div><div class="player-pos">GK</div></div></div></div>
+          <div class="tactics-right"><div class="tactic-card identity-card" tabindex="0"><div class="card-kicker light-kicker">TEAM STYLE</div><div class="tactic-card-title light-title">TACTICAL IDENTITY</div><div class="style-section"><div class="style-heading"><span>DEFENCE</span><strong>PRESS AFTER POSSESSION LOSS</strong></div><div class="metric-row"><span>WIDTH</span><strong>45</strong></div><div class="metric-track"><div class="metric-fill width-45"></div></div><div class="metric-row"><span>DEPTH</span><strong>58</strong></div><div class="metric-track"><div class="metric-fill width-58"></div></div></div><div class="style-section attack-section"><div class="style-heading"><span>ATTACK</span><strong>BALANCED · FORWARD RUNS</strong></div><div class="metric-row"><span>WIDTH</span><strong>55</strong></div><div class="metric-track"><div class="metric-fill width-55"></div></div><div class="metric-row"><span>PLAYERS IN BOX</span><strong>6</strong></div><div class="metric-track"><div class="metric-fill width-60"></div></div></div></div><div class="tactic-card instructions-card" tabindex="0"><div class="instructions-head"><div><div class="card-kicker">KEY INSTRUCTIONS</div><div class="tactic-card-title">PLAYER BEHAVIOUR</div></div><div class="small-link">EDIT ALL</div></div><div class="instruction-row active"><span class="instruction-pos">ST</span><span class="instruction-player">KAYA</span><span class="instruction-text">GET IN BEHIND</span></div><div class="instruction-row"><span class="instruction-pos">CAM</span><span class="instruction-player">YILMAZ</span><span class="instruction-text">FREE ROAM</span></div><div class="instruction-row"><span class="instruction-pos">LB</span><span class="instruction-player">CAN</span><span class="instruction-text">OVERLAP</span></div><div class="instruction-row"><span class="instruction-pos">RB</span><span class="instruction-player">MERT</span><span class="instruction-text">STAY BACK</span></div></div></div>
         </div>
-
-        <div class="mentality-strip">
-          <div class="mentality-card"><span>ULTRA DEFENSIVE</span></div>
-          <div class="mentality-card"><span>DEFENSIVE</span></div>
-          <div class="mentality-card active" tabindex="0"><span>BALANCED</span><strong>ACTIVE PLAN</strong></div>
-          <div class="mentality-card"><span>ATTACKING</span></div>
-          <div class="mentality-card"><span>ULTRA ATTACKING</span></div>
-        </div>
+        <div class="mentality-strip"><div class="mentality-card"><span>ULTRA DEFENSIVE</span></div><div class="mentality-card"><span>DEFENSIVE</span></div><div class="mentality-card active" tabindex="0"><span>BALANCED</span><strong>ACTIVE PLAN</strong></div><div class="mentality-card"><span>ATTACKING</span></div><div class="mentality-card"><span>ULTRA ATTACKING</span></div></div>
       </div>
-
-      <div class="career-control-strip">
-        <div class="control-left"><span class="hint"><span class="hint-key">ENTER</span>Select</span><span class="hint"><span class="hint-key">ARROWS</span>Navigate</span><span class="hint"><span class="hint-key">F3</span>Squad</span><span class="hint"><span class="hint-key">F7</span>Tactics</span></div>
-        <div class="control-right">SQUAD · TACTICS</div>
-      </div>
+      <div class="career-control-strip"><div class="control-left"><span class="hint"><span class="hint-key">ENTER</span>Select</span><span class="hint"><span class="hint-key">ARROWS</span>Navigate</span><span class="hint"><span class="hint-key">F3</span>Squad</span><span class="hint"><span class="hint-key">F7</span>Tactics</span></div><div class="control-right">SQUAD · TACTICS</div></div>
     </div>
   </div>
 </body>
