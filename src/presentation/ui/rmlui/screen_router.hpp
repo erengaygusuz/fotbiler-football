@@ -14,6 +14,7 @@ enum class ScreenId {
   MainMenu,
   CareerModeSelect,
   MatchSetup,
+  MatchLoading,
   CareerCentral,
   Squad,
   Transfers,
@@ -105,11 +106,12 @@ public:
   }
 
 private:
-  static const std::array<ScreenRoute, 19>& Routes() {
-    static constexpr std::array<ScreenRoute, 19> routes = {{
+  static const std::array<ScreenRoute, 20>& Routes() {
+    static constexpr std::array<ScreenRoute, 20> routes = {{
         {ScreenId::MainMenu, "main-menu", "media/ui/fotbiler/main_menu.rml"},
         {ScreenId::CareerModeSelect, "career-mode-select", "media/ui/fotbiler/mode_select.rml"},
         {ScreenId::MatchSetup, "match-setup", "media/ui/fotbiler/match_setup.rml"},
+        {ScreenId::MatchLoading, "match-loading", "media/ui/fotbiler/loading_match.rml"},
         {ScreenId::CareerCentral, "career-central", "media/ui/fotbiler/career_central.rml"},
         {ScreenId::Squad, "squad", "media/ui/fotbiler/squad.rml"},
         {ScreenId::Transfers, "transfers", "media/ui/fotbiler/transfers.rml"},
