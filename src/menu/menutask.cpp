@@ -21,6 +21,7 @@
 #include "mainmenu.hpp"
 #include "managers/resourcemanagerpool.hpp"
 #include "pagefactory.hpp"
+#include "presentation/ui/rmlui/runtime_ui_bridge.hpp"
 #include "utils/database.hpp"
 #include "visualoptions.hpp"
 
@@ -31,6 +32,10 @@ namespace {
 bool EnvironmentFlagEnabled(const char* name) {
   const char* value = std::getenv(name);
   return value && value[0] != '\0' && std::string(value) != "0";
+}
+
+bool ModernFrontendAppActive() {
+  return EnvironmentFlagEnabled("FOTBILER_UI_MODERN_APP");
 }
 
 int EnvironmentInt(const char* name, int fallback) {
@@ -136,12 +141,6 @@ bool EnsureModernUiCareerSave(CareerDatabase& career) {
     return true;
   }
 
-  // The RmlUi career screens used to be backed only by BuildCareerPreviewSave.
-  // Launching PLAY MATCH therefore started a new gameplayfootball process with
-  // no persisted CareerDatabase state, so MenuTask correctly fell back to the
-  // legacy main menu. Until the full new-career wizard is migrated, bootstrap
-  // one real save at the integration boundary so the modern career flow always
-  // has a durable fixture/result target.
   int teamID = DatabaseHasTeam(3) ? 3 : FirstDatabaseTeamID();
   if (teamID <= 0 || !DatabaseHasTeam(teamID)) {
     std::fprintf(stderr, "[fotbiler-ui] Career Match: database has no usable team\n");
@@ -216,6 +215,8 @@ MenuTask::MenuTask(float aspectRatio, float margin, TTF_Font* defaultFont,
     : Gui2Task(GetScene2D(), aspectRatio, margin),
       menuAction(e_MenuAction_None),
       uiDirectMatchReady(false),
+      frontendReturnPending(false),
+      frontendReturnTarget(blunted::ui::frontend::ReturnTarget::MainMenu),
       menuBackground(nullptr) {
   Gui2Style* style = windowManager->GetStyle();
 
@@ -250,7 +251,10 @@ MenuTask::MenuTask(float aspectRatio, float margin, TTF_Font* defaultFont,
   menuBackground = new Gui2Image(windowManager, "image_menu_background", 0, 0, 100, 100);
   menuBackground->LoadImage("media/menu/backgrounds/stadium01.png");
   root->AddView(menuBackground);
-  menuBackground->Show();
+  if (ModernFrontendAppActive())
+    menuBackground->Hide();
+  else
+    menuBackground->Show();
 
   PageFactory* pageFactory = new PageFactory();
   windowManager->SetPageFactory(pageFactory);
@@ -309,14 +313,12 @@ void MenuTask::SetSingleControlledSide(int side) {
   SetControllerSetup(sides);
 }
 
-bool MenuTask::PrepareFotbilerUiQuickMatch() {
-  int homeTeamID = EnvironmentInt("FOTBILER_UI_HOME_TEAM_ID", 3);
-  int awayTeamID = EnvironmentInt("FOTBILER_UI_AWAY_TEAM_ID", 8);
-  if (!DatabaseHasTeam(homeTeamID)) {
-    homeTeamID = 3;
-  }
+bool MenuTask::PrepareFotbilerUiQuickMatch(const blunted::ui::frontend::LaunchRequest& request) {
+  int homeTeamID = request.homeTeamId;
+  int awayTeamID = request.awayTeamId;
+  if (!DatabaseHasTeam(homeTeamID)) homeTeamID = DatabaseHasTeam(3) ? 3 : FirstDatabaseTeamID();
   if (!DatabaseHasTeam(awayTeamID) || awayTeamID == homeTeamID) {
-    awayTeamID = 8;
+    awayTeamID = DatabaseHasTeam(8) && homeTeamID != 8 ? 8 : 0;
   }
   if (awayTeamID == homeTeamID || !DatabaseHasTeam(awayTeamID)) {
     std::unique_ptr<DatabaseResult> result;
@@ -324,28 +326,34 @@ bool MenuTask::PrepareFotbilerUiQuickMatch() {
       result = GetDB()->Query("select id from teams where id <> " + std::to_string(homeTeamID) +
                               " order by id limit 1");
     }
-    if (!result || result->data.empty() || result->data.front().empty()) {
-      return false;
-    }
+    if (!result || result->data.empty() || result->data.front().empty()) return false;
     awayTeamID = std::atoi(result->data.front().front().c_str());
   }
 
   SetTeamIDs(std::to_string(homeTeamID), std::to_string(awayTeamID));
   queuedFixture->team1KitNum = 1;
   queuedFixture->team2KitNum = 2;
-  SetSingleControlledSide(EnvironmentInt("FOTBILER_UI_CONTROL_SIDE", -1));
+  SetSingleControlledSide(request.controlSide);
 
-  const int duration =
-      std::clamp(EnvironmentInt("FOTBILER_UI_MATCH_DURATION_MINUTES", 10), 5, 90);
-  const float difficulty =
-      std::clamp(EnvironmentFloat("FOTBILER_UI_MATCH_DIFFICULTY", 0.75f), 0.0f, 1.0f);
+  const int duration = std::clamp(request.matchDurationMinutes, 5, 90);
+  const float difficulty = std::clamp(request.difficulty, 0.0f, 1.0f);
   GetConfiguration()->Set("match_duration_minutes", static_cast<float>(duration));
   GetConfiguration()->Set("match_difficulty", difficulty);
 
   std::printf("[fotbiler-ui] Quick Match: team %d vs %d, %d min, difficulty %.2f, side %d\n",
-              homeTeamID, awayTeamID, duration, difficulty,
-              EnvironmentInt("FOTBILER_UI_CONTROL_SIDE", -1));
+              homeTeamID, awayTeamID, duration, difficulty, request.controlSide);
   return true;
+}
+
+bool MenuTask::PrepareFotbilerUiQuickMatch() {
+  blunted::ui::frontend::LaunchRequest request;
+  request.kind = blunted::ui::frontend::LaunchKind::QuickMatch;
+  request.homeTeamId = EnvironmentInt("FOTBILER_UI_HOME_TEAM_ID", 3);
+  request.awayTeamId = EnvironmentInt("FOTBILER_UI_AWAY_TEAM_ID", 8);
+  request.matchDurationMinutes = EnvironmentInt("FOTBILER_UI_MATCH_DURATION_MINUTES", 10);
+  request.difficulty = EnvironmentFloat("FOTBILER_UI_MATCH_DIFFICULTY", 0.75f);
+  request.controlSide = EnvironmentInt("FOTBILER_UI_CONTROL_SIDE", -1);
+  return PrepareFotbilerUiQuickMatch(request);
 }
 
 bool MenuTask::PrepareFotbilerUiCareerMatch() {
@@ -357,9 +365,7 @@ bool MenuTask::PrepareFotbilerUiCareerMatch() {
   }
 
   CareerSave* save = career.GetActiveSave();
-  if (!save) {
-    return false;
-  }
+  if (!save) return false;
 
   if (save->club.clubID <= 0 || !DatabaseHasTeam(save->club.clubID)) {
     const int repairedTeamID = DatabaseHasTeam(3) ? 3 : FirstDatabaseTeamID();
@@ -371,9 +377,7 @@ bool MenuTask::PrepareFotbilerUiCareerMatch() {
                  "[fotbiler-ui] Career Match: repairing invalid club id %d to database team %d\n",
                  save->club.clubID, repairedTeamID);
     save->club.clubID = repairedTeamID;
-    if (save->club.clubName.empty()) {
-      save->club.clubName = DatabaseTeamName(repairedTeamID);
-    }
+    if (save->club.clubName.empty()) save->club.clubName = DatabaseTeamName(repairedTeamID);
     save->club.leagueName = DatabaseTeamLeague(repairedTeamID);
     career.SaveCareerData();
     career.AutoSave();
@@ -386,9 +390,7 @@ bool MenuTask::PrepareFotbilerUiCareerMatch() {
   bool foundStoredFixture = false;
 
   for (const FixtureResult& fixture : save->season.fixtures) {
-    if (fixture.played) {
-      continue;
-    }
+    if (fixture.played) continue;
     if (fixture.homeTeamID == userTeamID && fixture.awayTeamID > 0) {
       isHome = true;
       opponentTeamID = fixture.awayTeamID;
@@ -410,9 +412,7 @@ bool MenuTask::PrepareFotbilerUiCareerMatch() {
     }
     foundStoredFixture = false;
   }
-  if (opponentName.empty()) {
-    opponentName = DatabaseTeamName(opponentTeamID);
-  }
+  if (opponentName.empty()) opponentName = DatabaseTeamName(opponentTeamID);
 
   if (!foundStoredFixture) {
     FixtureResult fixture;
@@ -457,8 +457,39 @@ bool MenuTask::PrepareFotbilerUiDirectMatch() {
   return ready;
 }
 
+void MenuTask::ReturnToFotbilerFrontend(blunted::ui::frontend::ReturnTarget target) {
+  frontendReturnTarget = target;
+  frontendReturnPending = true;
+  menuAction = e_MenuAction_Menu;
+}
+
 void MenuTask::ProcessPhase() {
   Gui2Task::ProcessPhase();
+
+  if (ModernFrontendAppActive()) {
+    if (blunted::ui::frontend::ConsumeQuitRequest()) {
+      QuitGame();
+      return;
+    }
+
+    blunted::ui::frontend::LaunchRequest request;
+    if (blunted::ui::frontend::ConsumeLaunchRequest(request)) {
+      bool ready = false;
+      if (request.kind == blunted::ui::frontend::LaunchKind::Career) {
+        ready = PrepareFotbilerUiCareerMatch();
+      } else if (request.kind == blunted::ui::frontend::LaunchKind::QuickMatch) {
+        ready = PrepareFotbilerUiQuickMatch(request);
+      }
+
+      if (ready) {
+        uiDirectMatchReady = true;
+        menuAction = e_MenuAction_Menu;
+      } else {
+        uiDirectMatchReady = false;
+        blunted::ui::frontend::ReturnToFrontend(blunted::ui::frontend::GetReturnTarget());
+      }
+    }
+  }
 
   if (menuAction == e_MenuAction_Menu) {
     windowManager->GetPagePath()->Clear();
@@ -466,30 +497,42 @@ void MenuTask::ProcessPhase() {
     GetGameTask()->Action(e_GameTaskMessage_StopMatch);
     GetGameTask()->Action(e_GameTaskMessage_StopMenuScene);
 
-    menuBackground->Show();
-    Properties properties;
-    if (GetConfiguration()->GetBool("league_resume_hub", false)) {
-      GetConfiguration()->SetBool("league_resume_hub", false);
-      windowManager->GetPageFactory()->CreatePage((int)e_PageID_League_Matchday, properties, 0);
-    } else if (GetConfiguration()->GetBool("career_resume_hub", false)) {
+    if (ModernFrontendAppActive()) {
+      menuBackground->Hide();
       GetConfiguration()->SetBool("career_resume_hub", false);
-      CareerSave* save = CareerDatabase::GetInstance().GetActiveSave();
-      const int hubPage = (save && save->mode == CareerMode::OWNER) ? (int)e_PageID_OwnerHub
-                                                                    : (int)e_PageID_CareerHub;
-      windowManager->GetPageFactory()->CreatePage(hubPage, properties, 0);
-    } else if (!QuickStart()) {
-      if (!IsReleaseVersion()) {
-        windowManager->GetPageFactory()->CreatePage((int)e_PageID_MainMenu, properties, 0);
-      } else {
-        windowManager->GetPageFactory()->CreatePage((int)e_PageID_Intro, properties, 0);
+      GetConfiguration()->SetBool("league_resume_hub", false);
+
+      if (frontendReturnPending) {
+        blunted::ui::runtime::Reset();
+        blunted::ui::frontend::ReturnToFrontend(frontendReturnTarget);
+        frontendReturnPending = false;
+      } else if (uiDirectMatchReady) {
+        Properties properties;
+        windowManager->GetPageFactory()->CreatePage((int)e_PageID_LoadingMatch, properties, 0);
+        uiDirectMatchReady = false;
       }
     } else {
-      windowManager->GetPageFactory()->CreatePage((int)e_PageID_LoadingMatch, properties, 0);
-
-      // A modern frontend launch is a one-shot transition. Keeping this flag
-      // true made any later return-to-menu path look like a fresh QuickStart,
-      // reopening LoadingMatch and starting the same fixture again.
-      uiDirectMatchReady = false;
+      menuBackground->Show();
+      Properties properties;
+      if (GetConfiguration()->GetBool("league_resume_hub", false)) {
+        GetConfiguration()->SetBool("league_resume_hub", false);
+        windowManager->GetPageFactory()->CreatePage((int)e_PageID_League_Matchday, properties, 0);
+      } else if (GetConfiguration()->GetBool("career_resume_hub", false)) {
+        GetConfiguration()->SetBool("career_resume_hub", false);
+        CareerSave* save = CareerDatabase::GetInstance().GetActiveSave();
+        const int hubPage = (save && save->mode == CareerMode::OWNER) ? (int)e_PageID_OwnerHub
+                                                                      : (int)e_PageID_CareerHub;
+        windowManager->GetPageFactory()->CreatePage(hubPage, properties, 0);
+      } else if (!QuickStart()) {
+        if (!IsReleaseVersion()) {
+          windowManager->GetPageFactory()->CreatePage((int)e_PageID_MainMenu, properties, 0);
+        } else {
+          windowManager->GetPageFactory()->CreatePage((int)e_PageID_Intro, properties, 0);
+        }
+      } else {
+        windowManager->GetPageFactory()->CreatePage((int)e_PageID_LoadingMatch, properties, 0);
+        uiDirectMatchReady = false;
+      }
     }
 
   } else if (menuAction == e_MenuAction_Game) {
