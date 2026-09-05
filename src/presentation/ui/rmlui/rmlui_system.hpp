@@ -33,6 +33,15 @@ public:
   // Returns true when RmlUi consumed the SDL event.
   bool HandleEvent(SDL_Event& event);
 
+  // data-route clicks are queued so callers can switch documents safely after
+  // the current RmlUi event dispatch has completed.
+  std::string ConsumeRouteRequest();
+
+  // Activates the current focus target and restores a deterministic default
+  // focus when a screen is loaded without a remembered focus target.
+  bool ActivateFocusedElement();
+  bool FocusDefaultElement();
+
   bool Update();
   bool Render();
 
