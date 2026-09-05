@@ -10,7 +10,9 @@
 #include <cstdio>
 #include <cstdlib>
 #include <filesystem>
+#include <fstream>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "presentation/ui/rmlui/career_detail_binder.hpp"
@@ -49,11 +51,29 @@ struct QuickMatchSetupState {
   float Difficulty() const { return std::clamp(difficultyStep, 0, 4) * 0.25f; }
 };
 
+struct RuntimeSettingsState {
+  std::vector<std::pair<int, int>> resolutions{{1280, 720}, {1600, 900}, {1920, 1080}, {2560, 1440}};
+  std::size_t resolutionIndex = 2;
+  bool fullscreen = true;
+  bool vsync = true;
+  int difficultyStep = 3;
+  int gameSpeedStep = 1;
+  int volume = 80;
+
+  int Width() const { return resolutions.at(resolutionIndex).first; }
+  int Height() const { return resolutions.at(resolutionIndex).second; }
+};
+
 enum class PreviewExitAction {
   None,
   LaunchQuickMatch,
   LaunchCareerMatch,
 };
+
+bool EnvironmentFlagEnabled(const char* name) {
+  const char* value = std::getenv(name);
+  return value && value[0] != '\0' && std::string(value) != "0";
+}
 
 std::string GetExecutableBasePath() {
   char* basePath = SDL_GetBasePath();
@@ -62,23 +82,19 @@ std::string GetExecutableBasePath() {
   return path;
 }
 
+std::filesystem::path RuntimeSettingsPath() {
+  return std::filesystem::path(GetExecutableBasePath()) / "user/fotbiler_ui.settings";
+}
+
 std::string EscapeRmlText(const std::string& value) {
   std::string escaped;
   escaped.reserve(value.size());
   for (char ch : value) {
     switch (ch) {
-      case '&':
-        escaped += "&amp;";
-        break;
-      case '<':
-        escaped += "&lt;";
-        break;
-      case '>':
-        escaped += "&gt;";
-        break;
-      default:
-        escaped += ch;
-        break;
+      case '&': escaped += "&amp;"; break;
+      case '<': escaped += "&lt;"; break;
+      case '>': escaped += "&gt;"; break;
+      default: escaped += ch; break;
     }
   }
   return escaped;
@@ -91,6 +107,76 @@ std::string CrestLetter(const std::string& name) {
     }
   }
   return "F";
+}
+
+const char* DifficultyName(int step) {
+  switch (std::clamp(step, 0, 4)) {
+    case 0: return "BEGINNER";
+    case 1: return "AMATEUR";
+    case 2: return "REGULAR";
+    case 3: return "PROFESSIONAL";
+    default: return "TOP PLAYER";
+  }
+}
+
+const char* GameSpeedName(int step) {
+  switch (std::clamp(step, 0, 2)) {
+    case 0: return "SLOW";
+    case 1: return "NORMAL";
+    default: return "FAST";
+  }
+}
+
+void SaveRuntimeSettings(const RuntimeSettingsState& state) {
+  const std::filesystem::path path = RuntimeSettingsPath();
+  std::error_code ec;
+  std::filesystem::create_directories(path.parent_path(), ec);
+  std::ofstream file(path);
+  if (!file) {
+    std::fprintf(stderr, "Fotbiler UI Preview: could not save %s\n", path.string().c_str());
+    return;
+  }
+  file << "fullscreen=" << (state.fullscreen ? 1 : 0) << '\n';
+  file << "width=" << state.Width() << '\n';
+  file << "height=" << state.Height() << '\n';
+  file << "vsync=" << (state.vsync ? 1 : 0) << '\n';
+  file << "difficulty=" << state.difficultyStep << '\n';
+  file << "game_speed=" << state.gameSpeedStep << '\n';
+  file << "volume=" << state.volume << '\n';
+}
+
+RuntimeSettingsState LoadRuntimeSettings() {
+  RuntimeSettingsState state;
+  std::ifstream file(RuntimeSettingsPath());
+  if (!file) {
+    return state;
+  }
+
+  int savedWidth = state.Width();
+  int savedHeight = state.Height();
+  std::string line;
+  while (std::getline(file, line)) {
+    const std::size_t eq = line.find('=');
+    if (eq == std::string::npos) continue;
+    const std::string key = line.substr(0, eq);
+    const std::string value = line.substr(eq + 1);
+    const int number = std::atoi(value.c_str());
+    if (key == "fullscreen") state.fullscreen = number != 0;
+    else if (key == "width") savedWidth = number;
+    else if (key == "height") savedHeight = number;
+    else if (key == "vsync") state.vsync = number != 0;
+    else if (key == "difficulty") state.difficultyStep = std::clamp(number, 0, 4);
+    else if (key == "game_speed") state.gameSpeedStep = std::clamp(number, 0, 2);
+    else if (key == "volume") state.volume = std::clamp(number, 0, 100);
+  }
+
+  for (std::size_t i = 0; i < state.resolutions.size(); ++i) {
+    if (state.resolutions[i].first == savedWidth && state.resolutions[i].second == savedHeight) {
+      state.resolutionIndex = i;
+      break;
+    }
+  }
+  return state;
 }
 
 std::vector<TeamChoice> LoadTeamChoices() {
@@ -113,29 +199,19 @@ std::vector<TeamChoice> LoadTeamChoices() {
         const unsigned char* league = sqlite3_column_text(statement, 2);
         team.name = name ? reinterpret_cast<const char*>(name) : "TEAM";
         team.league = league ? reinterpret_cast<const char*>(league) : "";
-        if (team.id > 0 && !team.name.empty()) {
-          teams.push_back(std::move(team));
-        }
+        if (team.id > 0 && !team.name.empty()) teams.push_back(std::move(team));
       }
     } else {
-      std::fprintf(stderr, "Fotbiler UI Preview: could not query team catalog: %s\n",
-                   sqlite3_errmsg(db));
+      std::fprintf(stderr, "Fotbiler UI Preview: could not query team catalog: %s\n", sqlite3_errmsg(db));
     }
-    if (statement) {
-      sqlite3_finalize(statement);
-    }
+    if (statement) sqlite3_finalize(statement);
   } else {
-    std::fprintf(stderr, "Fotbiler UI Preview: could not open team database at %s\n",
-                 dbPath.string().c_str());
+    std::fprintf(stderr, "Fotbiler UI Preview: could not open team database at %s\n", dbPath.string().c_str());
   }
-  if (db) {
-    sqlite3_close(db);
-  }
+  if (db) sqlite3_close(db);
 
   if (teams.size() < 2) {
-    teams.clear();
-    teams.push_back({3, "BARCELONA", "DEFAULT DATABASE"});
-    teams.push_back({8, "REAL MADRID", "DEFAULT DATABASE"});
+    teams = {{3, "BARCELONA", "DEFAULT DATABASE"}, {8, "REAL MADRID", "DEFAULT DATABASE"}};
   }
   return teams;
 }
@@ -143,16 +219,12 @@ std::vector<TeamChoice> LoadTeamChoices() {
 QuickMatchSetupState BuildQuickMatchSetupState() {
   QuickMatchSetupState state;
   state.teams = LoadTeamChoices();
-
   auto findTeam = [&state](int id) {
     for (std::size_t index = 0; index < state.teams.size(); ++index) {
-      if (state.teams[index].id == id) {
-        return index;
-      }
+      if (state.teams[index].id == id) return index;
     }
     return std::size_t{0};
   };
-
   state.homeIndex = findTeam(3);
   state.awayIndex = findTeam(8);
   if (state.awayIndex == state.homeIndex && state.teams.size() > 1) {
@@ -161,52 +233,36 @@ QuickMatchSetupState BuildQuickMatchSetupState() {
   return state;
 }
 
-const char* DifficultyName(int step) {
-  switch (std::clamp(step, 0, 4)) {
-    case 0:
-      return "BEGINNER";
-    case 1:
-      return "AMATEUR";
-    case 2:
-      return "REGULAR";
-    case 3:
-      return "PROFESSIONAL";
-    case 4:
-    default:
-      return "TOP PLAYER";
-  }
-}
-
 void BindQuickMatchSetup(blunted::ui::RmlUiSystem& ui, const QuickMatchSetupState& state) {
-  if (state.teams.size() < 2) {
-    return;
-  }
-
+  if (state.teams.size() < 2) return;
   const TeamChoice& home = state.Home();
   const TeamChoice& away = state.Away();
   ui.SetElementText("quick-home-crest", EscapeRmlText(CrestLetter(home.name)));
   ui.SetElementText("quick-home-name", EscapeRmlText(home.name));
-  ui.SetElementText("quick-home-meta",
-                    EscapeRmlText("HOME" + (home.league.empty() ? std::string() : " · " + home.league)));
+  ui.SetElementText("quick-home-meta", EscapeRmlText("HOME" + (home.league.empty() ? std::string() : " · " + home.league)));
   ui.SetElementText("quick-away-crest", EscapeRmlText(CrestLetter(away.name)));
   ui.SetElementText("quick-away-name", EscapeRmlText(away.name));
-  ui.SetElementText("quick-away-meta",
-                    EscapeRmlText("AWAY" + (away.league.empty() ? std::string() : " · " + away.league)));
+  ui.SetElementText("quick-away-meta", EscapeRmlText("AWAY" + (away.league.empty() ? std::string() : " · " + away.league)));
   ui.SetElementText("quick-half-length", std::to_string(state.HalfLengthMinutes()) + " MIN");
   ui.SetElementText("quick-difficulty", DifficultyName(state.difficultyStep));
-  ui.SetElementText("quick-control-side",
-                    state.controlSide < 0 ? "KEYBOARD · HOME" : "KEYBOARD · AWAY");
-
+  ui.SetElementText("quick-control-side", state.controlSide < 0 ? "KEYBOARD · HOME" : "KEYBOARD · AWAY");
   ui.SetElementText("loading-home-name", EscapeRmlText(home.name));
   ui.SetElementText("loading-away-name", EscapeRmlText(away.name));
   ui.SetElementText("loading-home-crest", EscapeRmlText(CrestLetter(home.name)));
   ui.SetElementText("loading-away-crest", EscapeRmlText(CrestLetter(away.name)));
 }
 
-void BindCareerLoading(blunted::ui::RmlUiSystem& ui,
-                       const blunted::ui::CareerUiViewModel& careerView) {
-  const std::string clubName =
-      careerView.header.clubName.empty() ? "CAREER CLUB" : careerView.header.clubName;
+void BindRuntimeSettings(blunted::ui::RmlUiSystem& ui, const RuntimeSettingsState& state) {
+  ui.SetElementText("settings-window-mode", state.fullscreen ? "FULLSCREEN" : "WINDOWED");
+  ui.SetElementText("settings-resolution", std::to_string(state.Width()) + " × " + std::to_string(state.Height()));
+  ui.SetElementText("settings-vsync", state.vsync ? "ON" : "OFF");
+  ui.SetElementText("settings-difficulty", DifficultyName(state.difficultyStep));
+  ui.SetElementText("settings-game-speed", GameSpeedName(state.gameSpeedStep));
+  ui.SetElementText("settings-volume", std::to_string(state.volume) + "%");
+}
+
+void BindCareerLoading(blunted::ui::RmlUiSystem& ui, const blunted::ui::CareerUiViewModel& careerView) {
+  const std::string clubName = careerView.header.clubName.empty() ? "CAREER CLUB" : careerView.header.clubName;
   ui.SetElementText("loading-mode", "CAREER MODE · MATCHDAY");
   ui.SetElementText("loading-kicker", "CAREER FIXTURE");
   ui.SetElementText("loading-title", "PREPARING CAREER MATCH");
@@ -214,19 +270,14 @@ void BindCareerLoading(blunted::ui::RmlUiSystem& ui,
   ui.SetElementText("loading-home-crest", EscapeRmlText(CrestLetter(clubName)));
   ui.SetElementText("loading-away-name", "NEXT LEAGUE OPPONENT");
   ui.SetElementText("loading-away-crest", "A");
-  ui.SetElementText("loading-copy",
-                    "Loading the active career fixture. The final score will be autosaved after full time.");
+  ui.SetElementText("loading-copy", "Loading the active career fixture. The final score will be autosaved after full time.");
 }
 
 void AdvanceTeam(QuickMatchSetupState& state, bool home) {
-  if (state.teams.size() < 2) {
-    return;
-  }
+  if (state.teams.size() < 2) return;
   std::size_t& index = home ? state.homeIndex : state.awayIndex;
   const std::size_t other = home ? state.awayIndex : state.homeIndex;
-  do {
-    index = (index + 1) % state.teams.size();
-  } while (index == other && state.teams.size() > 1);
+  do { index = (index + 1) % state.teams.size(); } while (index == other && state.teams.size() > 1);
 }
 
 void UpdateDrawableSize(SDL_Window* window, blunted::ui::RmlUiSystem& ui) {
@@ -240,9 +291,7 @@ void UpdateDrawableSize(SDL_Window* window, blunted::ui::RmlUiSystem& ui) {
 }
 
 bool LoadPreviewDocument(blunted::ui::RmlUiSystem& ui, const std::string& path) {
-  if (ui.LoadDocument(path)) {
-    return true;
-  }
+  if (ui.LoadDocument(path)) return true;
   std::fprintf(stderr, "Fotbiler UI Preview: could not load %s\n", path.c_str());
   return false;
 }
@@ -254,57 +303,45 @@ void NavigatePendingRoute(blunted::ui::RmlUiSystem& ui, blunted::ui::ScreenRoute
   }
 }
 
-PreviewExitAction ConsumePendingAction(blunted::ui::RmlUiSystem& ui,
-                                       QuickMatchSetupState& quickMatch) {
+PreviewExitAction ConsumePendingAction(blunted::ui::RmlUiSystem& ui, QuickMatchSetupState& quickMatch,
+                                       RuntimeSettingsState& settings) {
   const std::string action = ui.ConsumeActionRequest();
-  if (action.empty()) {
-    return PreviewExitAction::None;
-  }
+  if (action.empty()) return PreviewExitAction::None;
+
   if (action == "start-quick-match") {
-    std::fprintf(stdout,
-                 "Fotbiler UI Preview: handing START MATCH to gameplayfootball runtime.\n");
+    std::fprintf(stdout, "Fotbiler UI Preview: handing START MATCH to gameplayfootball runtime.\n");
     return PreviewExitAction::LaunchQuickMatch;
   }
   if (action == "start-career-match") {
-    std::fprintf(stdout,
-                 "Fotbiler UI Preview: handing CAREER MATCH to gameplayfootball runtime.\n");
+    std::fprintf(stdout, "Fotbiler UI Preview: handing CAREER MATCH to gameplayfootball runtime.\n");
     return PreviewExitAction::LaunchCareerMatch;
   }
-  if (action == "change-home-team") {
-    AdvanceTeam(quickMatch, true);
-    BindQuickMatchSetup(ui, quickMatch);
-    return PreviewExitAction::None;
-  }
-  if (action == "change-away-team") {
-    AdvanceTeam(quickMatch, false);
-    BindQuickMatchSetup(ui, quickMatch);
-    return PreviewExitAction::None;
-  }
-  if (action == "cycle-half-length") {
-    quickMatch.halfLengthIndex =
-        (quickMatch.halfLengthIndex + 1) % quickMatch.halfLengths.size();
-    BindQuickMatchSetup(ui, quickMatch);
-    return PreviewExitAction::None;
-  }
-  if (action == "cycle-difficulty") {
+  if (action == "change-home-team") AdvanceTeam(quickMatch, true);
+  else if (action == "change-away-team") AdvanceTeam(quickMatch, false);
+  else if (action == "cycle-half-length") quickMatch.halfLengthIndex = (quickMatch.halfLengthIndex + 1) % quickMatch.halfLengths.size();
+  else if (action == "cycle-difficulty") {
     quickMatch.difficultyStep = (quickMatch.difficultyStep + 1) % 5;
-    BindQuickMatchSetup(ui, quickMatch);
-    return PreviewExitAction::None;
-  }
-  if (action == "toggle-control-side") {
-    quickMatch.controlSide = quickMatch.controlSide < 0 ? 1 : -1;
-    BindQuickMatchSetup(ui, quickMatch);
-    return PreviewExitAction::None;
+    settings.difficultyStep = quickMatch.difficultyStep;
+  } else if (action == "toggle-control-side") quickMatch.controlSide = quickMatch.controlSide < 0 ? 1 : -1;
+  else if (action == "toggle-fullscreen") settings.fullscreen = !settings.fullscreen;
+  else if (action == "cycle-resolution") settings.resolutionIndex = (settings.resolutionIndex + 1) % settings.resolutions.size();
+  else if (action == "toggle-vsync") settings.vsync = !settings.vsync;
+  else if (action == "cycle-game-speed") settings.gameSpeedStep = (settings.gameSpeedStep + 1) % 3;
+  else if (action == "cycle-audio-volume") settings.volume = settings.volume >= 100 ? 0 : settings.volume + 10;
+  else if (action == "apply-settings") {
+    SaveRuntimeSettings(settings);
+    std::fprintf(stdout, "Fotbiler UI Preview: runtime settings saved.\n");
+  } else {
+    std::fprintf(stdout, "Fotbiler UI Preview: runtime action '%s' is staged for the in-game host.\n", action.c_str());
   }
 
-  std::fprintf(stdout, "Fotbiler UI Preview: runtime action '%s' is not wired.\n",
-               action.c_str());
+  BindQuickMatchSetup(ui, quickMatch);
+  BindRuntimeSettings(ui, settings);
   return PreviewExitAction::None;
 }
 
 bool BeginRuntimeHandoff(PreviewExitAction action, blunted::ui::RmlUiSystem& ui,
-                         blunted::ui::ScreenRouter& router,
-                         const QuickMatchSetupState& quickMatch,
+                         blunted::ui::ScreenRouter& router, const QuickMatchSetupState& quickMatch,
                          const blunted::ui::CareerUiViewModel& careerView) {
   if (!router.Navigate(blunted::ui::ScreenId::MatchLoading)) {
     std::fprintf(stderr, "Fotbiler UI Preview: could not open modern loading screen.\n");
@@ -331,6 +368,16 @@ std::string GetGameplayExecutablePath() {
   return path;
 }
 
+std::string GetPreviewExecutablePath() {
+  std::string path = GetExecutableBasePath();
+#ifdef _WIN32
+  path += "fotbiler_ui_preview.exe";
+#else
+  path += "fotbiler_ui_preview";
+#endif
+  return path;
+}
+
 void SetEnvInt(const char* name, int value) {
   const std::string text = std::to_string(value);
   SDL_setenv(name, text.c_str(), 1);
@@ -343,19 +390,25 @@ void SetEnvFloat(const char* name, float value) {
 }
 
 int LaunchGameplayFootball(const std::string& executablePath, PreviewExitAction action,
-                           const QuickMatchSetupState& quickMatch) {
+                           const QuickMatchSetupState& quickMatch, const RuntimeSettingsState& settings) {
   if (executablePath.empty() || !std::filesystem::exists(executablePath)) {
-    std::fprintf(stderr, "Fotbiler UI Preview: gameplay executable not found at %s\n",
-                 executablePath.c_str());
+    std::fprintf(stderr, "Fotbiler UI Preview: gameplay executable not found at %s\n", executablePath.c_str());
     return 1;
   }
+
+  SaveRuntimeSettings(settings);
+  SetEnvInt("FOTBILER_UI_CONTEXT_FULLSCREEN", settings.fullscreen ? 1 : 0);
+  SetEnvInt("FOTBILER_UI_CONTEXT_X", settings.Width());
+  SetEnvInt("FOTBILER_UI_CONTEXT_Y", settings.Height());
 
   if (action == PreviewExitAction::LaunchCareerMatch) {
     SDL_setenv("FOTBILER_UI_CAREER_MATCH", "1", 1);
     SDL_setenv("FOTBILER_UI_QUICK_MATCH", "0", 1);
+    SDL_setenv("FOTBILER_UI_MODERN_SESSION", "career", 1);
   } else {
     SDL_setenv("FOTBILER_UI_QUICK_MATCH", "1", 1);
     SDL_setenv("FOTBILER_UI_CAREER_MATCH", "0", 1);
+    SDL_setenv("FOTBILER_UI_MODERN_SESSION", "quick", 1);
     SetEnvInt("FOTBILER_UI_HOME_TEAM_ID", quickMatch.Home().id);
     SetEnvInt("FOTBILER_UI_AWAY_TEAM_ID", quickMatch.Away().id);
     SetEnvInt("FOTBILER_UI_MATCH_DURATION_MINUTES", quickMatch.MatchLengthMinutes());
@@ -370,37 +423,38 @@ int LaunchGameplayFootball(const std::string& executablePath, PreviewExitAction 
     std::fprintf(stderr, "Fotbiler UI Preview: failed to launch gameplayfootball.\n");
     return 1;
   }
+
+  // Keep the player in the modern frontend after the legacy 3D runtime exits.
+  SDL_setenv("FOTBILER_UI_CAREER_MATCH", "0", 1);
+  SDL_setenv("FOTBILER_UI_QUICK_MATCH", "0", 1);
+  SDL_setenv("FOTBILER_UI_MODERN_SESSION", "0", 1);
+  SDL_setenv("FOTBILER_UI_RESUME_CAREER", action == PreviewExitAction::LaunchCareerMatch ? "1" : "0", 1);
+  const std::string previewExecutable = GetPreviewExecutablePath();
+  if (std::filesystem::exists(previewExecutable)) {
+    const std::string previewCommand = "\"" + previewExecutable + "\"";
+    return std::system(previewCommand.c_str());
+  }
   return result;
 }
 
 SDL_GameController* OpenController(int deviceIndex) {
-  if (deviceIndex < 0 || !SDL_IsGameController(deviceIndex)) {
-    return nullptr;
-  }
-
+  if (deviceIndex < 0 || !SDL_IsGameController(deviceIndex)) return nullptr;
   SDL_GameController* controller = SDL_GameControllerOpen(deviceIndex);
   if (controller) {
-    std::fprintf(stdout, "Fotbiler UI Preview: controller connected: %s\n",
-                 SDL_GameControllerName(controller));
+    std::fprintf(stdout, "Fotbiler UI Preview: controller connected: %s\n", SDL_GameControllerName(controller));
   }
   return controller;
 }
 
 SDL_GameController* OpenFirstAvailableController() {
-  const int joystickCount = SDL_NumJoysticks();
-  for (int index = 0; index < joystickCount; ++index) {
-    if (SDL_GameController* controller = OpenController(index)) {
-      return controller;
-    }
+  for (int index = 0; index < SDL_NumJoysticks(); ++index) {
+    if (SDL_GameController* controller = OpenController(index)) return controller;
   }
   return nullptr;
 }
 
 SDL_JoystickID ControllerInstanceId(SDL_GameController* controller) {
-  if (!controller) {
-    return -1;
-  }
-  return SDL_JoystickInstanceID(SDL_GameControllerGetJoystick(controller));
+  return controller ? SDL_JoystickInstanceID(SDL_GameControllerGetJoystick(controller)) : -1;
 }
 
 void SendNavigationKey(blunted::ui::RmlUiSystem& ui, SDL_Keycode key) {
@@ -413,7 +467,6 @@ void SendNavigationKey(blunted::ui::RmlUiSystem& ui, SDL_Keycode key) {
   keyDown.key.keysym.sym = key;
   keyDown.key.keysym.mod = KMOD_NONE;
   ui.HandleEvent(keyDown);
-
   SDL_Event keyUp = keyDown;
   keyUp.type = SDL_KEYUP;
   keyUp.key.type = SDL_KEYUP;
@@ -425,7 +478,6 @@ void SendNavigationKey(blunted::ui::RmlUiSystem& ui, SDL_Keycode key) {
 
 int main() {
   SDL_SetMainReady();
-
   if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_GAMECONTROLLER) != 0) {
     std::fprintf(stderr, "Fotbiler UI Preview: SDL init failed: %s\n", SDL_GetError());
     return 1;
@@ -459,7 +511,6 @@ int main() {
 
   SDL_GL_MakeCurrent(window, glContext);
   SDL_GL_SetSwapInterval(1);
-
   int drawableWidth = 0;
   int drawableHeight = 0;
   SDL_GL_GetDrawableSize(window, &drawableWidth, &drawableHeight);
@@ -474,23 +525,26 @@ int main() {
   }
 
   const CareerSave previewSave = blunted::ui::BuildCareerPreviewSave();
-  const blunted::ui::CareerUiViewModel careerView =
-      blunted::ui::BuildCareerUiViewModel(previewSave);
-  const blunted::ui::CareerDetailViewModel detailView =
-      blunted::ui::BuildCareerDetailViewModel(previewSave);
+  const blunted::ui::CareerUiViewModel careerView = blunted::ui::BuildCareerUiViewModel(previewSave);
+  const blunted::ui::CareerDetailViewModel detailView = blunted::ui::BuildCareerDetailViewModel(previewSave);
   QuickMatchSetupState quickMatch = BuildQuickMatchSetupState();
+  RuntimeSettingsState settings = LoadRuntimeSettings();
+  quickMatch.difficultyStep = settings.difficultyStep;
 
-  blunted::ui::ScreenRouter router(
-      [&ui, &careerView, &detailView, &quickMatch](const std::string& path) {
-        if (!LoadPreviewDocument(ui, path)) {
-          return false;
-        }
-        blunted::ui::BindCareerUiViewModel(ui, careerView);
-        blunted::ui::BindCareerDetailViewModel(ui, detailView);
-        BindQuickMatchSetup(ui, quickMatch);
-        return true;
-      });
-  if (!router.Navigate(blunted::ui::ScreenId::MainMenu)) {
+  blunted::ui::ScreenRouter router([&](const std::string& path) {
+    if (!LoadPreviewDocument(ui, path)) return false;
+    blunted::ui::BindCareerUiViewModel(ui, careerView);
+    blunted::ui::BindCareerDetailViewModel(ui, detailView);
+    BindQuickMatchSetup(ui, quickMatch);
+    BindRuntimeSettings(ui, settings);
+    return true;
+  });
+
+  const blunted::ui::ScreenId initialScreen =
+      EnvironmentFlagEnabled("FOTBILER_UI_RESUME_CAREER") ? blunted::ui::ScreenId::CareerCentral
+                                                          : blunted::ui::ScreenId::MainMenu;
+  SDL_setenv("FOTBILER_UI_RESUME_CAREER", "0", 1);
+  if (!router.Navigate(initialScreen)) {
     ui.Shutdown();
     SDL_GL_DeleteContext(glContext);
     SDL_DestroyWindow(window);
@@ -514,8 +568,7 @@ int main() {
           exitAction = PreviewExitAction::None;
           running = false;
         } else if (event.type == SDL_WINDOWEVENT &&
-                   (event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED ||
-                    event.window.event == SDL_WINDOWEVENT_RESIZED)) {
+                   (event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED || event.window.event == SDL_WINDOWEVENT_RESIZED)) {
           UpdateDrawableSize(window, ui);
         }
         continue;
@@ -530,9 +583,7 @@ int main() {
       } else if (event.type == SDL_KEYDOWN && event.key.repeat == 0) {
         switch (event.key.keysym.sym) {
           case SDLK_ESCAPE:
-            if (!router.Back()) {
-              running = false;
-            }
+            if (!router.Back()) running = false;
             forwardToUi = false;
             break;
           case SDLK_RETURN:
@@ -540,76 +591,37 @@ int main() {
             activateFocusedElement = true;
             forwardToUi = false;
             break;
-          case SDLK_F1:
-            router.Navigate(blunted::ui::ScreenId::MainMenu);
-            forwardToUi = false;
-            break;
-          case SDLK_F2:
-            router.Navigate(blunted::ui::ScreenId::CareerCentral);
-            forwardToUi = false;
-            break;
-          case SDLK_F3:
-            router.Navigate(blunted::ui::ScreenId::Squad);
-            forwardToUi = false;
-            break;
-          case SDLK_F4:
-            router.Navigate(blunted::ui::ScreenId::Transfers);
-            forwardToUi = false;
-            break;
-          case SDLK_F5:
-            router.Navigate(blunted::ui::ScreenId::Office);
-            forwardToUi = false;
-            break;
-          case SDLK_F6:
-            router.Navigate(blunted::ui::ScreenId::Season);
-            forwardToUi = false;
-            break;
-          case SDLK_F7:
-            router.Navigate(blunted::ui::ScreenId::Tactics);
-            forwardToUi = false;
-            break;
-          case SDLK_F8:
-            router.Navigate(blunted::ui::ScreenId::CareerModeSelect);
-            forwardToUi = false;
-            break;
-          case SDLK_F9:
-            router.Navigate(blunted::ui::ScreenId::MatchSetup);
-            forwardToUi = false;
-            break;
-          default:
-            break;
+          case SDLK_F1: router.Navigate(blunted::ui::ScreenId::MainMenu); forwardToUi = false; break;
+          case SDLK_F2: router.Navigate(blunted::ui::ScreenId::CareerCentral); forwardToUi = false; break;
+          case SDLK_F3: router.Navigate(blunted::ui::ScreenId::Squad); forwardToUi = false; break;
+          case SDLK_F4: router.Navigate(blunted::ui::ScreenId::Transfers); forwardToUi = false; break;
+          case SDLK_F5: router.Navigate(blunted::ui::ScreenId::Office); forwardToUi = false; break;
+          case SDLK_F6: router.Navigate(blunted::ui::ScreenId::Season); forwardToUi = false; break;
+          case SDLK_F7: router.Navigate(blunted::ui::ScreenId::Tactics); forwardToUi = false; break;
+          case SDLK_F8: router.Navigate(blunted::ui::ScreenId::CareerModeSelect); forwardToUi = false; break;
+          case SDLK_F9: router.Navigate(blunted::ui::ScreenId::MatchSetup); forwardToUi = false; break;
+          case SDLK_F10: router.Navigate(blunted::ui::ScreenId::RuntimeSettings); forwardToUi = false; break;
+          case SDLK_F11: router.Navigate(blunted::ui::ScreenId::PauseMenu); forwardToUi = false; break;
+          case SDLK_F12: router.Navigate(blunted::ui::ScreenId::MatchHud); forwardToUi = false; break;
+          case SDLK_h: router.Navigate(blunted::ui::ScreenId::Halftime); forwardToUi = false; break;
+          case SDLK_j: router.Navigate(blunted::ui::ScreenId::Fulltime); forwardToUi = false; break;
+          case SDLK_m: router.Navigate(blunted::ui::ScreenId::MatchStats); forwardToUi = false; break;
+          default: break;
         }
       } else if (event.type == SDL_CONTROLLERBUTTONDOWN) {
         forwardToUi = false;
         switch (event.cbutton.button) {
-          case SDL_CONTROLLER_BUTTON_DPAD_UP:
-            SendNavigationKey(ui, SDLK_UP);
-            break;
-          case SDL_CONTROLLER_BUTTON_DPAD_DOWN:
-            SendNavigationKey(ui, SDLK_DOWN);
-            break;
-          case SDL_CONTROLLER_BUTTON_DPAD_LEFT:
-            SendNavigationKey(ui, SDLK_LEFT);
-            break;
-          case SDL_CONTROLLER_BUTTON_DPAD_RIGHT:
-            SendNavigationKey(ui, SDLK_RIGHT);
-            break;
-          case SDL_CONTROLLER_BUTTON_A:
-            activateFocusedElement = true;
-            break;
-          case SDL_CONTROLLER_BUTTON_B:
-            if (!router.Back()) {
-              running = false;
-            }
-            break;
-          default:
-            break;
+          case SDL_CONTROLLER_BUTTON_DPAD_UP: SendNavigationKey(ui, SDLK_UP); break;
+          case SDL_CONTROLLER_BUTTON_DPAD_DOWN: SendNavigationKey(ui, SDLK_DOWN); break;
+          case SDL_CONTROLLER_BUTTON_DPAD_LEFT: SendNavigationKey(ui, SDLK_LEFT); break;
+          case SDL_CONTROLLER_BUTTON_DPAD_RIGHT: SendNavigationKey(ui, SDLK_RIGHT); break;
+          case SDL_CONTROLLER_BUTTON_A: activateFocusedElement = true; break;
+          case SDL_CONTROLLER_BUTTON_B: if (!router.Back()) running = false; break;
+          default: break;
         }
       } else if (event.type == SDL_CONTROLLERDEVICEADDED) {
         forwardToUi = false;
-        if (!controller) {
-          controller = OpenController(event.cdevice.which);
-        }
+        if (!controller) controller = OpenController(event.cdevice.which);
       } else if (event.type == SDL_CONTROLLERDEVICEREMOVED) {
         forwardToUi = false;
         if (controller && ControllerInstanceId(controller) == event.cdevice.which) {
@@ -617,20 +629,15 @@ int main() {
           controller = OpenFirstAvailableController();
         }
       } else if (event.type == SDL_WINDOWEVENT &&
-                 (event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED ||
-                  event.window.event == SDL_WINDOWEVENT_RESIZED)) {
+                 (event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED || event.window.event == SDL_WINDOWEVENT_RESIZED)) {
         UpdateDrawableSize(window, ui);
       }
 
-      if (forwardToUi) {
-        ui.HandleEvent(event);
-      }
-      if (activateFocusedElement) {
-        ui.ActivateFocusedElement();
-      }
+      if (forwardToUi) ui.HandleEvent(event);
+      if (activateFocusedElement) ui.ActivateFocusedElement();
       NavigatePendingRoute(ui, router);
 
-      const PreviewExitAction action = ConsumePendingAction(ui, quickMatch);
+      const PreviewExitAction action = ConsumePendingAction(ui, quickMatch, settings);
       if (action != PreviewExitAction::None) {
         exitAction = action;
         if (BeginRuntimeHandoff(action, ui, router, quickMatch, careerView)) {
@@ -643,35 +650,26 @@ int main() {
       }
     }
 
-    if (!running) {
-      break;
-    }
-
+    if (!running) break;
     glClearColor(0.035f, 0.055f, 0.09f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
     ui.Update();
     ui.Render();
     SDL_GL_SwapWindow(window);
-
-    if (handoffPending && SDL_GetTicks64() >= handoffDeadlineMs) {
-      running = false;
-    }
+    if (handoffPending && SDL_GetTicks64() >= handoffDeadlineMs) running = false;
   }
 
   const std::string gameplayExecutable =
       exitAction != PreviewExitAction::None ? GetGameplayExecutablePath() : std::string();
 
-  if (controller) {
-    SDL_GameControllerClose(controller);
-  }
+  if (controller) SDL_GameControllerClose(controller);
   ui.Shutdown();
   SDL_GL_DeleteContext(glContext);
   SDL_DestroyWindow(window);
   SDL_Quit();
 
   if (exitAction != PreviewExitAction::None) {
-    return LaunchGameplayFootball(gameplayExecutable, exitAction, quickMatch);
+    return LaunchGameplayFootball(gameplayExecutable, exitAction, quickMatch, settings);
   }
   return 0;
 }
