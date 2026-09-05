@@ -36,10 +36,13 @@ namespace {
 constexpr const char* kDisplayIndexEnv = "FOTBILER_UI_DISPLAY_INDEX";
 constexpr const char* kWindowXEnv = "FOTBILER_UI_WINDOW_X";
 constexpr const char* kWindowYEnv = "FOTBILER_UI_WINDOW_Y";
+constexpr const char* kLoadingHomeNameEnv = "FOTBILER_UI_LOADING_HOME_NAME";
+constexpr const char* kLoadingAwayNameEnv = "FOTBILER_UI_LOADING_AWAY_NAME";
 
 SDL_Window* g_runtimeWindow = nullptr;
 std::unique_ptr<blunted::ui::RmlUiSystem> g_runtimeUi;
 blunted::ui::runtime::Screen g_loadedScreen = blunted::ui::runtime::Screen::None;
+bool g_exitMatchConfirmOpen = false;
 
 bool EnvironmentInt(const char* name, int& value) {
   const char* text = SDL_getenv(name);
@@ -49,6 +52,21 @@ bool EnvironmentInt(const char* name, int& value) {
   if (!end || *end != '\0') return false;
   value = static_cast<int>(parsed);
   return true;
+}
+
+std::string EnvironmentString(const char* name, const char* fallback) {
+  const char* value = SDL_getenv(name);
+  return value && value[0] != '\0' ? std::string(value) : std::string(fallback);
+}
+
+std::string CrestLetter(const std::string& name) {
+  for (char ch : name) {
+    if ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z')) {
+      if (ch >= 'a' && ch <= 'z') ch = static_cast<char>(ch - ('a' - 'A'));
+      return std::string(1, ch);
+    }
+  }
+  return "F";
 }
 
 void SetEnvironmentInt(const char* name, int value) {
@@ -96,6 +114,7 @@ void InitializeRuntimeUiIfNeeded(SDL_Window* window) {
   g_runtimeWindow = window;
   g_runtimeUi = std::move(ui);
   g_loadedScreen = blunted::ui::runtime::Screen::None;
+  g_exitMatchConfirmOpen = false;
 
   // The frontend already showed Fotbiler's loading document before handing
   // execution to gameplayfootball. Keep the same visual language alive in the
@@ -112,11 +131,48 @@ void ShutdownRuntimeUi() {
   }
   g_runtimeWindow = nullptr;
   g_loadedScreen = blunted::ui::runtime::Screen::None;
+  g_exitMatchConfirmOpen = false;
   blunted::ui::runtime::Reset();
+}
+
+void BindLoadingContext() {
+  if (!g_runtimeUi || g_loadedScreen != blunted::ui::runtime::Screen::Loading) return;
+
+  const std::string home = EnvironmentString(kLoadingHomeNameEnv, "HOME TEAM");
+  const std::string away = EnvironmentString(kLoadingAwayNameEnv, "AWAY TEAM");
+  const std::string session = EnvironmentString("FOTBILER_UI_MODERN_SESSION", "quick");
+  const bool career = session == "career";
+
+  g_runtimeUi->SetElementText("loading-home-name", home);
+  g_runtimeUi->SetElementText("loading-away-name", away);
+  g_runtimeUi->SetElementText("loading-home-crest", CrestLetter(home));
+  g_runtimeUi->SetElementText("loading-away-crest", CrestLetter(away));
+  g_runtimeUi->SetElementText("loading-mode",
+                              career ? "CAREER MODE · MATCHDAY" : "QUICK MATCH · MATCH ENGINE");
+  g_runtimeUi->SetElementText("loading-kicker", career ? "CAREER FIXTURE" : "KICK OFF");
+  g_runtimeUi->SetElementText("loading-title",
+                              career ? "PREPARING CAREER MATCH" : "PREPARING MATCH");
+}
+
+void ShowExitMatchConfirmation() {
+  if (!g_runtimeUi || g_loadedScreen != blunted::ui::runtime::Screen::Pause) return;
+  if (!g_runtimeUi->SetElementProperty("exit-match-confirm-overlay", "display", "block")) return;
+  g_exitMatchConfirmOpen = true;
+  g_runtimeUi->FocusElement("exit-match-cancel");
+}
+
+void HideExitMatchConfirmation() {
+  if (!g_runtimeUi) return;
+  g_runtimeUi->SetElementProperty("exit-match-confirm-overlay", "display", "none");
+  g_exitMatchConfirmOpen = false;
+  if (!g_runtimeUi->FocusElement("pause-exit-match")) {
+    g_runtimeUi->FocusDefaultElement();
+  }
 }
 
 void HandleRoute(const std::string& route) {
   using blunted::ui::runtime::Screen;
+  if (g_exitMatchConfirmOpen) return;
   if (route == "pause-menu") blunted::ui::runtime::SetScreen(Screen::Pause);
   else if (route == "team-management") blunted::ui::runtime::SetScreen(Screen::TeamManagement);
   else if (route == "match-stats") blunted::ui::runtime::SetScreen(Screen::MatchStats);
@@ -129,10 +185,22 @@ void HandleRoute(const std::string& route) {
 
 void HandleAction(const std::string& action) {
   using blunted::ui::runtime::Command;
+
+  if (action == "cancel-exit-match") {
+    HideExitMatchConfirmation();
+    return;
+  }
+  if (action == "confirm-exit-match") {
+    g_exitMatchConfirmOpen = false;
+    blunted::ui::runtime::SendCommand(Command::ExitMatch);
+    return;
+  }
+  if (g_exitMatchConfirmOpen) return;
+
   if (action == "resume-match") {
     blunted::ui::runtime::SendCommand(Command::ResumeMatch);
-  } else if (action == "forfeit-match" || action == "exit-match") {
-    blunted::ui::runtime::SendCommand(Command::ExitMatch);
+  } else if (action == "exit-match" || action == "forfeit-match") {
+    ShowExitMatchConfirmation();
   }
 }
 
@@ -150,6 +218,7 @@ void SyncDocument() {
   const blunted::ui::runtime::Screen wanted = blunted::ui::runtime::GetScreen();
   if (wanted == g_loadedScreen) return;
 
+  g_exitMatchConfirmOpen = false;
   g_runtimeUi->UnloadDocument();
   g_loadedScreen = blunted::ui::runtime::Screen::None;
   if (wanted == blunted::ui::runtime::Screen::None) return;
@@ -157,6 +226,7 @@ void SyncDocument() {
   const char* path = DocumentForScreen(wanted);
   if (path && g_runtimeUi->LoadDocument(path)) {
     g_loadedScreen = wanted;
+    if (wanted == blunted::ui::runtime::Screen::Loading) BindLoadingContext();
     g_runtimeUi->FocusDefaultElement();
   }
 }
@@ -230,6 +300,29 @@ bool HandleRuntimeInput(SDL_Event& event) {
   }
 
   if (event.type == SDL_KEYDOWN && event.key.repeat == 0) {
+    if (g_exitMatchConfirmOpen) {
+      switch (event.key.keysym.sym) {
+        case SDLK_ESCAPE:
+          HideExitMatchConfirmation();
+          return true;
+        case SDLK_LEFT:
+        case SDLK_UP:
+          g_runtimeUi->FocusElement("exit-match-cancel");
+          return true;
+        case SDLK_RIGHT:
+        case SDLK_DOWN:
+          g_runtimeUi->FocusElement("exit-match-accept");
+          return true;
+        case SDLK_RETURN:
+        case SDLK_KP_ENTER:
+          g_runtimeUi->ActivateFocusedElement();
+          ConsumeUiRequests();
+          return true;
+        default:
+          return IsInputEvent(event.type);
+      }
+    }
+
     if (event.key.keysym.sym == SDLK_ESCAPE) {
       if (blunted::ui::runtime::GetScreen() == Screen::Pause) {
         blunted::ui::runtime::SendCommand(Command::ResumeMatch);
@@ -246,6 +339,28 @@ bool HandleRuntimeInput(SDL_Event& event) {
   }
 
   if (event.type == SDL_CONTROLLERBUTTONDOWN) {
+    if (g_exitMatchConfirmOpen) {
+      switch (event.cbutton.button) {
+        case SDL_CONTROLLER_BUTTON_DPAD_LEFT:
+        case SDL_CONTROLLER_BUTTON_DPAD_UP:
+          g_runtimeUi->FocusElement("exit-match-cancel");
+          return true;
+        case SDL_CONTROLLER_BUTTON_DPAD_RIGHT:
+        case SDL_CONTROLLER_BUTTON_DPAD_DOWN:
+          g_runtimeUi->FocusElement("exit-match-accept");
+          return true;
+        case SDL_CONTROLLER_BUTTON_A:
+          g_runtimeUi->ActivateFocusedElement();
+          ConsumeUiRequests();
+          return true;
+        case SDL_CONTROLLER_BUTTON_B:
+          HideExitMatchConfirmation();
+          return true;
+        default:
+          return true;
+      }
+    }
+
     switch (event.cbutton.button) {
       case SDL_CONTROLLER_BUTTON_DPAD_UP: SendNavigationKey(SDLK_UP); return true;
       case SDL_CONTROLLER_BUTTON_DPAD_DOWN: SendNavigationKey(SDLK_DOWN); return true;
@@ -325,6 +440,7 @@ extern "C" void SDLCALL FotbilerSDLGLSwapWindow(SDL_Window* window) {
     InitializeRuntimeUiIfNeeded(window);
     SyncDocument();
     if (g_runtimeUi && blunted::ui::runtime::GetScreen() != blunted::ui::runtime::Screen::None) {
+      if (g_loadedScreen == blunted::ui::runtime::Screen::Loading) BindLoadingContext();
       BindMatchSnapshot();
       g_runtimeUi->Update();
       g_runtimeUi->Render();
