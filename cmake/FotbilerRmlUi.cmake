@@ -61,12 +61,18 @@ endif()
 # Standalone 2D UI lab. It intentionally uses the same RmlUiSystem and assets
 # as the game, but creates its own SDL/OpenGL window so FIFA-era menu design can
 # be iterated without destabilising the legacy Gui2 runtime during migration.
+# Keep the career persistence pieces deliberately small here: the preview now
+# opens the same save file as gameplayfootball, but it still does not link the
+# legacy menu/game libraries.
 add_executable(fotbiler_ui_preview
   ${PROJECT_SOURCE_DIR}/src/presentation/ui/rmlui/ui_preview.cpp
+  ${PROJECT_SOURCE_DIR}/src/core/career/career_common.cpp
+  ${PROJECT_SOURCE_DIR}/src/menu/career/career_persistence.cpp
 )
 target_compile_features(fotbiler_ui_preview PRIVATE cxx_std_17)
 target_include_directories(fotbiler_ui_preview PRIVATE
   ${PROJECT_SOURCE_DIR}/src
+  ${PROJECT_SOURCE_DIR}/src/core/career
   ${SDL2_INCLUDE_DIR}
   ${OPENGL_INCLUDE_DIR}
 )
