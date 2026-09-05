@@ -18,6 +18,9 @@
 #ifdef SDL_GL_SwapWindow
 #undef SDL_GL_SwapWindow
 #endif
+#ifdef SDL_GL_DeleteContext
+#undef SDL_GL_DeleteContext
+#endif
 
 #include <SDL2/SDL.h>
 
@@ -106,7 +109,8 @@ void ShutdownRuntimeUi() {
 
 void HandleRoute(const std::string& route) {
   using blunted::ui::runtime::Screen;
-  if (route == "team-management") blunted::ui::runtime::SetScreen(Screen::TeamManagement);
+  if (route == "pause-menu") blunted::ui::runtime::SetScreen(Screen::Pause);
+  else if (route == "team-management") blunted::ui::runtime::SetScreen(Screen::TeamManagement);
   else if (route == "match-stats") blunted::ui::runtime::SetScreen(Screen::MatchStats);
   else if (route == "replay-modern") blunted::ui::runtime::SetScreen(Screen::Replay);
   else if (route == "runtime-settings") blunted::ui::runtime::SetScreen(Screen::Settings);
@@ -270,7 +274,6 @@ extern "C" SDL_Window* SDLCALL FotbilerSDLCreateWindow(const char* title, int x,
 
 extern "C" void SDLCALL FotbilerSDLDestroyWindow(SDL_Window* window) {
   if (window) {
-    if (window == g_runtimeWindow) ShutdownRuntimeUi();
     const int displayIndex = SDL_GetWindowDisplayIndex(window);
     if (displayIndex >= 0) SetEnvironmentInt(kDisplayIndexEnv, displayIndex);
     int x = 0, y = 0;
@@ -311,4 +314,11 @@ extern "C" void SDLCALL FotbilerSDLGLSwapWindow(SDL_Window* window) {
     }
   }
   SDL_GL_SwapWindow(window);
+}
+
+extern "C" void SDLCALL FotbilerSDLGLDeleteContext(SDL_GLContext context) {
+  // RmlUi's GL renderer owns buffers/textures tied to this context. Release
+  // those resources while the context is still current and valid.
+  ShutdownRuntimeUi();
+  SDL_GL_DeleteContext(context);
 }
