@@ -276,8 +276,6 @@ bool MenuTask::PrepareFotbilerUiCareerMatch() {
   CareerDatabase& career = CareerDatabase::GetInstance();
   career.Initialize("user/career");
   if (!career.GetActiveSave()) {
-    // The spawned runtime is a new process. Prefer the autosave because a
-    // previous 3D result is committed there immediately after full time.
     if (!career.LoadCareerSlot(-1) && !career.LoadCareerSlot(0)) {
       std::fprintf(stderr, "[fotbiler-ui] Career Match: no career save could be loaded\n");
       return false;
@@ -408,9 +406,12 @@ void MenuTask::ProcessPhase() {
 }
 
 bool MenuTask::QuickStart() {
+  if (uiDirectMatchReady) {
+    return true;
+  }
   const bool developerQuickStart =
       !IsReleaseVersion() && GetConfiguration()->GetBool("quick_start", false);
-  return (uiDirectMatchReady || developerQuickStart) &&
+  return developerQuickStart &&
          EnvironmentManager::GetInstance().GetTime_ms() < 10000;
 }
 
