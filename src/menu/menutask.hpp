@@ -2,6 +2,7 @@
 #define _HPP_GUI2_MENUTASK
 
 #include "../gamedefines.hpp"
+#include "../presentation/ui/rmlui/frontend_runtime_bridge.hpp"
 #include "ingame/gamepage.hpp"
 #include "scene/scene3d/scene3d.hpp"
 #include "utils/gui2/guitask.hpp"
@@ -54,6 +55,11 @@ public:
 
   void ReleaseAllButtons();
 
+  // Single-process Fotbiler lifecycle. Match pages call this instead of
+  // terminating gameplayfootball; MenuTask stops the live match in its own
+  // game phase and hands the same renderer window back to RmlUi frontend mode.
+  void ReturnToFotbilerFrontend(blunted::ui::frontend::ReturnTarget target);
+
   void SetControllerSetup(const std::vector<SideSelection>& sides) {
     queuedFixture.Lock();
     queuedFixture->sides = sides;
@@ -85,13 +91,10 @@ public:
   }
   MatchData* GetMatchData() {
     return queuedFixture.GetData().matchData;
-  }  // hint: this lock is useless, since we are returning the pointer and not a copy
+  }
 
   void SetMenuAction(e_MenuAction menuAction) { this->menuAction = menuAction; }
 
-  // Modern direct-match sessions still reuse the legacy MenuTask state machine,
-  // but its full-screen stadium background must not bleed through Fotbiler's
-  // RmlUi loading/3D presentation.
   void SetMenuBackgroundVisible(bool visible) {
     if (!menuBackground) return;
     if (visible)
@@ -103,14 +106,17 @@ public:
 protected:
   bool PrepareFotbilerUiDirectMatch();
   bool PrepareFotbilerUiQuickMatch();
+  bool PrepareFotbilerUiQuickMatch(const blunted::ui::frontend::LaunchRequest& request);
   bool PrepareFotbilerUiCareerMatch();
   void SetSingleControlledSide(int side);
 
   e_MenuAction menuAction;
   bool uiDirectMatchReady;
+  bool frontendReturnPending;
+  blunted::ui::frontend::ReturnTarget frontendReturnTarget;
 
   Gui2Image* menuBackground;
-  Lockable<QueuedFixture> queuedFixture;  // todo: we can probably unlock this stuff
+  Lockable<QueuedFixture> queuedFixture;
 };
 
 #endif
