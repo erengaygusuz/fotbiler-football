@@ -38,7 +38,9 @@ inline void BindCareerDetailViewModel(RmlUiSystem& ui, const CareerDetailViewMod
   BindDetailNumber(ui, "finance-debt-level", view.finances.debtLevel);
 
   BindDetailNumber(ui, "contracts-expiring-count", view.contracts.expiringSoon);
+  BindDetailNumber(ui, "contracts-expiring-count-copy", view.contracts.expiringSoon);
   BindDetailText(ui, "contracts-total-wages", view.contracts.totalWeeklyWages);
+  BindDetailText(ui, "contracts-total-wages-copy", view.contracts.totalWeeklyWages);
   for (size_t i = 0; i < view.contracts.players.size() && i < 8; ++i) {
     const CareerContractRowView& player = view.contracts.players[i];
     const std::string suffix = std::to_string(i);
@@ -51,6 +53,7 @@ inline void BindCareerDetailViewModel(RmlUiSystem& ui, const CareerDetailViewMod
 
   BindDetailNumber(ui, "staff-count", view.staff.count);
   BindDetailText(ui, "staff-payroll", view.staff.totalPayroll);
+  BindDetailText(ui, "staff-payroll-copy", view.staff.totalPayroll);
   for (size_t i = 0; i < view.staff.members.size() && i < 8; ++i) {
     const CareerStaffRowView& member = view.staff.members[i];
     const std::string suffix = std::to_string(i);
@@ -62,6 +65,7 @@ inline void BindCareerDetailViewModel(RmlUiSystem& ui, const CareerDetailViewMod
   }
 
   BindDetailText(ui, "youth-region", view.youth.regionFocus);
+  BindDetailText(ui, "youth-region-copy", view.youth.regionFocus);
   BindDetailNumber(ui, "youth-intake", view.youth.monthlyIntakeSize);
   BindDetailNumber(ui, "youth-promoted", view.youth.promotedCount);
   BindDetailNumber(ui, "youth-count", static_cast<int>(view.youth.prospects.size()));
@@ -76,7 +80,9 @@ inline void BindCareerDetailViewModel(RmlUiSystem& ui, const CareerDetailViewMod
   }
 
   BindDetailText(ui, "scouting-region", view.scouting.activeRegion);
+  BindDetailText(ui, "scouting-region-copy", view.scouting.activeRegion);
   BindDetailNumber(ui, "scouting-months", view.scouting.monthsRemaining);
+  BindDetailNumber(ui, "scouting-months-copy", view.scouting.monthsRemaining);
   BindDetailNumber(ui, "scouting-shortlist-count", view.scouting.shortlistCount);
   BindDetailNumber(ui, "scouting-discovered-count", view.scouting.discoveredCount);
   for (size_t i = 0; i < view.scouting.prospects.size() && i < 8; ++i) {
@@ -94,7 +100,9 @@ inline void BindCareerDetailViewModel(RmlUiSystem& ui, const CareerDetailViewMod
 
   BindDetailText(ui, "competition-name", view.competition.leagueName);
   BindDetailNumber(ui, "competition-position", view.competition.position);
+  BindDetailNumber(ui, "competition-position-copy", view.competition.position);
   BindDetailNumber(ui, "competition-points", view.competition.points);
+  BindDetailNumber(ui, "competition-points-copy", view.competition.points);
   BindDetailNumber(ui, "competition-played", view.competition.played);
   BindDetailNumber(ui, "competition-wins", view.competition.wins);
   BindDetailNumber(ui, "competition-draws", view.competition.draws);
@@ -104,6 +112,7 @@ inline void BindCareerDetailViewModel(RmlUiSystem& ui, const CareerDetailViewMod
   BindDetailNumber(ui, "competition-progress", view.competition.progressPercent);
 
   BindDetailNumber(ui, "calendar-current-week", view.calendar.currentWeek);
+  BindDetailNumber(ui, "calendar-current-week-copy", view.calendar.currentWeek);
   BindDetailNumber(ui, "calendar-max-weeks", view.calendar.maxWeeks);
   BindDetailNumber(ui, "calendar-fixture-count", static_cast<int>(view.calendar.fixtures.size()));
   for (size_t i = 0; i < view.calendar.fixtures.size() && i < 8; ++i) {
