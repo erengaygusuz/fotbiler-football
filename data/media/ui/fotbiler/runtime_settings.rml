@@ -29,11 +29,11 @@
             <div class="runtime-nav-item" tabindex="0" data-route="camera-settings">CAMERA</div>
             <div class="runtime-nav-item" tabindex="0" data-route="visual-settings">VISUAL &amp; SYSTEM</div>
             <div class="runtime-nav-item" tabindex="0" data-action="apply-settings">APPLY &amp; SAVE</div>
-            <div class="runtime-card-kicker" style="margin-top:18px;">NOTE</div><div class="runtime-muted">Fotbiler saves these frontend preferences and hands the selected display mode directly to the 3D match runtime.</div>
+            <div class="runtime-card-kicker" style="margin-top:18px;">NOTE</div><div class="runtime-muted">Apply &amp; Save updates the active Fotbiler window directly and stores these preferences for the next launch.</div>
           </div>
         </div>
       </div>
-      <div class="runtime-footer"><div><span class="runtime-hint"><span class="runtime-key">ENTER</span>Select</span><span class="runtime-hint"><span class="runtime-key">ESC</span>Back</span></div><div>M1C · SETTINGS</div></div>
+      <div class="runtime-footer"><div><span class="runtime-hint"><span class="runtime-key">ENTER</span>Select</span><span class="runtime-hint"><span class="runtime-key">ESC</span>Back</span></div><div>M1A · SETTINGS</div></div>
     </div>
   </div>
 </body>
