@@ -33,9 +33,14 @@
 
 namespace {
 
-bool ModernUiSessionActive() {
-  const char* session = std::getenv("FOTBILER_UI_MODERN_SESSION");
-  return session && session[0] != '\0' && session[0] != '0';
+bool EnvironmentFlagEnabled(const char* name) {
+  const char* value = std::getenv(name);
+  return value && value[0] != '\0' && value[0] != '0';
+}
+
+bool ModernUiActive() {
+  return EnvironmentFlagEnabled("FOTBILER_UI_MODERN_SESSION") ||
+         EnvironmentFlagEnabled("FOTBILER_UI_MODERN_APP");
 }
 
 }  // namespace
@@ -188,12 +193,10 @@ void Exit() {
 
   printf("READY\n");
 
-  // Upstream kept the process alive for a full second after all gameplay,
-  // graphics and input systems were already torn down. That delay is visible
-  // in the modern frontend handoff as a stale loading window after leaving a
-  // match. Preserve it for the legacy application path, but modern Fotbiler
-  // sessions should return immediately once teardown is complete.
-  if (!ModernUiSessionActive()) {
+  // Preserve the upstream one-second shutdown pause only for the legacy app.
+  // Modern Fotbiler sessions and the new single-process frontend should close
+  // as soon as teardown is complete.
+  if (!ModernUiActive()) {
     EnvironmentManager::GetInstance().Pause_ms(1000);
   }
   EnvironmentManager::GetInstance().Destroy();
