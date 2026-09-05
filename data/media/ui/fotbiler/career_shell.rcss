@@ -80,3 +80,9 @@ body { font-family: "Fotbiler Sans"; }
 .ui-pitch-half-line, .pitch-half-line { position: absolute; left: 7%; top: 50%; width: 86%; height: 2px; background-color: #6c8d9c; }
 .ui-pitch-circle, .pitch-circle { position: absolute; left: 43%; top: 41%; width: 14%; height: 18%; border-width: 2px; border-color: #6c8d9c; border-radius: 50%; }
 .ui-pitch-center-dot, .pitch-center-dot { position: absolute; left: 49.5%; top: 49%; width: 8px; height: 8px; border-radius: 4px; background-color: #6c8d9c; }
+
+/* M1A.3: reusable secondary tab strip. */
+.ui-subtabs, .tactics-subtabs { display: flex; width: 100%; background-color: #e7ecef; border-bottom-width: 1px; border-bottom-color: #cbd4d9; }
+.ui-subtab, .tactics-subtab { position: relative; color: #657a87; letter-spacing: 1px; }
+.ui-subtab.active, .tactics-subtab.active { color: #10202d; font-family: "Fotbiler Display"; }
+.ui-subtab.active:after, .tactics-subtab.active:after { content: ""; position: absolute; left: 18px; right: 18px; bottom: 0; height: 4px; background-color: #19d3b1; }
