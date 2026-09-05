@@ -1,63 +1,63 @@
 body { font-family: "Fotbiler Sans"; }
 
-.season-content { width: 100%; height: 70%; padding-top: 18px; }
+.season-content { width: 100%; height: 61%; padding-top: 14px; }
 .season-top-row { display: flex; width: 100%; height: 58%; }
 .season-bottom-row { display: flex; width: 100%; height: 40%; margin-top: 2%; }
 .season-card { position: relative; box-sizing: border-box; overflow: hidden; background-color: #f7f8f9; border-width: 2px; border-color: #f7f8f9; color: #10202d; nav: auto; transition: transform border-color 0.15s sine-out; }
 .season-card:hover, .season-card:focus { transform: translateY(-2px); border-color: #ffffff; }
 .season-header { display: flex; width: 100%; justify-content: space-between; align-items: center; }
-.season-title { display: block; margin-top: 3px; font-family: "Fotbiler Display"; font-size: 27px; line-height: 29px; }
+.season-title { display: block; margin-top: 2px; font-family: "Fotbiler Display"; font-size: 24px; line-height: 26px; }
 .season-title.light { color: #ffffff; }
-.month-nav, .small-link { color: #547084; font-size: 11px; letter-spacing: 1px; }
+.month-nav, .small-link { color: #547084; font-size: 10px; letter-spacing: 1px; }
 
-.calendar-card { width: 61%; height: 100%; margin-right: 2%; padding: 20px 22px; }
-.weekday-row { display: flex; width: 100%; margin-top: 14px; padding-bottom: 6px; border-bottom-width: 1px; border-bottom-color: #d2d9dd; color: #71838f; font-size: 9px; letter-spacing: 0.8px; }
+.calendar-card { width: 61%; height: 100%; margin-right: 2%; padding: 15px 18px; }
+.weekday-row { display: flex; width: 100%; margin-top: 8px; padding-bottom: 4px; border-bottom-width: 1px; border-bottom-color: #d2d9dd; color: #71838f; font-size: 8px; letter-spacing: 0.8px; }
 .weekday-row span { width: 14.285%; text-align: center; }
-.calendar-grid { display: flex; flex-wrap: wrap; width: 100%; margin-top: 5px; }
-.day { position: relative; width: 14.285%; height: 56px; box-sizing: border-box; padding: 6px 7px; border-right-width: 1px; border-bottom-width: 1px; border-color: #e0e5e8; background-color: #f7f8f9; color: #425865; font-size: 10px; }
-.day b { display: block; font-family: "Fotbiler Display"; font-size: 12px; }
+.calendar-grid { display: flex; flex-wrap: wrap; width: 100%; margin-top: 3px; }
+.day { position: relative; width: 14.285%; height: 45px; box-sizing: border-box; padding: 4px 6px; border-right-width: 1px; border-bottom-width: 1px; border-color: #e0e5e8; background-color: #f7f8f9; color: #425865; font-size: 9px; }
+.day b { display: block; font-family: "Fotbiler Display"; font-size: 11px; }
 .day.muted { color: #aeb9bf; background-color: #edf0f2; }
 .day.current { background-color: #19d3b1; color: #10202d; }
 .day.fixture { background-color: #e5edf1; }
-.day-note { display: block; margin-top: 4px; font-size: 8px; letter-spacing: 0.5px; }
-.fixture-tag { position: absolute; right: 5px; top: 5px; width: 17px; height: 17px; line-height: 17px; border-radius: 9px; text-align: center; font-family: "Fotbiler Display"; font-size: 9px; }
+.day-note { display: block; margin-top: 2px; font-size: 7px; letter-spacing: 0.4px; }
+.fixture-tag { position: absolute; right: 4px; top: 4px; width: 15px; height: 15px; line-height: 15px; border-radius: 8px; text-align: center; font-family: "Fotbiler Display"; font-size: 8px; }
 .fixture-tag.home { background-color: #19d3b1; color: #10202d; }
 .fixture-tag.away { background-color: #214d70; color: #ffffff; }
 
-.competitions-card { width: 37%; height: 100%; padding: 22px 24px; background-color: #17334a; border-color: #17334a; color: #ffffff; }
+.competitions-card { width: 37%; height: 100%; padding: 16px 20px; background-color: #17334a; border-color: #17334a; color: #ffffff; }
 .competitions-card .card-kicker { color: #a9bbc6; }
-.competition-row { display: flex; width: 100%; margin-top: 13px; padding: 11px 0; border-bottom-width: 1px; border-bottom-color: #34546a; align-items: center; }
-.comp-badge { width: 38px; height: 38px; line-height: 38px; border-radius: 19px; text-align: center; background-color: #19d3b1; color: #10202d; font-family: "Fotbiler Display"; font-size: 18px; }
+.competition-row { display: flex; width: 100%; margin-top: 7px; padding: 7px 0; border-bottom-width: 1px; border-bottom-color: #34546a; align-items: center; }
+.comp-badge { width: 31px; height: 31px; line-height: 31px; border-radius: 16px; text-align: center; background-color: #19d3b1; color: #10202d; font-family: "Fotbiler Display"; font-size: 15px; }
 .comp-badge.cup { background-color: #f7f8f9; color: #17334a; }
 .comp-badge.euro { background-color: #dd3c91; color: #ffffff; }
-.comp-copy { width: 63%; margin-left: 12px; }
+.comp-copy { width: 63%; margin-left: 10px; }
 .comp-copy strong, .comp-copy span { display: block; }
-.comp-copy strong { font-family: "Fotbiler Display"; font-size: 13px; }
-.comp-copy span { margin-top: 2px; color: #9fb2bd; font-size: 9px; letter-spacing: 0.6px; }
-.comp-state { width: 24%; text-align: right; color: #19d3b1; font-size: 9px; letter-spacing: 0.8px; }
+.comp-copy strong { font-family: "Fotbiler Display"; font-size: 11px; }
+.comp-copy span { margin-top: 1px; color: #9fb2bd; font-size: 8px; letter-spacing: 0.5px; }
+.comp-state { width: 24%; text-align: right; color: #19d3b1; font-size: 8px; letter-spacing: 0.7px; }
 .comp-state.dim { color: #9fb2bd; }
-.season-progress { display: flex; width: 100%; margin-top: 17px; color: #a9bbc6; font-size: 10px; justify-content: space-between; }
+.season-progress { display: flex; width: 100%; margin-top: 9px; color: #a9bbc6; font-size: 8px; justify-content: space-between; }
 .season-progress strong { color: #ffffff; }
-.progress-track { width: 100%; height: 6px; margin-top: 7px; background-color: #27495f; }
+.progress-track { width: 100%; height: 5px; margin-top: 5px; background-color: #27495f; }
 .progress-fill { width: 8%; height: 100%; background-color: #19d3b1; }
 
-.table-card { width: 49%; height: 100%; margin-right: 2%; padding: 18px 20px; }
-.results-card { width: 27%; height: 100%; margin-right: 2%; padding: 18px 20px; background-color: #dfe5e9; border-color: #dfe5e9; }
-.stats-card { width: 20%; height: 100%; padding: 18px 20px; background-color: #17334a; border-color: #17334a; color: #ffffff; }
+.table-card { width: 49%; height: 100%; margin-right: 2%; padding: 13px 16px; }
+.results-card { width: 27%; height: 100%; margin-right: 2%; padding: 13px 16px; background-color: #dfe5e9; border-color: #dfe5e9; }
+.stats-card { width: 20%; height: 100%; padding: 13px 16px; background-color: #17334a; border-color: #17334a; color: #ffffff; }
 .stats-card .card-kicker { color: #a9bbc6; }
 .season-table-head, .season-table-row { display: flex; width: 100%; box-sizing: border-box; }
-.season-table-head { margin-top: 10px; padding-bottom: 5px; color: #81919b; border-bottom-width: 1px; border-bottom-color: #d4dbdf; font-size: 9px; }
-.season-table-row { padding: 6px 5px; border-bottom-width: 1px; border-bottom-color: #e1e6e8; font-size: 11px; }
+.season-table-head { margin-top: 6px; padding-bottom: 3px; color: #81919b; border-bottom-width: 1px; border-bottom-color: #d4dbdf; font-size: 8px; }
+.season-table-row { padding: 4px 4px; border-bottom-width: 1px; border-bottom-color: #e1e6e8; font-size: 10px; }
 .season-table-head span:nth-child(1), .season-table-row span:nth-child(1) { width: 12%; }
 .season-table-head span:nth-child(2), .season-table-row span:nth-child(2) { width: 58%; }
 .season-table-head span:nth-child(3), .season-table-row span:nth-child(3) { width: 15%; text-align: right; }
 .season-table-head span:nth-child(4), .season-table-row span:nth-child(4) { width: 15%; text-align: right; }
 .season-table-row.current-team { background-color: #19d3b1; color: #10202d; }
-.result-row { display: flex; width: 100%; margin-top: 12px; padding: 8px 0; border-bottom-width: 1px; border-bottom-color: #c9d1d6; justify-content: space-between; font-size: 11px; }
-.result-row strong { font-family: "Fotbiler Display"; font-size: 18px; }
-.result-row.next { background-color: #19d3b1; padding-left: 8px; padding-right: 8px; box-sizing: border-box; }
-.next-label { display: block; margin-top: 14px; color: #6c7d87; font-size: 9px; letter-spacing: 0.9px; }
-.big-stat { display: block; margin-top: 8px; font-family: "Fotbiler Display"; font-size: 50px; line-height: 50px; color: #19d3b1; }
-.big-stat-label { display: block; color: #9fb2bd; font-size: 10px; letter-spacing: 1px; }
-.mini-stat { display: flex; width: 100%; margin-top: 11px; padding-top: 8px; border-top-width: 1px; border-top-color: #34546a; color: #a9bbc6; font-size: 9px; justify-content: space-between; }
-.mini-stat strong { color: #ffffff; font-family: "Fotbiler Display"; font-size: 14px; }
+.result-row { display: flex; width: 100%; margin-top: 6px; padding: 5px 0; border-bottom-width: 1px; border-bottom-color: #c9d1d6; justify-content: space-between; font-size: 9px; }
+.result-row strong { font-family: "Fotbiler Display"; font-size: 15px; }
+.result-row.next { background-color: #19d3b1; padding-left: 7px; padding-right: 7px; box-sizing: border-box; }
+.next-label { display: block; margin-top: 7px; color: #6c7d87; font-size: 8px; letter-spacing: 0.8px; }
+.big-stat { display: block; margin-top: 3px; font-family: "Fotbiler Display"; font-size: 36px; line-height: 36px; color: #19d3b1; }
+.big-stat-label { display: block; color: #9fb2bd; font-size: 8px; letter-spacing: 0.9px; }
+.mini-stat { display: flex; width: 100%; margin-top: 6px; padding-top: 5px; border-top-width: 1px; border-top-color: #34546a; color: #a9bbc6; font-size: 8px; justify-content: space-between; }
+.mini-stat strong { color: #ffffff; font-family: "Fotbiler Display"; font-size: 11px; }
