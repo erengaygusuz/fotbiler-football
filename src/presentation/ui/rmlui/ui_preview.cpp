@@ -5,6 +5,8 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_opengl.h>
 
+#include <cstdlib>
+#include <filesystem>
 #include <cstdio>
 #include <string>
 
@@ -20,6 +22,11 @@ namespace {
 
 constexpr int kInitialWidth = 1600;
 constexpr int kInitialHeight = 900;
+
+enum class PreviewExitAction {
+  None,
+  LaunchQuickMatch,
+};
 
 void UpdateDrawableSize(SDL_Window* window, blunted::ui::RmlUiSystem& ui) {
   int width = 0;
@@ -44,6 +51,56 @@ void NavigatePendingRoute(blunted::ui::RmlUiSystem& ui, blunted::ui::ScreenRoute
   if (!route.empty() && !router.NavigateByName(route)) {
     std::fprintf(stderr, "Fotbiler UI Preview: unknown or failed route %s\n", route.c_str());
   }
+}
+
+PreviewExitAction ConsumePendingAction(blunted::ui::RmlUiSystem& ui) {
+  const std::string action = ui.ConsumeActionRequest();
+  if (action.empty()) {
+    return PreviewExitAction::None;
+  }
+  if (action == "start-quick-match") {
+    std::fprintf(stdout,
+                 "Fotbiler UI Preview: handing START MATCH to gameplayfootball runtime.\n");
+    return PreviewExitAction::LaunchQuickMatch;
+  }
+
+  // Team selection actions are tagged now so the next M1A.7 slice can attach
+  // the real database/team picker without changing the Match Setup markup again.
+  std::fprintf(stdout, "Fotbiler UI Preview: runtime action '%s' is not wired yet.\n",
+               action.c_str());
+  return PreviewExitAction::None;
+}
+
+std::string GetGameplayExecutablePath() {
+  char* basePath = SDL_GetBasePath();
+  std::string path = basePath ? basePath : "";
+  SDL_free(basePath);
+#ifdef _WIN32
+  path += "gameplayfootball.exe";
+#else
+  path += "gameplayfootball";
+#endif
+  return path;
+}
+
+int LaunchGameplayFootball(const std::string& executablePath) {
+  if (executablePath.empty() || !std::filesystem::exists(executablePath)) {
+    std::fprintf(stderr, "Fotbiler UI Preview: gameplay executable not found at %s\n",
+                 executablePath.c_str());
+    return 1;
+  }
+
+  // The child process inherits this flag. MenuTask consumes it once during
+  // startup and enters the existing LoadingMatch -> GameTask pipeline.
+  SDL_setenv("FOTBILER_UI_QUICK_MATCH", "1", 1);
+  const std::string command = "\"" + executablePath + "\"";
+  std::fprintf(stdout, "Fotbiler UI Preview: launching %s\n", executablePath.c_str());
+  const int result = std::system(command.c_str());
+  if (result == -1) {
+    std::fprintf(stderr, "Fotbiler UI Preview: failed to launch gameplayfootball.\n");
+    return 1;
+  }
+  return result;
 }
 
 SDL_GameController* OpenController(int deviceIndex) {
@@ -172,6 +229,7 @@ int main() {
   UpdateDrawableSize(window, ui);
 
   bool running = true;
+  bool launchQuickMatch = false;
   while (running) {
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
@@ -283,6 +341,16 @@ int main() {
         ui.ActivateFocusedElement();
       }
       NavigatePendingRoute(ui, router);
+
+      if (ConsumePendingAction(ui) == PreviewExitAction::LaunchQuickMatch) {
+        launchQuickMatch = true;
+        running = false;
+        break;
+      }
+    }
+
+    if (!running) {
+      break;
     }
 
     glClearColor(0.035f, 0.055f, 0.09f, 1.0f);
@@ -293,6 +361,9 @@ int main() {
     SDL_GL_SwapWindow(window);
   }
 
+  const std::string gameplayExecutable =
+      launchQuickMatch ? GetGameplayExecutablePath() : std::string();
+
   if (controller) {
     SDL_GameControllerClose(controller);
   }
@@ -300,5 +371,9 @@ int main() {
   SDL_GL_DeleteContext(glContext);
   SDL_DestroyWindow(window);
   SDL_Quit();
+
+  if (launchQuickMatch) {
+    return LaunchGameplayFootball(gameplayExecutable);
+  }
   return 0;
 }
