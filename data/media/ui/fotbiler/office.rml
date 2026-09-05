@@ -1,0 +1,130 @@
+<rml>
+<head>
+  <title>Fotbiler Office</title>
+  <link type="text/rcss" href="theme.rcss" />
+  <link type="text/rcss" href="career_central.rcss" />
+  <link type="text/rcss" href="office.rcss" />
+</head>
+<body>
+  <div class="career-screen">
+    <div class="career-bg-deep"></div>
+    <div class="career-bg-blue"></div>
+    <div class="career-bg-accent"></div>
+
+    <div class="career-shell">
+      <div class="career-topbar">
+        <div class="club-identity">
+          <div class="club-crest">F</div>
+          <div class="club-copy">
+            <div class="club-name">FOTBILER FC</div>
+            <div class="club-meta">MANAGER CAREER · SEASON 2026/27</div>
+          </div>
+        </div>
+        <div class="career-status">
+          <div class="status-block"><div class="status-label">BOARD CONFIDENCE</div><div class="status-value">78</div></div>
+          <div class="status-block date-block"><div class="status-label">INBOX</div><div class="status-value">3</div></div>
+        </div>
+      </div>
+
+      <div class="career-tabs">
+        <div class="career-tab">CENTRAL</div>
+        <div class="career-tab">SQUAD</div>
+        <div class="career-tab">TRANSFERS</div>
+        <div class="career-tab active">OFFICE</div>
+        <div class="career-tab">SEASON</div>
+      </div>
+
+      <div class="office-content">
+        <div class="office-primary">
+          <div id="board-objectives" class="office-panel board-objectives" tabindex="0">
+            <div class="office-card-header">
+              <div>
+                <div class="card-kicker">BOARD EXPECTATIONS</div>
+                <div class="office-title">OBJECTIVES</div>
+              </div>
+              <div class="confidence-block">
+                <div class="confidence-number">78</div>
+                <div class="confidence-copy">ON TARGET</div>
+              </div>
+            </div>
+
+            <div class="objective-row priority-high">
+              <div class="objective-priority">HIGH</div>
+              <div class="objective-copy"><div class="objective-name">QUALIFY FOR CONTINENTAL FOOTBALL</div><div class="objective-meta">League · Current position 3rd</div></div>
+              <div class="objective-progress"><div class="progress-track"><div class="progress-fill progress-72"></div></div><div class="progress-label">72%</div></div>
+            </div>
+            <div class="objective-row">
+              <div class="objective-priority">MED</div>
+              <div class="objective-copy"><div class="objective-name">KEEP WAGE GROWTH UNDER CONTROL</div><div class="objective-meta">Financial · Wage budget usage 81%</div></div>
+              <div class="objective-progress"><div class="progress-track"><div class="progress-fill progress-81"></div></div><div class="progress-label">81%</div></div>
+            </div>
+            <div class="objective-row">
+              <div class="objective-priority">MED</div>
+              <div class="objective-copy"><div class="objective-name">DEVELOP A YOUTH PLAYER</div><div class="objective-meta">Youth · Promote one academy prospect</div></div>
+              <div class="objective-progress"><div class="progress-track"><div class="progress-fill progress-45"></div></div><div class="progress-label">45%</div></div>
+            </div>
+          </div>
+
+          <div class="office-lower-row">
+            <div id="finance-card" class="office-panel finance-card" tabindex="0">
+              <div class="card-kicker">FINANCES</div>
+              <div class="finance-balance">€42.8M</div>
+              <div class="finance-label">CLUB BALANCE</div>
+              <div class="finance-stats"><div><span>TRANSFER</span><strong>€24.5M</strong></div><div><span>WAGES</span><strong>€612K</strong></div><div><span>PROFIT</span><strong class="positive">+€4.2M</strong></div></div>
+            </div>
+
+            <div id="contracts-card" class="office-panel contracts-card" tabindex="0">
+              <div class="card-kicker">CONTRACTS</div>
+              <div class="mini-title">3 NEED ATTENTION</div>
+              <div class="contract-row"><span>AHMET AKSOY</span><strong>10 MONTHS</strong></div>
+              <div class="contract-row"><span>MERT CAN</span><strong>11 MONTHS</strong></div>
+              <div class="contract-row"><span>OZAN KOC</span><strong>14 MONTHS</strong></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="office-secondary">
+          <div id="inbox-card" class="office-panel inbox-card" tabindex="0">
+            <div class="office-card-header simple-header"><div><div class="card-kicker">INBOX</div><div class="mini-title light-title">3 UNREAD</div></div><div class="inbox-badge">3</div></div>
+            <div class="message-row unread"><div class="message-type">SCOUT</div><div class="message-copy"><strong>Scout report ready</strong><span>Portugal assignment completed</span></div><div class="message-time">09:35</div></div>
+            <div class="message-row unread"><div class="message-type">PLAYER</div><div class="message-copy"><strong>Development update</strong><span>Emre Yilmaz training report</span></div><div class="message-time">08:10</div></div>
+            <div class="message-row unread"><div class="message-type">BOARD</div><div class="message-copy"><strong>Monthly review</strong><span>Board confidence remains stable</span></div><div class="message-time">YDAY</div></div>
+            <div class="message-row"><div class="message-type">MEDIA</div><div class="message-copy"><strong>Press conference</strong><span>Pre-match media request</span></div><div class="message-time">YDAY</div></div>
+          </div>
+
+          <div class="office-secondary-row">
+            <div id="staff-card" class="office-panel staff-card" tabindex="0">
+              <div class="card-kicker">STAFF</div>
+              <div class="staff-count">8</div>
+              <div class="staff-label">EMPLOYED</div>
+              <div class="staff-line"><span>COACHING</span><strong>4/5</strong></div>
+              <div class="staff-line"><span>SCOUTING</span><strong>2/3</strong></div>
+              <div class="staff-line"><span>MEDICAL</span><strong>2/2</strong></div>
+            </div>
+            <div id="club-card" class="office-panel club-card" tabindex="0">
+              <div class="card-kicker">CLUB</div>
+              <div class="mini-title">FOTBILER FC</div>
+              <div class="club-stat"><span>REPUTATION</span><strong>76</strong></div>
+              <div class="club-stat"><span>FANS</span><strong>68K</strong></div>
+              <div class="club-stat"><span>STADIUM</span><strong>28K</strong></div>
+              <div class="club-stat"><span>FACILITIES</span><strong>GOOD</strong></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="career-control-strip">
+        <div class="control-left">
+          <span class="hint"><span class="hint-key">ENTER</span>Select</span>
+          <span class="hint"><span class="hint-key">ARROWS</span>Navigate</span>
+          <span class="hint"><span class="hint-key">F2</span>Central</span>
+          <span class="hint"><span class="hint-key">F3</span>Squad</span>
+          <span class="hint"><span class="hint-key">F4</span>Transfers</span>
+          <span class="hint"><span class="hint-key">F5</span>Office</span>
+        </div>
+        <div class="control-right">OFFICE · CLUB MANAGEMENT</div>
+      </div>
+    </div>
+  </div>
+</body>
+</rml>
