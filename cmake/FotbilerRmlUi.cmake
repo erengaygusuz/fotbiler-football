@@ -58,20 +58,26 @@ if(UNIX AND NOT APPLE)
   target_link_libraries(fotbiler_rmlui PRIVATE dl m)
 endif()
 
-# Small target-independent SDL bridge used while the RmlUi frontend and the
-# legacy renderer still own separate windows. The preview records its display
-# when it closes; OpenGLRenderer3D consumes that placement for the match window.
+# SDL bridge shared by the frontend handoff and the production match renderer.
+# On modern match sessions it also owns the RmlUi overlay host that renders in
+# the existing gameplay OpenGL context instead of creating another window.
 add_library(fotbiler_sdl_window_bridge STATIC
   ${PROJECT_SOURCE_DIR}/src/platform/fotbiler_sdl_window_bridge.cpp
 )
 target_compile_features(fotbiler_sdl_window_bridge PRIVATE cxx_std_17)
-target_include_directories(fotbiler_sdl_window_bridge PRIVATE ${SDL2_INCLUDE_DIR})
+target_include_directories(fotbiler_sdl_window_bridge PRIVATE
+  ${PROJECT_SOURCE_DIR}/src
+  ${SDL2_INCLUDE_DIR}
+)
+target_link_libraries(fotbiler_sdl_window_bridge PUBLIC fotbiler_rmlui)
 if(GF_SDL2_TARGET)
   target_link_libraries(fotbiler_sdl_window_bridge PRIVATE ${GF_SDL2_TARGET})
 elseif(SDL2_LIBRARIES)
   target_link_libraries(fotbiler_sdl_window_bridge PRIVATE ${SDL2_LIBRARIES})
 endif()
 
+# The standalone preview only needs placement persistence. Its own event/render
+# loop already hosts RmlUi directly, so do not intercept PollEvent/SwapWindow.
 function(fotbiler_enable_sdl_window_bridge target)
   target_compile_definitions(${target} PRIVATE
     SDL_CreateWindow=FotbilerSDLCreateWindow
@@ -80,27 +86,24 @@ function(fotbiler_enable_sdl_window_bridge target)
   target_link_libraries(${target} PRIVATE fotbiler_sdl_window_bridge)
 endfunction()
 
-# OpenGLRenderer3D is compiled later as part of systemsgraphicslib. Apply the
-# wrapper only to the translation unit that owns the production SDL window;
-# this avoids leaking the macro into unrelated engine/test code.
+# OpenGLRenderer3D owns the production SDL window, event pump and final buffer
+# swap. Intercept only those stable SDL boundaries. Legacy sessions pass through
+# unchanged; FOTBILER_UI_MODERN_SESSION activates the in-window RmlUi host.
 set_property(SOURCE
   ${PROJECT_SOURCE_DIR}/src/systems/graphics/rendering/opengl_renderer3d.cpp
   APPEND PROPERTY COMPILE_DEFINITIONS
     SDL_CreateWindow=FotbilerSDLCreateWindow
     SDL_DestroyWindow=FotbilerSDLDestroyWindow
+    SDL_PollEvent=FotbilerSDLPollEvent
+    SDL_GL_SwapWindow=FotbilerSDLGLSwapWindow
 )
 
 # gameplayfootball is created later in the parent CMakeLists. Make the bridge
-# available to subsequently-created executables so the wrapped renderer symbol
-# resolves without coupling the legacy renderer library to RmlUi itself.
+# (and therefore its RmlUi link dependency) available to the final executable.
 link_libraries(fotbiler_sdl_window_bridge)
 
 # Standalone 2D UI lab. It intentionally uses the same RmlUiSystem and assets
-# as the game, but creates its own SDL/OpenGL window so FIFA-era menu design can
-# be iterated without destabilising the legacy Gui2 runtime during migration.
-# Keep the career persistence pieces deliberately small here: the preview now
-# opens the same save file as gameplayfootball, but it still does not link the
-# legacy menu/game libraries.
+# as the game, but creates its own SDL/OpenGL window for fast design iteration.
 add_executable(fotbiler_ui_preview
   ${PROJECT_SOURCE_DIR}/src/presentation/ui/rmlui/ui_preview.cpp
   ${PROJECT_SOURCE_DIR}/src/core/career/career_common.cpp
@@ -129,10 +132,7 @@ elseif(OPENGL_LIBRARIES)
 endif()
 
 # RML/RCSS/font files are runtime data, not compiler inputs. Refresh them on
-# every build so a style-only edit is immediately visible in the preview.
-# Use PROJECT_BINARY_DIR directly here; referring to TARGET_FILE_DIR from this
-# utility target would make CMake infer a reverse dependency on the executable
-# and create a dependency cycle when the executable depends on this target.
+# every build so a style-only edit is immediately visible in preview and match.
 set(FOTBILER_UI_PREVIEW_RUNTIME_DIR "${PROJECT_BINARY_DIR}")
 add_custom_target(fotbiler_ui_preview_assets ALL
   COMMAND ${CMAKE_COMMAND} -E make_directory
@@ -145,7 +145,7 @@ add_custom_target(fotbiler_ui_preview_assets ALL
   COMMAND ${CMAKE_COMMAND} -E copy_directory
     "${PROJECT_SOURCE_DIR}/data/media/fonts"
     "${FOTBILER_UI_PREVIEW_RUNTIME_DIR}/media/fonts"
-  COMMENT "Refreshing Fotbiler UI preview assets"
+  COMMENT "Refreshing Fotbiler UI runtime assets"
   VERBATIM
 )
 add_dependencies(fotbiler_ui_preview fotbiler_ui_preview_assets)
