@@ -5,6 +5,7 @@
 
 #include "../../league/leaguecode.hpp"
 #include "../../onthepitch/match.hpp"
+#include "../../presentation/ui/rmlui/frontend_runtime_bridge.hpp"
 #include "../../presentation/ui/rmlui/runtime_ui_bridge.hpp"
 #include "../career/career_database.hpp"
 #include "../pagefactory.hpp"
@@ -27,15 +28,25 @@ bool MenuSmokeFullMatchEnabled() {
   return GetConfiguration()->GetBool("menu_smoke_test_full_match", false);
 }
 
+bool EnvironmentFlagEnabled(const char* name) {
+  const char* value = std::getenv(name);
+  return value && value[0] != '\0' && std::string(value) != "0";
+}
+
 bool ModernUiSessionActive() {
-  const char* session = std::getenv("FOTBILER_UI_MODERN_SESSION");
-  return session && session[0] != '\0' && std::string(session) != "0";
+  return EnvironmentFlagEnabled("FOTBILER_UI_MODERN_SESSION");
+}
+
+bool ModernFrontendAppActive() {
+  return EnvironmentFlagEnabled("FOTBILER_UI_MODERN_APP");
+}
+
+bool ModernUiActive() {
+  return ModernUiSessionActive() || ModernFrontendAppActive();
 }
 
 void PublishModernMatchSnapshot(Match* match) {
-  if (!match) {
-    return;
-  }
+  if (!match) return;
 
   ui::runtime::MatchSnapshot snapshot;
   snapshot.homeName = match->GetTeam(0)->GetTeamData()->GetName();
@@ -73,9 +84,7 @@ void PublishModernMatchSnapshot(Match* match) {
 }
 
 void OpenModernPause(Match* match) {
-  if (!match) {
-    return;
-  }
+  if (!match) return;
   PublishModernMatchSnapshot(match);
   match->Pause(true);
   ui::runtime::SetScreen(ui::runtime::Screen::Pause);
@@ -85,10 +94,7 @@ void OpenModernPause(Match* match) {
 
 GamePage::GamePage(Gui2WindowManager* windowManager, const Gui2PageData& pageData)
     : Gui2Page(windowManager, pageData), match(0), matchReadyTime_ms(0), autoQuitTriggered(false) {
-  // Modern Fotbiler sessions render their player-facing overlays through RmlUi
-  // in the renderer's existing SDL/OpenGL window. Keep the legacy beta mark
-  // out of that presentation while preserving it for the upstream UI path.
-  if (!ModernUiSessionActive()) {
+  if (!ModernUiActive()) {
     Gui2Caption* betaSign =
         new Gui2Caption(windowManager, "caption_betasign", 0, 0, 0, 2, "League-Soccer v0.4.0");
     betaSign->SetColor(Vector3(180, 180, 180));
@@ -105,17 +111,13 @@ GamePage::GamePage(Gui2WindowManager* windowManager, const Gui2PageData& pageDat
 
 GamePage::~GamePage() {
   if (match) {
-    if (Verbose())
-      printf("disconnecting signals\n");
-
+    if (Verbose()) printf("disconnecting signals\n");
     conn_MatchPhaseChange.disconnect();
     conn_ShortReplayMoment.disconnect();
     conn_ExtendedReplayMoment.disconnect();
     conn_GameOver.disconnect();
   }
-  if (ModernUiSessionActive()) {
-    ui::runtime::Reset();
-  }
+  if (ModernUiActive()) ui::runtime::Reset();
 }
 
 void GamePage::Process() {
@@ -126,8 +128,7 @@ void GamePage::Process() {
     if (GetGameTask()->GetMatch() != 0) {
       match = GetGameTask()->GetMatch();
 
-      if (Verbose())
-        printf("connecting signals\n");
+      if (Verbose()) printf("connecting signals\n");
 
       conn_MatchPhaseChange =
           match->sig_OnMatchPhaseChange.connect([this](...) { GoMatchPhasePage(); });
@@ -137,13 +138,11 @@ void GamePage::Process() {
           match->sig_OnExtendedReplayMoment.connect([this](...) { GoExtendedReplayPage(); });
       conn_GameOver = match->sig_OnGameOver.connect([this](...) { GoGameOverPage(); });
 
-      if (ModernUiSessionActive()) {
-        // The runtime window starts with Fotbiler's RmlUi loading document.
-        // Only dismiss it after GameTask exposes a real live Match, otherwise
-        // the legacy menu/background can flash between initialization phases.
+      if (ModernUiActive()) {
         GetMenuTask()->SetMenuBackgroundVisible(false);
         PublishModernMatchSnapshot(match);
         ui::runtime::SetScreen(ui::runtime::Screen::None);
+        if (ModernFrontendAppActive()) ui::frontend::BeginMatch();
       }
 
       if (MenuSmokeQuickMatchEnabled() || MenuSmokeFullMatchEnabled()) {
@@ -154,25 +153,32 @@ void GamePage::Process() {
     GetGameTask()->matchLifetimeMutex.unlock();
   }
 
-  if (ModernUiSessionActive() && match) {
+  if (ModernUiActive() && match) {
     const ui::runtime::Command command = ui::runtime::ConsumeCommand();
     if (command == ui::runtime::Command::ResumeMatch) {
       match->Pause(false);
       ui::runtime::SetScreen(ui::runtime::Screen::None);
       GetMenuTask()->ReleaseAllButtons();
     } else if (command == ui::runtime::Command::ExitMatch) {
-      // A modern match is a one-shot runtime session until the full frontend is
-      // hosted in this process. Leave an unplayed career fixture untouched and
-      // end the runtime instead of re-entering the legacy menu state machine.
       LeagueClearPendingFixture();
       CareerDatabase::GetInstance().ClearPendingFixture();
       ui::runtime::SetScreen(ui::runtime::Screen::None);
+
+      if (ModernFrontendAppActive()) {
+        const ui::frontend::ReturnTarget target =
+            ui::frontend::GetSessionKind() == ui::frontend::SessionKind::Career
+                ? ui::frontend::ReturnTarget::CareerCentral
+                : ui::frontend::ReturnTarget::MatchSetup;
+        this->Exit();
+        GetMenuTask()->ReturnToFotbilerFrontend(target);
+        delete this;
+        return;
+      }
+
       EnvironmentManager::GetInstance().SignalQuit();
     }
 
-    if (match->GetPause()) {
-      PublishModernMatchSnapshot(match);
-    }
+    if (match->GetPause()) PublishModernMatchSnapshot(match);
   }
 
   if (match && !autoQuitTriggered && MenuSmokeQuickMatchEnabled() && !MenuSmokeFullMatchEnabled() &&
@@ -226,13 +232,12 @@ void GamePage::ProcessWindowingEvent(WindowingEvent* event) {
 
 void GamePage::ProcessKeyboardEvent(KeyboardEvent* event) {
   if (event->GetKeyOnce(SDLK_TAB)) {
-    if (match)
-      match->ToggleStatsOverlay();
+    if (match) match->ToggleStatsOverlay();
     return;
   }
 
   if (event->GetKeyOnce(SDLK_ESCAPE)) {
-    if (ModernUiSessionActive()) {
+    if (ModernUiActive()) {
       OpenModernPause(match);
       return;
     }
@@ -246,8 +251,7 @@ void GamePage::ProcessKeyboardEvent(KeyboardEvent* event) {
       }
     }
 
-    if (Verbose())
-      printf("controller index %i (keyboard) pressed start\n", controllerID);
+    if (Verbose()) printf("controller index %i (keyboard) pressed start\n", controllerID);
 
     int teamID = 0;
     const std::vector<SideSelection> sides = GetMenuTask()->GetControllerSetup();
@@ -276,7 +280,7 @@ void GamePage::ProcessJoystickEvent(JoystickEvent* event) {
 
       if (event->GetButton(joyID, gamepad->GetControllerMapping(
                                       gamepad->GetFunctionMapping(e_ButtonFunction_Start)))) {
-        if (ModernUiSessionActive()) {
+        if (ModernUiActive()) {
           OpenModernPause(match);
           return;
         }
