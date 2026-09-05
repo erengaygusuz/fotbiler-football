@@ -78,6 +78,18 @@ public:
     return route ? Navigate(route->id) : false;
   }
 
+  // Replace the current navigation stack with one canonical screen. Runtime
+  // round-trips use this so Back never returns to a stale loading document.
+  bool Reset(ScreenId target) {
+    const ScreenRoute* route = FindRoute(target);
+    if (!route || !loader || !loader(std::string(route->documentPath))) {
+      return false;
+    }
+    history.clear();
+    current = target;
+    return true;
+  }
+
   bool Back() {
     if (history.empty() || !loader) {
       return false;
