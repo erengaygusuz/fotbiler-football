@@ -503,6 +503,20 @@ int main(int argc, const char** argv) {
   printf("[MAIN] graphicsSystem->Initialize\n");
   fflush(stdout);
   graphicsSystem->Initialize(*config);
+
+  // Keep the 2D UI canvas and runtime settings aligned with the renderer's
+  // effective drawable size. This matters when the modern frontend launches a
+  // fullscreen match while football.config still contains the legacy 1280x720
+  // windowed defaults.
+  int contextWidth = 0;
+  int contextHeight = 0;
+  int contextBpp = 0;
+  graphicsSystem->GetContextSize(contextWidth, contextHeight, contextBpp);
+  config->SetInt("context_x", contextWidth);
+  config->SetInt("context_y", contextHeight);
+  config->SetInt("context_bpp", contextBpp);
+  config->SetBool("context_fullscreen", graphicsSystem->IsFullscreen());
+
   printf("[MAIN] audioSystem->Initialize\n");
   fflush(stdout);
   audioSystem->Initialize(*config);

@@ -434,6 +434,40 @@ Match::Match(MatchData* matchData, const std::vector<IHIDevice*>& controllers)
 
 Match::~Match() {}
 
+void Match::Pause(bool doPause) {
+  if (pause == doPause) {
+    return;
+  }
+
+  if (doPause) {
+    // Pause, phase and game-over pages provide their own score and match
+    // context. Preserve the live HUD state while those overlays are open so
+    // the radar, player bars and scorebug do not bleed through them.
+    scoreboardVisibleBeforePause = scoreboard && scoreboard->IsVisible();
+    playerHudVisibleBeforePause = playerHUD && playerHUD->IsVisible();
+    radarVisibleBeforePause = radar && radar->IsVisible();
+    tacticsDebugVisibleBeforePause = tacticsDebug && tacticsDebug->IsVisible();
+    messageVisibleBeforePause = messageCaption && messageCaption->IsVisible();
+    statsVisibleBeforePause = statsOverlay && statsOverlay->IsVisible();
+
+    if (scoreboard) scoreboard->Hide();
+    if (playerHUD) playerHUD->Hide();
+    if (radar) radar->Hide();
+    if (tacticsDebug) tacticsDebug->Hide();
+    if (messageCaption) messageCaption->Hide();
+    if (statsOverlay) statsOverlay->Hide();
+  } else {
+    if (scoreboard && scoreboardVisibleBeforePause) scoreboard->Show();
+    if (playerHUD && playerHudVisibleBeforePause) playerHUD->Show();
+    if (radar && radarVisibleBeforePause) radar->Show();
+    if (tacticsDebug && tacticsDebugVisibleBeforePause) tacticsDebug->Show();
+    if (messageCaption && messageVisibleBeforePause) messageCaption->Show();
+    if (statsOverlay && statsVisibleBeforePause) statsOverlay->Show();
+  }
+
+  pause = doPause;
+}
+
 void Match::Exit() {
   if (Verbose())
     printf("exiting match.. ");
@@ -1004,7 +1038,7 @@ void Match::UpdateIngameCamera() {
     cameraFarCap = 220;
 
     if (goalScoredTimer == 6000) {
-      pause = true;
+      Pause(true);
       sig_OnExtendedReplayMoment(this);
     }
   }

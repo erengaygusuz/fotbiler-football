@@ -43,6 +43,7 @@ public:
   Vector3 GetContextSize() {
     return Vector3(static_cast<real>(width), static_cast<real>(height), static_cast<real>(bpp));
   }
+  bool IsFullscreen() const { return fullscreen; }
 
   int GetAverageFrameTime_ms(unsigned int frameCount) const {
     assert(task);
@@ -74,6 +75,7 @@ protected:
   MessageQueue<Overlay2DQueueEntry> overlay2DQueue;
 
   int width, height, bpp;
+  bool fullscreen;
 };
 
 }  // namespace blunted

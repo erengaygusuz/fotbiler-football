@@ -30,7 +30,7 @@ int EnvironmentInt(const char* name, int fallback) {
 
 }  // namespace
 
-GraphicsSystem::GraphicsSystem() : systemType(e_SystemType_Graphics) {
+GraphicsSystem::GraphicsSystem() : systemType(e_SystemType_Graphics), fullscreen(false) {
   renderer3DTask = nullptr;
   task = nullptr;
 }
@@ -53,7 +53,7 @@ void GraphicsSystem::Initialize(const Properties& config) {
   width = config.GetInt("context_x", 1280);
   height = config.GetInt("context_y", 720);
   bpp = config.GetInt("context_bpp", 32);
-  bool fullscreen = config.GetBool("context_fullscreen", false);
+  fullscreen = config.GetBool("context_fullscreen", false);
 
   // Matches launched from the modern Fotbiler frontend should not fall back to
   // the legacy 1280x720 windowed default. Explicit environment overrides win,
@@ -78,6 +78,17 @@ void GraphicsSystem::Initialize(const Properties& config) {
   if (!createContext->success) {
     Log(e_FatalError, "GraphicsSystem", "Initialize", "Could not create context");
   } else {
+    // SDL may select a drawable size different from the requested window size
+    // (for example on a HiDPI or fullscreen desktop). Cache the renderer's
+    // effective dimensions so Scene2D/Gui2 can use the exact same canvas.
+    boost::intrusive_ptr<Renderer3DMessage_GetContextSize> getContextSize(
+        new Renderer3DMessage_GetContextSize());
+    renderer3DTask->messageQueue.PushMessage(getContextSize);
+    getContextSize->Wait();
+    width = getContextSize->GetWidth();
+    height = getContextSize->GetHeight();
+    bpp = getContextSize->GetBpp();
+
     Log(e_Notice, "GraphicsSystem", "Initialize",
         "Created context, resolution " + int_to_str(width) + " * " + int_to_str(height) + " @ " +
             int_to_str(bpp) + " bpp" + (fullscreen ? " fullscreen" : " windowed"));
