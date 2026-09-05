@@ -1,0 +1,40 @@
+<rml>
+<head>
+  <title>Match Facts</title>
+  <link type="text/rcss" href="theme.rcss" />
+  <link type="text/rcss" href="runtime_shell.rcss" />
+</head>
+<body>
+  <div class="runtime-screen">
+    <div class="runtime-bg-blue"></div><div class="runtime-bg-light"></div><div class="runtime-bg-pink"></div>
+    <div class="runtime-shell">
+      <div class="runtime-topbar"><div class="runtime-brand"><span class="runtime-brand-mark">F</span>OTBILER FOOTBALL</div><div class="runtime-meta">MATCH FACTS · LIVE</div></div>
+      <div class="runtime-heading"><div class="runtime-kicker">PAUSE · MATCH</div><div class="runtime-title">MATCH FACTS</div><div class="runtime-subtitle">Team comparison, efficiency and match momentum.</div></div>
+      <div class="runtime-tabs"><div class="runtime-tab active" tabindex="0" autofocus>MATCH STATS</div><div class="runtime-tab" tabindex="0">SHOOTING</div><div class="runtime-tab" tabindex="0">PASSING</div><div class="runtime-tab" tabindex="0">DEFENDING</div></div>
+      <div class="runtime-content" style="height:62%;">
+        <div class="runtime-column-main">
+          <div class="runtime-card dark" style="height:100%;">
+            <div class="runtime-scoreline"><div class="runtime-team">REAL MADRID</div><div class="runtime-score">0 - 0</div><div class="runtime-team">FC BARCELONA</div></div>
+            <div class="runtime-stat"><div id="stats-home-possession" class="runtime-stat-value">52%</div><div class="runtime-stat-name">POSSESSION</div><div id="stats-away-possession" class="runtime-stat-value away">48%</div></div>
+            <div class="runtime-stat"><div id="stats-home-shots" class="runtime-stat-value">3</div><div class="runtime-stat-name">SHOTS</div><div id="stats-away-shots" class="runtime-stat-value away">2</div></div>
+            <div class="runtime-stat"><div class="runtime-stat-value">2</div><div class="runtime-stat-name">SHOTS ON TARGET</div><div class="runtime-stat-value away">1</div></div>
+            <div class="runtime-stat"><div class="runtime-stat-value">87%</div><div class="runtime-stat-name">PASS ACCURACY</div><div class="runtime-stat-value away">84%</div></div>
+            <div class="runtime-stat"><div class="runtime-stat-value">1</div><div class="runtime-stat-name">FOULS</div><div class="runtime-stat-value away">2</div></div>
+          </div>
+        </div>
+        <div class="runtime-column-side">
+          <div class="runtime-card" style="height:100%;">
+            <div class="runtime-card-kicker">INSIGHT</div><div class="runtime-card-title">MOMENTUM</div>
+            <div class="runtime-big-number">52%</div><div class="runtime-muted">Real Madrid have slightly more of the ball, but neither side has separated itself yet.</div>
+            <div class="runtime-card-kicker" style="margin-top:24px;">KEY PLAYER</div><div class="runtime-card-title">LUKA MODRIC</div>
+            <div class="runtime-row"><div class="runtime-label">RATING</div><div class="runtime-value">7.2</div></div>
+            <div class="runtime-row"><div class="runtime-label">PASSES</div><div class="runtime-value">18 / 20</div></div>
+            <div class="runtime-row"><div class="runtime-label">CHANCES CREATED</div><div class="runtime-value">2</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="runtime-footer"><div><span class="runtime-hint"><span class="runtime-key">ESC</span>Back</span><span class="runtime-hint"><span class="runtime-key">L1/R1</span>Change Tab</span></div><div>M1C · MATCH FACTS</div></div>
+    </div>
+  </div>
+</body>
+</rml>
