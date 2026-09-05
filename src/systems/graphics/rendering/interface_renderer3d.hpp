@@ -43,8 +43,6 @@ struct VertexBufferQueueEntry {
   AABB aabb;
   Vector3 position;
   Quaternion rotation;
-  // todo: think about this: int id_cache; // for quick access - getting resource's id needs
-  // mutexing and all
 };
 
 struct ShadowMap {
@@ -80,7 +78,7 @@ struct LightQueueEntry {
   Matrix4 lightViewMatrix;
   boost::intrusive_ptr<Resource<Texture>> shadowMapTexture;
   Vector3 position;
-  int type;  // 0 == directional, 1 == point
+  int type;
   Vector3 color;
   float radius;
   bool shadow;
@@ -88,11 +86,8 @@ struct LightQueueEntry {
 };
 
 enum e_MatrixMode { e_MatrixMode_Projection, e_MatrixMode_ModelView };
-
 enum e_CullingMode { e_CullingMode_Off, e_CullingMode_Front, e_CullingMode_Back };
-
 enum e_BlendingMode { e_BlendingMode_Off, e_BlendingMode_On };
-
 enum e_BlendingFunction { e_BlendingFunction_Zero, e_BlendingFunction_One };
 
 enum e_DepthFunction {
@@ -112,8 +107,8 @@ enum e_TargetAttachment {
   e_TargetAttachment_None,
   e_TargetAttachment_Front,
   e_TargetAttachment_Back,
-  e_TargetAttachment_Depth,    // can not be used with drawbuffers
-  e_TargetAttachment_Stencil,  // can not be used with drawbuffers
+  e_TargetAttachment_Depth,
+  e_TargetAttachment_Stencil,
   e_TargetAttachment_Color0,
   e_TargetAttachment_Color1,
   e_TargetAttachment_Color2,
@@ -143,21 +138,17 @@ struct Shader {
 
 class Renderer3D : public Thread {
 public:
-  virtual ~Renderer3D(){};
+  virtual ~Renderer3D(){}
 
   virtual void SwapBuffers() = 0;
-
   virtual void SetMatrix(const std::string& shaderUniformName, const Matrix4& matrix) = 0;
-
   virtual void RenderOverlay2D(const std::vector<Overlay2DQueueEntry>& overlay2DQueue) = 0;
   virtual void RenderOverlay2D() = 0;
   virtual void RenderLights(std::deque<LightQueueEntry>& lightQueue,
                             const Matrix4& projectionMatrix, const Matrix4& viewMatrix) = 0;
 
-  // --- new & improved
-
-  // init & exit
   virtual bool CreateContext(int width, int height, int bpp, bool fullscreen) = 0;
+  virtual bool ApplyDisplaySettings(int width, int height, bool fullscreen, bool vsync) = 0;
   virtual void Exit() = 0;
 
   virtual int CreateView(float x_percent, float y_percent, float width_percent,
@@ -165,7 +156,6 @@ public:
   virtual View& GetView(int viewID) = 0;
   virtual void DeleteView(int viewID) = 0;
 
-  // general
   virtual void SetCullingMode(e_CullingMode cullingMode) = 0;
   virtual void SetBlendingMode(e_BlendingMode blendingMode) = 0;
   virtual void SetDepthFunction(e_DepthFunction depthFunction) = 0;
@@ -184,7 +174,6 @@ public:
   virtual Matrix4 CreateOrthoMatrix(float left, float right, float bottom, float top,
                                     float nearCap = -1, float farCap = -1) = 0;
 
-  // vertex buffers
   virtual VertexBufferID CreateVertexBuffer(float* vertices, unsigned int verticesDataSize,
                                             const std::vector<unsigned int>& indices,
                                             e_VertexBufferUsage usage) = 0;
@@ -196,10 +185,8 @@ public:
   virtual void RenderAABB(std::list<VertexBufferQueueEntry>& vertexBufferQueue) = 0;
   virtual void RenderAABB(std::list<LightQueueEntry>& lightQueue) = 0;
 
-  // lights
   virtual void SetLight(const Vector3& position, const Vector3& color, float radius) = 0;
 
-  // textures
   virtual int CreateTexture(e_InternalPixelFormat internalPixelFormat, e_PixelFormat pixelFormat,
                             int width, int height, bool alpha = false, bool repeat = true,
                             bool mipmaps = true, bool filter = true, bool multisample = false,
@@ -215,7 +202,6 @@ public:
   virtual void SetTextureUnit(int textureUnit) = 0;
   virtual void SetClientTextureUnit(int textureUnit) = 0;
 
-  // frame buffer
   virtual int CreateFrameBuffer() = 0;
   virtual void DeleteFrameBuffer(int fbID) = 0;
   virtual void BindFrameBuffer(int fbID) = 0;
@@ -224,17 +210,14 @@ public:
   virtual bool CheckFrameBufferStatus() = 0;
   virtual void SetFramebufferGammaCorrection(bool onOff) = 0;
 
-  // render buffers
   virtual int CreateRenderBuffer() = 0;
   virtual void DeleteRenderBuffer(int rbID) = 0;
   virtual void BindRenderBuffer(int rbID) = 0;
   virtual void SetRenderBufferStorage(e_InternalPixelFormat internalPixelFormat, int width,
                                       int height) = 0;
 
-  // render targets
   virtual void SetRenderTargets(const std::vector<e_TargetAttachment>& targetAttachments) = 0;
 
-  // utility
   virtual void SetFOV(float angle) = 0;
   virtual void PushAttribute(int attr) = 0;
   virtual void PopAttribute() = 0;
@@ -242,7 +225,6 @@ public:
   virtual void GetContextSize(int& width, int& height, int& bpp) = 0;
   virtual void SetPolygonOffset(float scale, float bias) = 0;
 
-  // shaders
   virtual void LoadShader(const std::string& name, const std::string& filename) = 0;
   virtual void UseShader(const std::string& name) = 0;
   virtual void SetUniformInt(const std::string& shaderName, const std::string& varName,
