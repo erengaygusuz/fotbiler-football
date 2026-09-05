@@ -222,6 +222,14 @@ int main() {
             router.Navigate(blunted::ui::ScreenId::Tactics);
             forwardToUi = false;
             break;
+          case SDLK_F8:
+            router.Navigate(blunted::ui::ScreenId::CareerModeSelect);
+            forwardToUi = false;
+            break;
+          case SDLK_F9:
+            router.Navigate(blunted::ui::ScreenId::MatchSetup);
+            forwardToUi = false;
+            break;
           default:
             break;
         }
