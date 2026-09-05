@@ -3,248 +3,38 @@ body {
 }
 
 /* Shared career chrome used by Central, Squad, Transfers, Office, Season and Tactics. */
-.career-screen {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  background-color: #eef2f4;
-  color: #10202d;
-}
-
-.career-bg-deep {
-  position: absolute;
-  left: -18%;
-  top: -32%;
-  width: 58%;
-  height: 160%;
-  background-color: #07121f;
-  transform: rotate(-10deg);
-}
-
-.career-bg-blue {
-  position: absolute;
-  right: -12%;
-  top: -26%;
-  width: 45%;
-  height: 92%;
-  background-color: #1b4363;
-  transform: rotate(13deg);
-}
-
-.career-bg-accent {
-  position: absolute;
-  right: -18%;
-  bottom: -40%;
-  width: 43%;
-  height: 65%;
-  background-color: #dd3c91;
-  transform: rotate(-15deg);
-}
-
-.career-shell {
-  position: absolute;
-  left: 5%;
-  top: 4.5%;
-  width: 90%;
-  height: 91%;
-}
-
-.career-topbar {
-  display: flex;
-  width: 100%;
-  height: 11%;
-  color: #ffffff;
-  align-items: center;
-}
-
-.club-identity {
-  display: flex;
-  width: 60%;
-  align-items: center;
-}
-
-.club-crest {
-  width: 52px;
-  height: 52px;
-  line-height: 52px;
-  text-align: center;
-  border-radius: 26px;
-  background-color: #19d3b1;
-  color: #07121f;
-  font-family: "Fotbiler Display";
-  font-size: 28px;
-}
-
-.club-copy {
-  margin-left: 14px;
-}
-
-.club-name,
-.club-meta,
-.status-label,
-.status-value,
-.career-tab,
-.card-kicker,
-.control-right {
-  display: block;
-}
-
-.club-name {
-  font-family: "Fotbiler Display";
-  font-size: 30px;
-  letter-spacing: 1.5px;
-}
-
-.club-meta {
-  margin-top: 3px;
-  color: #aebdc7;
-  font-size: 13px;
-  letter-spacing: 1.2px;
-}
-
-.career-status {
-  display: flex;
-  width: 40%;
-  justify-content: flex-end;
-}
-
-.status-block {
-  min-width: 145px;
-  text-align: right;
-}
-
-.date-block {
-  min-width: 86px;
-  margin-left: 28px;
-}
-
-.status-label {
-  color: #aebdc7;
-  font-size: 12px;
-  letter-spacing: 1.4px;
-}
-
-.status-value {
-  margin-top: 2px;
-  font-family: "Fotbiler Display";
-  font-size: 24px;
-  color: #ffffff;
-}
-
-.career-tabs {
-  display: flex;
-  width: 100%;
-  height: 6.5%;
-  border-bottom-width: 1px;
-  border-bottom-color: #496375;
-  color: #b9c5cc;
-}
-
-.career-tab {
-  height: 100%;
-  margin-right: 36px;
-  padding-top: 10px;
-  font-size: 17px;
-  letter-spacing: 1px;
-}
-
-.career-tab.active {
-  color: #ffffff;
-  border-bottom-width: 4px;
-  border-bottom-color: #19d3b1;
-}
-
-.card-kicker {
-  color: #667681;
-  font-size: 13px;
-  letter-spacing: 1.5px;
-}
-
-.career-control-strip {
-  display: flex;
-  width: 100%;
-  height: 8.5%;
-  margin-top: 1.5%;
-  padding-left: 12px;
-  padding-right: 12px;
-  box-sizing: border-box;
-  align-items: center;
-  background-color: #07121f;
-  color: #c7d1d7;
-  font-size: 13px;
-}
-
-.control-left {
-  width: 72%;
-}
-
-.control-right {
-  width: 28%;
-  text-align: right;
-  color: #7f929d;
-  font-size: 11px;
-  letter-spacing: 0.9px;
-}
+.career-screen { position: relative; width: 100%; height: 100%; overflow: hidden; background-color: #eef2f4; color: #10202d; }
+.career-bg-deep { position: absolute; left: -18%; top: -32%; width: 58%; height: 160%; background-color: #07121f; transform: rotate(-10deg); }
+.career-bg-blue { position: absolute; right: -12%; top: -26%; width: 45%; height: 92%; background-color: #1b4363; transform: rotate(13deg); }
+.career-bg-accent { position: absolute; right: -18%; bottom: -40%; width: 43%; height: 65%; background-color: #dd3c91; transform: rotate(-15deg); }
+.career-shell { position: absolute; left: 5%; top: 4.5%; width: 90%; height: 91%; }
+.career-topbar { display: flex; width: 100%; height: 11%; color: #ffffff; align-items: center; }
+.club-identity { display: flex; width: 60%; align-items: center; }
+.club-crest { width: 52px; height: 52px; line-height: 52px; text-align: center; border-radius: 26px; background-color: #19d3b1; color: #07121f; font-family: "Fotbiler Display"; font-size: 28px; }
+.club-copy { margin-left: 14px; }
+.club-name, .club-meta, .status-label, .status-value, .career-tab, .card-kicker, .control-right { display: block; }
+.club-name { font-family: "Fotbiler Display"; font-size: 30px; letter-spacing: 1.5px; }
+.club-meta { margin-top: 3px; color: #aebdc7; font-size: 13px; letter-spacing: 1.2px; }
+.career-status { display: flex; width: 40%; justify-content: flex-end; }
+.status-block { min-width: 145px; text-align: right; }
+.date-block { min-width: 86px; margin-left: 28px; }
+.status-label { color: #aebdc7; font-size: 12px; letter-spacing: 1.4px; }
+.status-value { margin-top: 2px; font-family: "Fotbiler Display"; font-size: 24px; color: #ffffff; }
+.career-tabs { display: flex; width: 100%; height: 6.5%; border-bottom-width: 1px; border-bottom-color: #496375; color: #b9c5cc; }
+.career-tab { height: 100%; margin-right: 36px; padding-top: 10px; font-size: 17px; letter-spacing: 1px; }
+.career-tab.active { color: #ffffff; border-bottom-width: 4px; border-bottom-color: #19d3b1; }
+.card-kicker { color: #667681; font-size: 13px; letter-spacing: 1.5px; }
+.career-control-strip { display: flex; width: 100%; height: 8.5%; margin-top: 1.5%; padding-left: 12px; padding-right: 12px; box-sizing: border-box; align-items: center; background-color: #07121f; color: #c7d1d7; font-size: 13px; }
+.control-left { width: 72%; }
+.control-right { width: 28%; text-align: right; color: #7f929d; font-size: 11px; letter-spacing: 0.9px; }
 
 /* M1A.3: reusable card primitive. Existing screen classes are compatibility aliases. */
-.ui-card,
-.career-card,
-.squad-card,
-.transfer-card,
-.office-panel,
-.season-card,
-.tactic-card {
-  position: relative;
-  box-sizing: border-box;
-  overflow: hidden;
-  background-color: #f7f8f9;
-  border-width: 2px;
-  border-color: #f7f8f9;
-  color: #10202d;
-  nav: auto;
-  transition: transform border-color background-color 0.15s sine-out;
-}
-
-.ui-card:hover,
-.ui-card:focus,
-.career-card:hover,
-.career-card:focus,
-.squad-card:hover,
-.squad-card:focus,
-.transfer-card:hover,
-.transfer-card:focus,
-.office-panel:hover,
-.office-panel:focus,
-.season-card:hover,
-.season-card:focus,
-.tactic-card:hover,
-.tactic-card:focus {
-  transform: translateY(-2px);
-  border-color: #ffffff;
-}
+.ui-card, .career-card, .squad-card, .transfer-card, .office-panel, .season-card, .tactic-card { position: relative; box-sizing: border-box; overflow: hidden; background-color: #f7f8f9; border-width: 2px; border-color: #f7f8f9; color: #10202d; nav: auto; transition: transform border-color background-color 0.15s sine-out; }
+.ui-card:hover, .ui-card:focus, .career-card:hover, .career-card:focus, .squad-card:hover, .squad-card:focus, .transfer-card:hover, .transfer-card:focus, .office-panel:hover, .office-panel:focus, .season-card:hover, .season-card:focus, .tactic-card:hover, .tactic-card:focus { transform: translateY(-2px); border-color: #ffffff; }
 
 /* M1A.3: dark card modifier used for high-emphasis information surfaces. */
-.ui-card-dark,
-.career-news,
-.selected-player-card,
-.negotiation-card,
-.finance-card,
-.competitions-card,
-.stats-card,
-.identity-card {
-  background-color: #17334a;
-  border-color: #17334a;
-  color: #ffffff;
-}
+.ui-card-dark, .career-news, .selected-player-card, .negotiation-card, .finance-card, .competitions-card, .stats-card, .identity-card { background-color: #17334a; border-color: #17334a; color: #ffffff; }
+.ui-card-dark .card-kicker, .career-news .card-kicker, .selected-player-card .card-kicker, .negotiation-card .card-kicker, .finance-card .card-kicker, .competitions-card .card-kicker, .stats-card .card-kicker, .identity-card .card-kicker { color: #a9bbc6; }
 
-.ui-card-dark .card-kicker,
-.career-news .card-kicker,
-.selected-player-card .card-kicker,
-.negotiation-card .card-kicker,
-.finance-card .card-kicker,
-.competitions-card .card-kicker,
-.stats-card .card-kicker,
-.identity-card .card-kicker {
-  color: #a9bbc6;
-}
+/* M1A.3: muted card modifier for secondary information surfaces. */
+.ui-card-muted, .form-card, .window-card, .contracts-card, .club-card, .results-card { background-color: #dfe5e9; border-color: #dfe5e9; color: #10202d; }
