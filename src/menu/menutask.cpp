@@ -1,6 +1,9 @@
 #include "menutask.hpp"
 
+#include <algorithm>
 #include <cstdlib>
+#include <string>
+#include <vector>
 
 #include "../onthepitch/match.hpp"
 #include "career/career_database.hpp"
@@ -15,15 +18,85 @@
 #include "mainmenu.hpp"
 #include "managers/resourcemanagerpool.hpp"
 #include "pagefactory.hpp"
+#include "utils/database.hpp"
 #include "visualoptions.hpp"
 
 using namespace blunted;
 
 namespace {
 
-bool FotbilerUiQuickMatchLaunchEnabled() {
-  const char* value = std::getenv("FOTBILER_UI_QUICK_MATCH");
+bool EnvironmentFlagEnabled(const char* name) {
+  const char* value = std::getenv(name);
   return value && value[0] != '\0' && std::string(value) != "0";
+}
+
+int EnvironmentInt(const char* name, int fallback) {
+  const char* value = std::getenv(name);
+  if (!value || value[0] == '\0') {
+    return fallback;
+  }
+  char* end = nullptr;
+  const long parsed = std::strtol(value, &end, 10);
+  return end && *end == '\0' ? static_cast<int>(parsed) : fallback;
+}
+
+float EnvironmentFloat(const char* name, float fallback) {
+  const char* value = std::getenv(name);
+  if (!value || value[0] == '\0') {
+    return fallback;
+  }
+  char* end = nullptr;
+  const float parsed = std::strtof(value, &end);
+  return end && *end == '\0' ? parsed : fallback;
+}
+
+bool DatabaseHasTeam(int teamID) {
+  if (!GetDB() || teamID <= 0) {
+    return false;
+  }
+  auto result = GetDB()->Query("select id from teams where id = " + std::to_string(teamID) +
+                               " limit 1");
+  return result && !result->data.empty();
+}
+
+std::string DatabaseTeamName(int teamID) {
+  if (!GetDB() || teamID <= 0) {
+    return "Opponent";
+  }
+  auto result = GetDB()->Query("select name from teams where id = " + std::to_string(teamID) +
+                               " limit 1");
+  if (result && !result->data.empty() && !result->data.front().empty()) {
+    return result->data.front().front();
+  }
+  return "Opponent";
+}
+
+bool FindCareerOpponent(int userTeamID, int currentWeek, int& opponentTeamID,
+                        std::string& opponentName) {
+  if (!GetDB() || userTeamID <= 0) {
+    return false;
+  }
+
+  auto result = GetDB()->Query(
+      "select id, name from teams where id <> " + std::to_string(userTeamID) +
+      " and league_id = (select league_id from teams where id = " +
+      std::to_string(userTeamID) + ") order by id");
+  if (!result || result->data.empty()) {
+    result = GetDB()->Query("select id, name from teams where id <> " +
+                            std::to_string(userTeamID) + " order by id");
+  }
+  if (!result || result->data.empty()) {
+    return false;
+  }
+
+  const std::size_t index =
+      static_cast<std::size_t>(std::max(0, currentWeek - 1)) % result->data.size();
+  if (result->data[index].size() < 2) {
+    return false;
+  }
+  opponentTeamID = std::atoi(result->data[index][0].c_str());
+  opponentName = result->data[index][1];
+  return opponentTeamID > 0;
 }
 
 }  // namespace
@@ -61,7 +134,10 @@ void SetActiveController(int side, bool keyboard) {
 
 MenuTask::MenuTask(float aspectRatio, float margin, TTF_Font* defaultFont,
                    TTF_Font* defaultOutlineFont)
-    : Gui2Task(GetScene2D(), aspectRatio, margin), menuBackground(nullptr) {
+    : Gui2Task(GetScene2D(), aspectRatio, margin),
+      menuAction(e_MenuAction_None),
+      uiDirectMatchReady(false),
+      menuBackground(nullptr) {
   Gui2Style* style = windowManager->GetStyle();
 
   windowManager->onSoundClick = [this]() {
@@ -82,19 +158,18 @@ MenuTask::MenuTask(float aspectRatio, float margin, TTF_Font* defaultFont,
   style->SetFont(e_TextType_ToolTip, defaultFont);
 
   // Classic PES 5/6 Theme: Deep Navy, Silver, and Broadcast Gold
-  style->SetColor(e_DecorationType_Dark1, Vector3(12, 22, 45));   // Deep navy blue (backgrounds)
-  style->SetColor(e_DecorationType_Dark2, Vector3(45, 55, 80));   // Cool silver-blue (borders/inactive)
-  style->SetColor(e_DecorationType_Bright1, Vector3(255, 255, 255)); // Pure crisp white (text)
-  style->SetColor(e_DecorationType_Bright2, Vector3(255, 215, 0));   // Classic PES broadcast gold (hover/focus)
-  style->SetColor(e_DecorationType_Toggled, Vector3(210, 40, 40));   // PES Red (active/toggled)
+  style->SetColor(e_DecorationType_Dark1, Vector3(12, 22, 45));
+  style->SetColor(e_DecorationType_Dark2, Vector3(45, 55, 80));
+  style->SetColor(e_DecorationType_Bright1, Vector3(255, 255, 255));
+  style->SetColor(e_DecorationType_Bright2, Vector3(255, 215, 0));
+  style->SetColor(e_DecorationType_Toggled, Vector3(210, 40, 40));
 
   windowManager->SetTimeStep_ms(10);
 
   Gui2Root* root = windowManager->GetRoot();
   root->Show();
 
-  menuBackground =
-      new Gui2Image(windowManager, "image_menu_background", 0, 0, 100, 100);
+  menuBackground = new Gui2Image(windowManager, "image_menu_background", 0, 0, 100, 100);
   menuBackground->LoadImage("media/menu/backgrounds/stadium01.png");
   root->AddView(menuBackground);
   menuBackground->Show();
@@ -102,13 +177,14 @@ MenuTask::MenuTask(float aspectRatio, float margin, TTF_Font* defaultFont,
   PageFactory* pageFactory = new PageFactory();
   windowManager->SetPageFactory(pageFactory);
 
+  uiDirectMatchReady = PrepareFotbilerUiDirectMatch();
+
   if (!QuickStart()) {
     queuedFixture->team1KitNum = 1;
     queuedFixture->team2KitNum = 2;
-
     menuAction = e_MenuAction_Menu;
-
-  } else {
+  } else if (!uiDirectMatchReady) {
+    // Developer-only legacy quick start keeps its original fixture and controller setup.
     int size = GetControllers().size();
     for (int i = 0; i < size; i++) {
       SideSelection side;
@@ -121,19 +197,12 @@ MenuTask::MenuTask(float aspectRatio, float margin, TTF_Font* defaultFont,
       queuedFixture->sides.push_back(side);
     }
 
-    // 1 == ajax
-    // 2 == arsenal
-    // 3 == barcelona
-    // 4 == bayern
-    // 5 == borussia
-    // 6 == man utd
-    // 7 == psv
-    // 8 == real madrid
     queuedFixture->teamID1 = "3";
     queuedFixture->teamID2 = "8";
     queuedFixture->team1KitNum = 2;
     queuedFixture->team2KitNum = 2;
-
+    menuAction = e_MenuAction_Menu;
+  } else {
     menuAction = e_MenuAction_Menu;
   }
 }
@@ -146,6 +215,151 @@ MenuTask::~MenuTask() {
 
   if (Verbose())
     printf("done\n");
+}
+
+void MenuTask::SetSingleControlledSide(int side) {
+  const int normalizedSide = side > 0 ? 1 : -1;
+  const int controllerCount = static_cast<int>(GetControllers().size());
+  std::vector<SideSelection> sides;
+  const int count = std::max(1, controllerCount);
+  sides.reserve(static_cast<std::size_t>(count));
+  for (int i = 0; i < count; ++i) {
+    SideSelection selection;
+    selection.controllerID = i;
+    selection.side = i == 0 ? normalizedSide : 0;
+    sides.push_back(selection);
+  }
+  SetControllerSetup(sides);
+}
+
+bool MenuTask::PrepareFotbilerUiQuickMatch() {
+  int homeTeamID = EnvironmentInt("FOTBILER_UI_HOME_TEAM_ID", 3);
+  int awayTeamID = EnvironmentInt("FOTBILER_UI_AWAY_TEAM_ID", 8);
+  if (!DatabaseHasTeam(homeTeamID)) {
+    homeTeamID = 3;
+  }
+  if (!DatabaseHasTeam(awayTeamID) || awayTeamID == homeTeamID) {
+    awayTeamID = 8;
+  }
+  if (awayTeamID == homeTeamID || !DatabaseHasTeam(awayTeamID)) {
+    auto result = GetDB() ? GetDB()->Query("select id from teams where id <> " +
+                                          std::to_string(homeTeamID) + " order by id limit 1")
+                          : nullptr;
+    if (!result || result->data.empty() || result->data.front().empty()) {
+      return false;
+    }
+    awayTeamID = std::atoi(result->data.front().front().c_str());
+  }
+
+  SetTeamIDs(std::to_string(homeTeamID), std::to_string(awayTeamID));
+  queuedFixture->team1KitNum = 1;
+  queuedFixture->team2KitNum = 2;
+  SetSingleControlledSide(EnvironmentInt("FOTBILER_UI_CONTROL_SIDE", -1));
+
+  const int duration =
+      std::clamp(EnvironmentInt("FOTBILER_UI_MATCH_DURATION_MINUTES", 10), 5, 90);
+  const float difficulty =
+      std::clamp(EnvironmentFloat("FOTBILER_UI_MATCH_DIFFICULTY", 0.75f), 0.0f, 1.0f);
+  GetConfiguration()->Set("match_duration_minutes", static_cast<float>(duration));
+  GetConfiguration()->Set("match_difficulty", difficulty);
+
+  std::printf("[fotbiler-ui] Quick Match: team %d vs %d, %d min, difficulty %.2f, side %d\n",
+              homeTeamID, awayTeamID, duration, difficulty,
+              EnvironmentInt("FOTBILER_UI_CONTROL_SIDE", -1));
+  return true;
+}
+
+bool MenuTask::PrepareFotbilerUiCareerMatch() {
+  CareerDatabase& career = CareerDatabase::GetInstance();
+  career.Initialize("user/career");
+  if (!career.GetActiveSave() && !career.LoadCareerSave("save")) {
+    std::fprintf(stderr, "[fotbiler-ui] Career Match: no career save could be loaded\n");
+    return false;
+  }
+
+  CareerSave* save = career.GetActiveSave();
+  if (!save || save->club.clubID <= 0 || !DatabaseHasTeam(save->club.clubID)) {
+    std::fprintf(stderr, "[fotbiler-ui] Career Match: active club has no valid database team\n");
+    return false;
+  }
+
+  const int userTeamID = save->club.clubID;
+  int opponentTeamID = 0;
+  std::string opponentName;
+  bool isHome = (save->season.currentWeek % 2) == 0;
+  bool foundStoredFixture = false;
+
+  for (const FixtureResult& fixture : save->season.fixtures) {
+    if (fixture.played) {
+      continue;
+    }
+    if (fixture.homeTeamID == userTeamID && fixture.awayTeamID > 0) {
+      isHome = true;
+      opponentTeamID = fixture.awayTeamID;
+      foundStoredFixture = true;
+      break;
+    }
+    if (fixture.awayTeamID == userTeamID && fixture.homeTeamID > 0) {
+      isHome = false;
+      opponentTeamID = fixture.homeTeamID;
+      foundStoredFixture = true;
+      break;
+    }
+  }
+
+  if (opponentTeamID <= 0 || !DatabaseHasTeam(opponentTeamID)) {
+    if (!FindCareerOpponent(userTeamID, save->season.currentWeek, opponentTeamID, opponentName)) {
+      std::fprintf(stderr, "[fotbiler-ui] Career Match: could not resolve an opponent\n");
+      return false;
+    }
+    foundStoredFixture = false;
+  }
+  if (opponentName.empty()) {
+    opponentName = DatabaseTeamName(opponentTeamID);
+  }
+
+  if (!foundStoredFixture) {
+    FixtureResult fixture;
+    fixture.fixtureID = save->season.currentWeek * 100;
+    fixture.homeTeamID = isHome ? userTeamID : opponentTeamID;
+    fixture.awayTeamID = isHome ? opponentTeamID : userTeamID;
+    fixture.played = false;
+    save->season.fixtures.push_back(fixture);
+    career.AutoSave();
+  }
+
+  career.SetPendingFixture(isHome, userTeamID, opponentTeamID, opponentName);
+  if (isHome) {
+    SetTeamIDs(std::to_string(userTeamID), std::to_string(opponentTeamID));
+    SetSingleControlledSide(-1);
+  } else {
+    SetTeamIDs(std::to_string(opponentTeamID), std::to_string(userTeamID));
+    SetSingleControlledSide(1);
+  }
+  queuedFixture->team1KitNum = 1;
+  queuedFixture->team2KitNum = 2;
+  GetConfiguration()->SetBool("career_resume_hub", false);
+
+  std::printf("[fotbiler-ui] Career Match: %s team %d vs team %d (%s)\n",
+              isHome ? "home" : "away", userTeamID, opponentTeamID, opponentName.c_str());
+  return true;
+}
+
+bool MenuTask::PrepareFotbilerUiDirectMatch() {
+  bool ready = false;
+  if (EnvironmentFlagEnabled("FOTBILER_UI_CAREER_MATCH")) {
+    ready = PrepareFotbilerUiCareerMatch();
+  } else if (EnvironmentFlagEnabled("FOTBILER_UI_QUICK_MATCH")) {
+    ready = PrepareFotbilerUiQuickMatch();
+  }
+
+  // Consume one-shot handoff flags. uiDirectMatchReady keeps this MenuTask on the
+  // direct-loading path without accidentally restarting another match later.
+  if (ready) {
+    SDL_setenv("FOTBILER_UI_QUICK_MATCH", "0", 1);
+    SDL_setenv("FOTBILER_UI_CAREER_MATCH", "0", 1);
+  }
+  return ready;
 }
 
 void MenuTask::ProcessPhase() {
@@ -188,14 +402,10 @@ void MenuTask::ProcessPhase() {
 }
 
 bool MenuTask::QuickStart() {
-  // The modern Fotbiler UI may hand off directly to the proven legacy match-loading
-  // pipeline. Keep the old config-only quick-start for local debug iteration as well.
-  const bool uiHandoff = FotbilerUiQuickMatchLaunchEnabled();
   const bool developerQuickStart =
       !IsReleaseVersion() && GetConfiguration()->GetBool("quick_start", false);
-  return (uiHandoff || developerQuickStart) &&
-         EnvironmentManager::GetInstance().GetTime_ms() <
-             10000;  // after 10 seconds, quickstart disabled
+  return (uiDirectMatchReady || developerQuickStart) &&
+         EnvironmentManager::GetInstance().GetTime_ms() < 10000;
 }
 
 void MenuTask::QuitGame() {
