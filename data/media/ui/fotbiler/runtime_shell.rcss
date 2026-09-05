@@ -76,17 +76,20 @@ body {
 }
 
 .runtime-heading {
+  display: block;
   height: 12%;
   padding-top: 1%;
 }
 
 .runtime-kicker {
+  display: block;
   color: #93a8b8;
   font-size: 11px;
   letter-spacing: 1.2px;
 }
 
 .runtime-title {
+  display: block;
   margin-top: 4px;
   font-size: 31px;
   font-weight: 900;
@@ -94,6 +97,7 @@ body {
 }
 
 .runtime-subtitle {
+  display: block;
   margin-top: 4px;
   color: #a9bac7;
   font-size: 13px;
@@ -117,6 +121,7 @@ body {
 }
 
 .runtime-card {
+  display: block;
   box-sizing: border-box;
   width: 100%;
   background-color: #f3f5f7;
@@ -143,12 +148,14 @@ body {
 }
 
 .runtime-card-title {
+  display: block;
   font-size: 19px;
   font-weight: 900;
   margin-bottom: 12px;
 }
 
 .runtime-card-kicker {
+  display: block;
   color: #6f8797;
   font-size: 10px;
   letter-spacing: 1px;
@@ -177,6 +184,7 @@ body {
 }
 
 .runtime-label {
+  display: block;
   color: #657c8c;
   font-size: 11px;
   letter-spacing: .5px;
@@ -187,11 +195,13 @@ body {
 }
 
 .runtime-value {
+  display: block;
   font-size: 13px;
   font-weight: 900;
 }
 
 .runtime-nav-item {
+  display: block;
   box-sizing: border-box;
   width: 100%;
   min-height: 44px;
@@ -227,6 +237,7 @@ body {
 }
 
 .runtime-stat-name {
+  display: block;
   width: 42%;
   text-align: center;
   color: #a9bac7;
@@ -234,6 +245,7 @@ body {
 }
 
 .runtime-stat-value {
+  display: block;
   width: 29%;
   font-size: 15px;
   font-weight: 900;
@@ -251,6 +263,7 @@ body {
 }
 
 .runtime-team {
+  display: block;
   width: 34%;
   text-align: center;
   font-size: 21px;
@@ -258,6 +271,7 @@ body {
 }
 
 .runtime-score {
+  display: block;
   width: 24%;
   text-align: center;
   font-size: 48px;
@@ -272,6 +286,7 @@ body {
 }
 
 .runtime-tab {
+  display: block;
   box-sizing: border-box;
   min-width: 135px;
   height: 42px;
@@ -328,10 +343,12 @@ body {
 }
 
 .runtime-muted {
+  display: block;
   color: #8ca1b1;
 }
 
 .runtime-big-number {
+  display: block;
   font-size: 42px;
   font-weight: 900;
   color: #20d0b5;
