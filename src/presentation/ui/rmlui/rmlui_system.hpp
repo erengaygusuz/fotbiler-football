@@ -41,6 +41,10 @@ public:
   // the current RmlUi event dispatch has completed.
   std::string ConsumeRouteRequest();
 
+  // data-action clicks are queued separately from navigation so runtime
+  // integrations can hand commands such as START MATCH to the real game.
+  std::string ConsumeActionRequest();
+
   // Activates the current focus target and restores a deterministic default
   // focus when a screen is loaded without a remembered focus target.
   bool ActivateFocusedElement();
