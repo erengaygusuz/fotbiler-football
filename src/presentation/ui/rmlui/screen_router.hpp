@@ -18,6 +18,7 @@ enum class ScreenId {
   Office,
   Season,
   Tactics,
+  Inbox,
 };
 
 struct ScreenRoute {
@@ -93,8 +94,8 @@ public:
   }
 
 private:
-  static const std::array<ScreenRoute, 7>& Routes() {
-    static constexpr std::array<ScreenRoute, 7> routes = {{
+  static const std::array<ScreenRoute, 8>& Routes() {
+    static constexpr std::array<ScreenRoute, 8> routes = {{
         {ScreenId::MainMenu, "main-menu", "media/ui/fotbiler/main_menu.rml"},
         {ScreenId::CareerCentral, "career-central", "media/ui/fotbiler/career_central.rml"},
         {ScreenId::Squad, "squad", "media/ui/fotbiler/squad.rml"},
@@ -102,6 +103,7 @@ private:
         {ScreenId::Office, "office", "media/ui/fotbiler/office.rml"},
         {ScreenId::Season, "season", "media/ui/fotbiler/season.rml"},
         {ScreenId::Tactics, "tactics", "media/ui/fotbiler/tactics.rml"},
+        {ScreenId::Inbox, "inbox", "media/ui/fotbiler/inbox.rml"},
     }};
     return routes;
   }
