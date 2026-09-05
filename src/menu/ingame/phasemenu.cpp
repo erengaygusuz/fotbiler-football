@@ -18,17 +18,21 @@ bool MenuSmokeFullMatchEnabled() {
 
 const char* PhaseName(e_MatchPhase phase) {
   switch (phase) {
-    case e_MatchPhase_2ndHalf:
-      return "second half";
-    case e_MatchPhase_1stExtraTime:
-      return "first extra time";
-    case e_MatchPhase_2ndExtraTime:
-      return "second extra time";
-    case e_MatchPhase_Penalties:
-      return "penalties";
-    default:
-      return "next phase";
+    case e_MatchPhase_2ndHalf: return "second half";
+    case e_MatchPhase_1stExtraTime: return "first extra time";
+    case e_MatchPhase_2ndExtraTime: return "second extra time";
+    case e_MatchPhase_Penalties: return "penalties";
+    default: return "next phase";
   }
+}
+
+Gui2Caption* PhaseStat(Gui2WindowManager* windowManager, const std::string& id,
+                       const std::string& text, bool accent = false) {
+  Gui2Caption* caption = new Gui2Caption(windowManager, id, 0, 0, 15, 3, text);
+  if (accent) {
+    caption->SetColor(windowManager->GetStyle()->GetColor(e_DecorationType_Bright2));
+  }
+  return caption;
 }
 
 }  // namespace
@@ -37,113 +41,124 @@ MatchPhasePage::MatchPhasePage(Gui2WindowManager* windowManager, const Gui2PageD
     : Gui2Page(windowManager, pageData),
       pageCreatedTime_ms(EnvironmentManager::GetInstance().GetTime_ms()),
       autoAdvanceTriggered(false) {
-  GetGameTask()->GetMatch()->Pause(true);
-
-  nextPhase = (e_MatchPhase)pageData.properties->GetInt("nextphase");
-
-  std::string phaseName;
-  if (nextPhase == e_MatchPhase_2ndHalf)
-    phaseName = Localization::GetInstance().Translate("phase_2nd_half");
-  else if (nextPhase == e_MatchPhase_1stExtraTime)
-    phaseName = Localization::GetInstance().Translate("phase_1st_extra_time");
-  else if (nextPhase == e_MatchPhase_2ndExtraTime)
-    phaseName = Localization::GetInstance().Translate("phase_2nd_extra_time");
-  else if (nextPhase == e_MatchPhase_Penalties)
-    phaseName = Localization::GetInstance().Translate("phase_penalties");
-
-  std::string phaseLabel = Localization::GetInstance().Translate("phase_begin") + " " + phaseName;
-
-  Gui2Frame* bgPanel = new Gui2Frame(windowManager, "bg_phase", 25, 25, 50, 50, true);
-  this->AddView(bgPanel);
-  bgPanel->Show();
-
-  Gui2Caption* phaseTitle = new Gui2Caption(
-      windowManager, "caption_phase", 2, 2, 46, 3,
-      phaseName.empty() ? Localization::GetInstance().Translate("phase_match_phase") : phaseName);
-  bgPanel->AddView(phaseTitle);
-  phaseTitle->Show();
-
-  // Draw Match Stats
   Match* match = GetGameTask()->GetMatch();
-  if (match) {
-    MatchData* md = match->GetMatchData();
-    Gui2Grid* statsGrid = new Gui2Grid(windowManager, "stats_grid", 2, 7, 46, 35);
-    bgPanel->AddView(statsGrid);
+  if (!match) {
+    return;
+  }
+  match->Pause(true);
+  nextPhase = static_cast<e_MatchPhase>(pageData.properties->GetInt("nextphase"));
 
-    // Header (Team Names)
-    Gui2Caption* h0 = new Gui2Caption(windowManager, "s_t1", 0, 0, 15, 3, md->GetTeamData(0)->GetShortName());
-    Gui2Caption* h1 = new Gui2Caption(windowManager, "s_l1", 0, 0, 16, 3,
-                                    Localization::GetInstance().Translate("ingame_match_stats"));
-    Gui2Caption* h2 = new Gui2Caption(windowManager, "s_t2", 0, 0, 15, 3, md->GetTeamData(1)->GetShortName());
-    h0->SetColor(windowManager->GetStyle()->GetColor(e_DecorationType_Bright2));
-    h1->SetColor(windowManager->GetStyle()->GetColor(e_DecorationType_Bright2));
-    h2->SetColor(windowManager->GetStyle()->GetColor(e_DecorationType_Bright2));
-    statsGrid->AddView(h0, 0, 0);
-    statsGrid->AddView(h1, 1, 0);
-    statsGrid->AddView(h2, 2, 0);
-
-    // Score
-    statsGrid->AddView(new Gui2Caption(windowManager, "s_v1", 0, 0, 15, 3, int_to_str(md->GetGoalCount(0))), 0, 1);
-    statsGrid->AddView(new Gui2Caption(windowManager, "s_l2", 0, 0, 16, 3,
-                                    Localization::GetInstance().Translate("ingame_score")), 1, 1);
-    statsGrid->AddView(new Gui2Caption(windowManager, "s_v2", 0, 0, 15, 3, int_to_str(md->GetGoalCount(1))), 2, 1);
-
-    // Possession
-    unsigned long p0 = md->GetPossessionTime_ms(0);
-    unsigned long p1 = md->GetPossessionTime_ms(1);
-    int p0_pct = (p0 + p1 > 0) ? (p0 * 100) / (p0 + p1) : 50;
-    statsGrid->AddView(new Gui2Caption(windowManager, "s_p1", 0, 0, 15, 3, int_to_str(p0_pct) + "%"), 0, 2);
-    statsGrid->AddView(new Gui2Caption(windowManager, "s_l3", 0, 0, 16, 3,
-                                    Localization::GetInstance().Translate("ingame_possession")), 1, 2);
-    statsGrid->AddView(new Gui2Caption(windowManager, "s_p2", 0, 0, 15, 3, int_to_str(100 - p0_pct) + "%"), 2, 2);
-
-    // Shots (On Target)
-    std::string sh0 = int_to_str(md->GetShots(0)) + " (" + int_to_str(md->GetShotsOnTarget(0)) + ")";
-    std::string sh1 = int_to_str(md->GetShots(1)) + " (" + int_to_str(md->GetShotsOnTarget(1)) + ")";
-    statsGrid->AddView(new Gui2Caption(windowManager, "s_sh1", 0, 0, 15, 3, sh0), 0, 3);
-    statsGrid->AddView(new Gui2Caption(windowManager, "s_l4", 0, 0, 16, 3,
-                                    Localization::GetInstance().Translate(
-                                        "ingame_shots_on_target")), 1, 3);
-    statsGrid->AddView(new Gui2Caption(windowManager, "s_sh2", 0, 0, 15, 3, sh1), 2, 3);
-
-    // Passes (Completed)
-    std::string pa0 = int_to_str(md->GetPassesCompleted(0)) + " / " + int_to_str(md->GetPassAttempts(0));
-    std::string pa1 = int_to_str(md->GetPassesCompleted(1)) + " / " + int_to_str(md->GetPassAttempts(1));
-    statsGrid->AddView(new Gui2Caption(windowManager, "s_pa1", 0, 0, 15, 3, pa0), 0, 4);
-    statsGrid->AddView(new Gui2Caption(windowManager, "s_l5", 0, 0, 16, 3,
-                                    Localization::GetInstance().Translate(
-                                        "ingame_passes_completed")), 1, 4);
-    statsGrid->AddView(new Gui2Caption(windowManager, "s_pa2", 0, 0, 15, 3, pa1), 2, 4);
-
-    // Fouls
-    statsGrid->AddView(new Gui2Caption(windowManager, "s_f1", 0, 0, 15, 3, int_to_str(md->GetFouls(0))), 0, 5);
-    statsGrid->AddView(new Gui2Caption(windowManager, "s_l6", 0, 0, 16, 3,
-                                    Localization::GetInstance().Translate("ingame_fouls")), 1, 5);
-    statsGrid->AddView(new Gui2Caption(windowManager, "s_f2", 0, 0, 15, 3, int_to_str(md->GetFouls(1))), 2, 5);
-
-    statsGrid->UpdateLayout(0.5);
-    statsGrid->Show();
+  std::string titleText = "MATCH BREAK";
+  std::string actionText = "CONTINUE MATCH";
+  if (nextPhase == e_MatchPhase_2ndHalf) {
+    titleText = "HALF-TIME";
+    actionText = "START SECOND HALF";
+  } else if (nextPhase == e_MatchPhase_1stExtraTime) {
+    titleText = "END OF 90 MINUTES";
+    actionText = "START EXTRA TIME";
+  } else if (nextPhase == e_MatchPhase_2ndExtraTime) {
+    titleText = "EXTRA-TIME BREAK";
+    actionText = "CONTINUE EXTRA TIME";
+  } else if (nextPhase == e_MatchPhase_Penalties) {
+    titleText = "PENALTY SHOOTOUT";
+    actionText = "START PENALTIES";
   }
 
-  buttonNext = new Gui2Button(windowManager, "button_next", 0, 0, 44, 4, phaseLabel);
-  Gui2Button* button1 = new Gui2Button(windowManager, "button1", 0, 0, 44, 4,
-                                       Localization::GetInstance().Translate("phase_game_plan"));
+  Gui2Frame* frame = new Gui2Frame(windowManager, "phase_frame", 6, 5, 88, 90, true);
+  this->AddView(frame);
+  frame->Show();
 
+  Gui2Caption* kicker =
+      new Gui2Caption(windowManager, "phase_kicker", 3, 2, 82, 2.3f, "MATCHDAY  ·  BREAK");
+  kicker->SetColor(windowManager->GetStyle()->GetColor(e_DecorationType_Bright2));
+  frame->AddView(kicker);
+  kicker->Show();
+
+  Gui2Caption* title =
+      new Gui2Caption(windowManager, "caption_phase", 3, 5, 82, 4, titleText);
+  frame->AddView(title);
+  title->Show();
+
+  Gui2Frame* factsPanel = new Gui2Frame(windowManager, "phase_facts", 3, 14, 56, 63, true);
+  frame->AddView(factsPanel);
+  factsPanel->Show();
+
+  MatchData* md = match->GetMatchData();
+  const std::string score = match->GetTeam(0)->GetTeamData()->GetName() + "   " +
+                            int_to_str(md->GetGoalCount(0)) + " - " +
+                            int_to_str(md->GetGoalCount(1)) + "   " +
+                            match->GetTeam(1)->GetTeamData()->GetName();
+  Gui2Caption* scoreCaption =
+      new Gui2Caption(windowManager, "phase_score", 2, 2, 52, 4, score);
+  scoreCaption->SetColor(windowManager->GetStyle()->GetColor(e_DecorationType_Bright2));
+  factsPanel->AddView(scoreCaption);
+  scoreCaption->Show();
+
+  Gui2Grid* statsGrid = new Gui2Grid(windowManager, "phase_stats_grid", 2, 9, 52, 43);
+  const unsigned long p0 = md->GetPossessionTime_ms(0);
+  const unsigned long p1 = md->GetPossessionTime_ms(1);
+  const int p0Pct = p0 + p1 > 0 ? static_cast<int>((p0 * 100) / (p0 + p1)) : 50;
+  const int p1Pct = 100 - p0Pct;
+  const int passAttempts0 = md->GetPassAttempts(0);
+  const int passAttempts1 = md->GetPassAttempts(1);
+  const int passPct0 = passAttempts0 > 0 ? md->GetPassesCompleted(0) * 100 / passAttempts0 : 0;
+  const int passPct1 = passAttempts1 > 0 ? md->GetPassesCompleted(1) * 100 / passAttempts1 : 0;
+
+  statsGrid->AddView(PhaseStat(windowManager, "ph_home", md->GetTeamData(0)->GetShortName(), true), 0, 0);
+  statsGrid->AddView(PhaseStat(windowManager, "ph_label", "MATCH FACTS", true), 1, 0);
+  statsGrid->AddView(PhaseStat(windowManager, "ph_away", md->GetTeamData(1)->GetShortName(), true), 2, 0);
+
+  auto row = [&](int index, const std::string& left, const std::string& label,
+                 const std::string& right, const std::string& suffix) {
+    statsGrid->AddView(PhaseStat(windowManager, "ph_l_" + suffix, left), 0, index);
+    statsGrid->AddView(PhaseStat(windowManager, "ph_m_" + suffix, label), 1, index);
+    statsGrid->AddView(PhaseStat(windowManager, "ph_r_" + suffix, right), 2, index);
+  };
+  row(1, int_to_str(p0Pct) + "%", "POSSESSION", int_to_str(p1Pct) + "%", "pos");
+  row(2, int_to_str(md->GetShots(0)), "SHOTS", int_to_str(md->GetShots(1)), "shots");
+  row(3, int_to_str(md->GetShotsOnTarget(0)), "ON TARGET",
+      int_to_str(md->GetShotsOnTarget(1)), "target");
+  row(4, int_to_str(passPct0) + "%", "PASS ACCURACY", int_to_str(passPct1) + "%", "pass");
+  row(5, int_to_str(md->GetFouls(0)), "FOULS", int_to_str(md->GetFouls(1)), "fouls");
+  statsGrid->UpdateLayout(0.55f);
+  factsPanel->AddView(statsGrid);
+  statsGrid->Show();
+
+  Gui2Frame* actionPanel = new Gui2Frame(windowManager, "phase_actions", 61, 14, 24, 63, true);
+  frame->AddView(actionPanel);
+  actionPanel->Show();
+
+  Gui2Caption* talkKicker = new Gui2Caption(windowManager, "phase_talk_kicker", 2, 2, 20, 2.3f,
+                                            "NEXT PHASE");
+  talkKicker->SetColor(windowManager->GetStyle()->GetColor(e_DecorationType_Bright2));
+  actionPanel->AddView(talkKicker);
+  talkKicker->Show();
+
+  Gui2Caption* talk = new Gui2Caption(windowManager, "phase_talk", 2, 6, 20, 7,
+                                      "Review the shape, make changes and return to the pitch.");
+  actionPanel->AddView(talk);
+  talk->Show();
+
+  buttonNext = new Gui2Button(windowManager, "button_next", 2, 21, 20, 4, actionText);
   buttonNext->sig_OnClick.connect([this](...) { ContinueGame(); });
-  button1->sig_OnClick.connect([this](...) { GoGamePlan(); });
+  actionPanel->AddView(buttonNext);
+  buttonNext->Show();
 
-  grid = new Gui2Grid(windowManager, "grid", 2, 44, 46, 4);
+  Gui2Button* buttonGamePlan =
+      new Gui2Button(windowManager, "button_phase_gameplan", 2, 28, 20, 4, "TEAM MANAGEMENT");
+  buttonGamePlan->sig_OnClick.connect([this](...) { GoGamePlan(); });
+  actionPanel->AddView(buttonGamePlan);
+  buttonGamePlan->Show();
 
-  grid->AddView(buttonNext, 0, 0);
-  grid->AddView(button1, 1, 0);
+  grid = new Gui2Grid(windowManager, "grid", 0, 0, 1, 1);
+  frame->AddView(grid);
 
-  grid->UpdateLayout(0.5);
-
-  bgPanel->AddView(grid);
-  grid->Show();
+  Gui2Caption* footer = new Gui2Caption(windowManager, "phase_footer", 3, 82, 82, 2.3f,
+                                        "ENTER Continue  ·  Team Management available before restart");
+  frame->AddView(footer);
+  footer->Show();
 
   buttonNext->SetFocus();
-
   this->Show();
 }
 
@@ -151,10 +166,8 @@ MatchPhasePage::~MatchPhasePage() {}
 
 void MatchPhasePage::Process() {
   Gui2Page::Process();
-
   if (!autoAdvanceTriggered && MenuSmokeFullMatchEnabled() &&
-      EnvironmentManager::GetInstance().GetTime_ms() >=
-          pageCreatedTime_ms + kMenuSmokeAdvanceDelay_ms) {
+      EnvironmentManager::GetInstance().GetTime_ms() >= pageCreatedTime_ms + kMenuSmokeAdvanceDelay_ms) {
     autoAdvanceTriggered = true;
     printf("[menu-smoke] Continuing %s automatically\n", PhaseName(nextPhase));
     ContinueGame();
@@ -163,14 +176,13 @@ void MatchPhasePage::Process() {
 
 void MatchPhasePage::GoGamePlan() {
   Properties properties;
-  // properties.SetInt("teamID", );
   CreatePage(e_PageID_GamePlan, properties);
 }
 
 void MatchPhasePage::ContinueGame() {
   GetMenuTask()->ReleaseAllButtons();
   GetGameTask()->GetMatch()->Pause(false);
-  GoBack();  // back to gamepage
+  GoBack();
 }
 
 void MatchPhasePage::ProcessWindowingEvent(WindowingEvent* event) {
