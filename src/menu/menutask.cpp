@@ -1,7 +1,10 @@
 #include "menutask.hpp"
 
+#include <SDL2/SDL.h>
+
 #include <algorithm>
 #include <cstdlib>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -117,7 +120,7 @@ void SetActiveController(int side, bool keyboard) {
       break;
     }
     if (i == sides.size() - 1)
-      menuControllerID = 0;  // AI opponent, so allow choosing their team with controller
+      menuControllerID = 0;
   }
 
   GetMenuTask()->SetActiveJoystickID(menuControllerID);
@@ -157,7 +160,6 @@ MenuTask::MenuTask(float aspectRatio, float margin, TTF_Font* defaultFont,
   style->SetFont(e_TextType_Title, defaultFont);
   style->SetFont(e_TextType_ToolTip, defaultFont);
 
-  // Classic PES 5/6 Theme: Deep Navy, Silver, and Broadcast Gold
   style->SetColor(e_DecorationType_Dark1, Vector3(12, 22, 45));
   style->SetColor(e_DecorationType_Dark2, Vector3(45, 55, 80));
   style->SetColor(e_DecorationType_Bright1, Vector3(255, 255, 255));
@@ -184,7 +186,6 @@ MenuTask::MenuTask(float aspectRatio, float margin, TTF_Font* defaultFont,
     queuedFixture->team2KitNum = 2;
     menuAction = e_MenuAction_Menu;
   } else if (!uiDirectMatchReady) {
-    // Developer-only legacy quick start keeps its original fixture and controller setup.
     int size = GetControllers().size();
     for (int i = 0; i < size; i++) {
       SideSelection side;
@@ -242,9 +243,11 @@ bool MenuTask::PrepareFotbilerUiQuickMatch() {
     awayTeamID = 8;
   }
   if (awayTeamID == homeTeamID || !DatabaseHasTeam(awayTeamID)) {
-    auto result = GetDB() ? GetDB()->Query("select id from teams where id <> " +
-                                          std::to_string(homeTeamID) + " order by id limit 1")
-                          : nullptr;
+    std::unique_ptr<DatabaseResult> result;
+    if (GetDB()) {
+      result = GetDB()->Query("select id from teams where id <> " + std::to_string(homeTeamID) +
+                              " order by id limit 1");
+    }
     if (!result || result->data.empty() || result->data.front().empty()) {
       return false;
     }
@@ -272,9 +275,13 @@ bool MenuTask::PrepareFotbilerUiQuickMatch() {
 bool MenuTask::PrepareFotbilerUiCareerMatch() {
   CareerDatabase& career = CareerDatabase::GetInstance();
   career.Initialize("user/career");
-  if (!career.GetActiveSave() && !career.LoadCareerSave("save")) {
-    std::fprintf(stderr, "[fotbiler-ui] Career Match: no career save could be loaded\n");
-    return false;
+  if (!career.GetActiveSave()) {
+    // The spawned runtime is a new process. Prefer the autosave because a
+    // previous 3D result is committed there immediately after full time.
+    if (!career.LoadCareerSlot(-1) && !career.LoadCareerSlot(0)) {
+      std::fprintf(stderr, "[fotbiler-ui] Career Match: no career save could be loaded\n");
+      return false;
+    }
   }
 
   CareerSave* save = career.GetActiveSave();
@@ -325,6 +332,7 @@ bool MenuTask::PrepareFotbilerUiCareerMatch() {
     fixture.awayTeamID = isHome ? opponentTeamID : userTeamID;
     fixture.played = false;
     save->season.fixtures.push_back(fixture);
+    career.SaveCareerData();
     career.AutoSave();
   }
 
@@ -353,8 +361,6 @@ bool MenuTask::PrepareFotbilerUiDirectMatch() {
     ready = PrepareFotbilerUiQuickMatch();
   }
 
-  // Consume one-shot handoff flags. uiDirectMatchReady keeps this MenuTask on the
-  // direct-loading path without accidentally restarting another match later.
   if (ready) {
     SDL_setenv("FOTBILER_UI_QUICK_MATCH", "0", 1);
     SDL_setenv("FOTBILER_UI_CAREER_MATCH", "0", 1);
@@ -413,7 +419,6 @@ void MenuTask::QuitGame() {
 }
 
 void MenuTask::ReleaseAllButtons() {
-  // when going back to game, depress all buttons, so we don't go around doing passes we don't want
   for (int joyID = 0; joyID < UserEventManager::GetInstance().GetJoystickCount(); joyID++) {
     for (unsigned int buttonID = 0; buttonID < blunted::_JOYSTICK_MAXBUTTONS; buttonID++) {
       UserEventManager::GetInstance().SetJoyButtonState(joyID, buttonID, false);
