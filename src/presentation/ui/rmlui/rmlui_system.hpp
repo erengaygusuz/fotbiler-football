@@ -2,6 +2,7 @@
 #define FOTBILER_RMLUI_SYSTEM_HPP
 
 #include <memory>
+#include <string>
 
 struct SDL_Window;
 union SDL_Event;
@@ -24,6 +25,10 @@ public:
 
   bool IsInitialized() const;
   void SetDimensions(int width, int height);
+
+  bool LoadDocument(const std::string& path);
+  void UnloadDocument();
+  bool HasDocument() const;
 
   // Returns true when RmlUi consumed the SDL event.
   bool HandleEvent(SDL_Event& event);

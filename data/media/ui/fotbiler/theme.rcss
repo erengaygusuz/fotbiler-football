@@ -1,0 +1,346 @@
+@font-face {
+  font-family: "Fotbiler Sans";
+  src: "../../fonts/alegreya/AlegreyaSans-ExtraBold.ttf";
+}
+
+@font-face {
+  font-family: "Fotbiler Display";
+  src: "../../fonts/alegreya/AlegreyaSansSC-Black.ttf";
+}
+
+:root {
+  --bg-deep: #07121f;
+  --bg-mid: #10283a;
+  --surface: #f2f4f5;
+  --surface-muted: #dfe4e7;
+  --ink: #10202d;
+  --ink-soft: #667681;
+  --white: #ffffff;
+  --accent: #19d3b1;
+  --accent-strong: #00b895;
+  --accent-pink: #dd3c91;
+  --accent-blue: #2e71ff;
+  --line: #cbd3d8;
+}
+
+body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  color: var(--ink);
+  font-family: "Fotbiler Sans";
+  background-color: var(--bg-deep);
+}
+
+.screen {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: var(--surface);
+}
+
+/* FIFA 17-22-inspired geometry: broad diagonal fields, but original Fotbiler colors. */
+.bg-deep {
+  position: absolute;
+  left: -12%;
+  top: -34%;
+  width: 59%;
+  height: 164%;
+  background-color: var(--bg-deep);
+  transform: rotate(-11deg);
+}
+
+.bg-blue {
+  position: absolute;
+  right: -13%;
+  top: -24%;
+  width: 43%;
+  height: 86%;
+  background-color: #183b58;
+  transform: rotate(14deg);
+}
+
+.bg-pink {
+  position: absolute;
+  right: -17%;
+  bottom: -35%;
+  width: 48%;
+  height: 68%;
+  background-color: var(--accent-pink);
+  transform: rotate(-17deg);
+}
+
+.shell {
+  position: absolute;
+  left: 5%;
+  top: 5%;
+  width: 90%;
+  height: 90%;
+}
+
+.topbar {
+  display: flex;
+  width: 100%;
+  height: 9%;
+  color: var(--white);
+  align-items: center;
+}
+
+.brand {
+  width: 54%;
+  font-family: "Fotbiler Display";
+  font-size: 32px;
+  letter-spacing: 2px;
+}
+
+.brand-mark {
+  color: var(--accent);
+}
+
+.profile {
+  width: 46%;
+  text-align: right;
+  color: #c9d3da;
+  font-size: 16px;
+  letter-spacing: 1px;
+}
+
+.tabs {
+  display: flex;
+  width: 100%;
+  height: 7%;
+  color: #b8c4cb;
+  border-bottom-width: 1px;
+  border-bottom-color: #426074;
+}
+
+.tab {
+  height: 100%;
+  margin-right: 34px;
+  padding-top: 12px;
+  font-size: 18px;
+  letter-spacing: 1px;
+}
+
+.tab.active {
+  color: var(--white);
+  border-bottom-width: 4px;
+  border-bottom-color: var(--accent);
+}
+
+.content {
+  display: flex;
+  width: 100%;
+  height: 70%;
+  padding-top: 24px;
+}
+
+.primary-column {
+  width: 61%;
+  height: 100%;
+  margin-right: 18px;
+}
+
+.secondary-column {
+  width: 39%;
+  height: 100%;
+}
+
+.row {
+  display: flex;
+  width: 100%;
+}
+
+.tile {
+  position: relative;
+  box-sizing: border-box;
+  overflow: hidden;
+  background-color: rgba(255, 255, 255, 0.94);
+  border-width: 2px;
+  border-color: rgba(255, 255, 255, 0.0);
+  color: var(--ink);
+  transition: background-color 0.16s ease-out, color 0.16s ease-out, transform 0.16s ease-out,
+              border-color 0.16s ease-out;
+  nav: auto;
+}
+
+.tile:hover,
+.tile:focus {
+  background-color: var(--accent);
+  border-color: var(--white);
+  transform: translate-y(-5px);
+}
+
+.tile-kicker {
+  font-size: 15px;
+  letter-spacing: 1.6px;
+  color: var(--ink-soft);
+}
+
+.tile:hover .tile-kicker,
+.tile:focus .tile-kicker {
+  color: #17463e;
+}
+
+.tile-title {
+  margin-top: 6px;
+  font-family: "Fotbiler Display";
+  font-size: 34px;
+  line-height: 36px;
+}
+
+.tile-copy {
+  margin-top: 9px;
+  color: var(--ink-soft);
+  font-size: 16px;
+  line-height: 20px;
+}
+
+.tile:hover .tile-copy,
+.tile:focus .tile-copy {
+  color: #20483f;
+}
+
+.hero {
+  width: 100%;
+  height: 57%;
+  padding: 34px 38px;
+  background-color: var(--accent);
+  border-color: var(--white);
+}
+
+.hero .tile-title {
+  font-size: 54px;
+  line-height: 56px;
+}
+
+.hero .tile-kicker,
+.hero .tile-copy {
+  color: #17463e;
+}
+
+.hero-number {
+  position: absolute;
+  right: 28px;
+  top: 8px;
+  color: rgba(7, 18, 31, 0.10);
+  font-family: "Fotbiler Display";
+  font-size: 150px;
+}
+
+.small-row {
+  height: 39%;
+  margin-top: 18px;
+}
+
+.small {
+  width: 50%;
+  height: 100%;
+  padding: 24px 28px;
+}
+
+.small.first {
+  margin-right: 18px;
+}
+
+.quick {
+  background-color: rgba(255, 255, 255, 0.96);
+}
+
+.league {
+  background-color: #e3e8eb;
+}
+
+.news {
+  width: 100%;
+  height: 57%;
+  padding: 30px;
+  background-color: #10283a;
+  color: var(--white);
+}
+
+.news:hover,
+.news:focus {
+  background-color: var(--accent-blue);
+}
+
+.news .tile-kicker,
+.news .tile-copy {
+  color: #a8bac5;
+}
+
+.news:hover .tile-kicker,
+.news:hover .tile-copy,
+.news:focus .tile-kicker,
+.news:focus .tile-copy {
+  color: var(--white);
+}
+
+.news-stripe {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 8px;
+  background-color: var(--accent-pink);
+}
+
+.utility-row {
+  height: 39%;
+  margin-top: 18px;
+}
+
+.utility {
+  width: 50%;
+  height: 100%;
+  padding: 23px;
+  background-color: rgba(255, 255, 255, 0.95);
+}
+
+.utility.first {
+  margin-right: 18px;
+}
+
+.utility .tile-title {
+  font-size: 27px;
+  line-height: 30px;
+}
+
+.footer {
+  display: flex;
+  width: 100%;
+  height: 8%;
+  color: #c5d0d6;
+  align-items: center;
+  font-size: 15px;
+}
+
+.footer-left {
+  width: 65%;
+}
+
+.footer-right {
+  width: 35%;
+  text-align: right;
+}
+
+.hint-key {
+  display: inline-block;
+  margin-right: 7px;
+  padding: 2px 7px;
+  background-color: var(--surface);
+  color: var(--ink);
+  border-radius: 9px;
+}
+
+.hint {
+  margin-right: 22px;
+}
+
+.version {
+  color: #7f929d;
+  letter-spacing: 1px;
+}

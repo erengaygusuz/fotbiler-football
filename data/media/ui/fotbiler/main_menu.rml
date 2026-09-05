@@ -1,0 +1,82 @@
+<rml>
+<head>
+  <title>Fotbiler Football</title>
+  <link type="text/rcss" href="theme.rcss" />
+</head>
+<body>
+  <div class="screen">
+    <div class="bg-deep"></div>
+    <div class="bg-blue"></div>
+    <div class="bg-pink"></div>
+
+    <div class="shell">
+      <div class="topbar">
+        <div class="brand"><span class="brand-mark">F</span>OTBILER FOOTBALL</div>
+        <div class="profile">LOCAL PROFILE&nbsp;&nbsp; | &nbsp;&nbsp;SEASON 2026/27</div>
+      </div>
+
+      <div class="tabs">
+        <div class="tab active">HOME</div>
+        <div class="tab">PLAY</div>
+        <div class="tab">CAREER</div>
+        <div class="tab">CUSTOMISE</div>
+      </div>
+
+      <div class="content">
+        <div class="primary-column">
+          <div id="tile-career" class="tile hero" tabindex="0">
+            <div class="hero-number">26</div>
+            <div class="tile-kicker">BUILD YOUR FOOTBALL WORLD</div>
+            <div class="tile-title">CAREER MODE</div>
+            <div class="tile-copy">Take control of a club, shape the squad and build a legacy across seasons.</div>
+          </div>
+
+          <div class="row small-row">
+            <div id="tile-quick" class="tile small first quick" tabindex="0">
+              <div class="tile-kicker">KICK OFF</div>
+              <div class="tile-title">QUICK MATCH</div>
+              <div class="tile-copy">Choose teams and play now.</div>
+            </div>
+            <div id="tile-league" class="tile small league" tabindex="0">
+              <div class="tile-kicker">COMPETITION</div>
+              <div class="tile-title">LEAGUE MODE</div>
+              <div class="tile-copy">Play through a complete league season.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="secondary-column">
+          <div id="tile-news" class="tile news" tabindex="0">
+            <div class="tile-kicker">FOTBILER NEWS</div>
+            <div class="tile-title">THE NEW SEASON STARTS HERE</div>
+            <div class="tile-copy">A new football world is taking shape. Build, play and manage it your way.</div>
+            <div class="news-stripe"></div>
+          </div>
+
+          <div class="row utility-row">
+            <div id="tile-settings" class="tile utility first" tabindex="0">
+              <div class="tile-kicker">SYSTEM</div>
+              <div class="tile-title">SETTINGS</div>
+              <div class="tile-copy">Gameplay, controls, video and audio.</div>
+            </div>
+            <div id="tile-more" class="tile utility" tabindex="0">
+              <div class="tile-kicker">FOTBILER</div>
+              <div class="tile-title">MORE</div>
+              <div class="tile-copy">Credits and additional options.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer">
+        <div class="footer-left">
+          <span class="hint"><span class="hint-key">ENTER</span> Select</span>
+          <span class="hint"><span class="hint-key">ARROWS</span> Navigate</span>
+          <span class="hint"><span class="hint-key">ESC</span> Back</span>
+        </div>
+        <div class="footer-right"><span class="version">M1A · FIFA-ERA 2D UI PROTOTYPE</span></div>
+      </div>
+    </div>
+  </div>
+</body>
+</rml>

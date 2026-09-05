@@ -57,3 +57,41 @@ endif()
 if(UNIX AND NOT APPLE)
   target_link_libraries(fotbiler_rmlui PRIVATE dl m)
 endif()
+
+# Standalone 2D UI lab. It intentionally uses the same RmlUiSystem and assets
+# as the game, but creates its own SDL/OpenGL window so FIFA-era menu design can
+# be iterated without destabilising the legacy Gui2 runtime during migration.
+add_executable(fotbiler_ui_preview
+  ${PROJECT_SOURCE_DIR}/src/presentation/ui/rmlui/ui_preview.cpp
+)
+target_compile_features(fotbiler_ui_preview PRIVATE cxx_std_17)
+target_include_directories(fotbiler_ui_preview PRIVATE
+  ${PROJECT_SOURCE_DIR}/src
+  ${SDL2_INCLUDE_DIR}
+  ${OPENGL_INCLUDE_DIR}
+)
+target_link_libraries(fotbiler_ui_preview PRIVATE fotbiler_rmlui)
+
+if(GF_SDL2_TARGET)
+  target_link_libraries(fotbiler_ui_preview PRIVATE ${GF_SDL2_TARGET})
+elseif(SDL2_LIBRARIES)
+  target_link_libraries(fotbiler_ui_preview PRIVATE ${SDL2_LIBRARIES})
+endif()
+
+if(GF_OPENGL_TARGET)
+  target_link_libraries(fotbiler_ui_preview PRIVATE ${GF_OPENGL_TARGET})
+elseif(OPENGL_LIBRARIES)
+  target_link_libraries(fotbiler_ui_preview PRIVATE ${OPENGL_LIBRARIES})
+endif()
+
+add_custom_command(TARGET fotbiler_ui_preview POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:fotbiler_ui_preview>/media/ui
+  COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:fotbiler_ui_preview>/media/fonts
+  COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${PROJECT_SOURCE_DIR}/data/media/ui
+    $<TARGET_FILE_DIR:fotbiler_ui_preview>/media/ui
+  COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${PROJECT_SOURCE_DIR}/data/media/fonts
+    $<TARGET_FILE_DIR:fotbiler_ui_preview>/media/fonts
+  COMMENT "Copying Fotbiler UI preview assets"
+)

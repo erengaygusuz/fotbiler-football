@@ -4,6 +4,7 @@
 
 #include <RmlUi/Core/Context.h>
 #include <RmlUi/Core/Core.h>
+#include <RmlUi/Core/ElementDocument.h>
 
 #include "RmlUi_Platform_SDL.h"
 #include "RmlUi_Renderer_GL3.h"
@@ -17,6 +18,7 @@ public:
   std::unique_ptr<RenderInterface_GL3> renderInterface;
   std::unique_ptr<TextInputMethodEditor_SDL> textInputHandler;
   Rml::Context* context = nullptr;
+  Rml::ElementDocument* document = nullptr;
   bool glInitialized = false;
   bool rmlInitialized = false;
 };
@@ -76,6 +78,7 @@ void RmlUiSystem::Shutdown() {
     return;
   }
 
+  impl->document = nullptr;
   if (impl->context) {
     const Rml::String contextName = impl->context->GetName();
     Rml::RemoveContext(contextName);
@@ -110,6 +113,34 @@ void RmlUiSystem::SetDimensions(int width, int height) {
 
   impl->context->SetDimensions(Rml::Vector2i(width, height));
   impl->renderInterface->SetViewport(width, height);
+}
+
+bool RmlUiSystem::LoadDocument(const std::string& path) {
+  if (!impl->context || path.empty()) {
+    return false;
+  }
+
+  UnloadDocument();
+  impl->document = impl->context->LoadDocument(path);
+  if (!impl->document) {
+    return false;
+  }
+
+  impl->document->Show();
+  return true;
+}
+
+void RmlUiSystem::UnloadDocument() {
+  if (!impl->context || !impl->document) {
+    return;
+  }
+
+  impl->context->UnloadDocument(impl->document);
+  impl->document = nullptr;
+}
+
+bool RmlUiSystem::HasDocument() const {
+  return impl && impl->document;
 }
 
 bool RmlUiSystem::HandleEvent(SDL_Event& event) {
