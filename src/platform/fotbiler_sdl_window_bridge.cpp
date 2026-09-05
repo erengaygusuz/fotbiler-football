@@ -68,6 +68,7 @@ int CenteredOnDisplay(int displayIndex) {
 const char* DocumentForScreen(blunted::ui::runtime::Screen screen) {
   using blunted::ui::runtime::Screen;
   switch (screen) {
+    case Screen::Loading: return "media/ui/fotbiler/loading_match.rml";
     case Screen::Pause: return "media/ui/fotbiler/pause_menu.rml";
     case Screen::MatchStats: return "media/ui/fotbiler/match_stats.rml";
     case Screen::TeamManagement: return "media/ui/fotbiler/team_management.rml";
@@ -95,6 +96,13 @@ void InitializeRuntimeUiIfNeeded(SDL_Window* window) {
   g_runtimeWindow = window;
   g_runtimeUi = std::move(ui);
   g_loadedScreen = blunted::ui::runtime::Screen::None;
+
+  // The frontend already showed Fotbiler's loading document before handing
+  // execution to gameplayfootball. Keep the same visual language alive in the
+  // production window until GamePage confirms that a live Match exists.
+  if (blunted::ui::runtime::GetScreen() == blunted::ui::runtime::Screen::None) {
+    blunted::ui::runtime::SetScreen(blunted::ui::runtime::Screen::Loading);
+  }
 }
 
 void ShutdownRuntimeUi() {
@@ -154,7 +162,10 @@ void SyncDocument() {
 }
 
 void BindMatchSnapshot() {
-  if (!g_runtimeUi || g_loadedScreen == blunted::ui::runtime::Screen::None) return;
+  if (!g_runtimeUi || g_loadedScreen == blunted::ui::runtime::Screen::None ||
+      g_loadedScreen == blunted::ui::runtime::Screen::Loading) {
+    return;
+  }
 
   const blunted::ui::runtime::MatchSnapshot snapshot = blunted::ui::runtime::ReadMatchSnapshot();
   const std::string score = std::to_string(snapshot.homeScore) + " - " +
@@ -210,6 +221,13 @@ bool HandleRuntimeInput(SDL_Event& event) {
 
   using blunted::ui::runtime::Command;
   using blunted::ui::runtime::Screen;
+
+  // Loading is a non-interactive handoff state. Swallow player input until the
+  // live match page explicitly clears it, while still allowing SDL_QUIT to pass
+  // through because it is not classified as an input event here.
+  if (blunted::ui::runtime::GetScreen() == Screen::Loading) {
+    return IsInputEvent(event.type);
+  }
 
   if (event.type == SDL_KEYDOWN && event.key.repeat == 0) {
     if (event.key.keysym.sym == SDLK_ESCAPE) {
