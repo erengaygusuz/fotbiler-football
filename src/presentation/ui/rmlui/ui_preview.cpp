@@ -41,6 +41,54 @@ void NavigatePendingRoute(blunted::ui::RmlUiSystem& ui, blunted::ui::ScreenRoute
   }
 }
 
+SDL_GameController* OpenController(int deviceIndex) {
+  if (deviceIndex < 0 || !SDL_IsGameController(deviceIndex)) {
+    return nullptr;
+  }
+
+  SDL_GameController* controller = SDL_GameControllerOpen(deviceIndex);
+  if (controller) {
+    std::fprintf(stdout, "Fotbiler UI Preview: controller connected: %s\n",
+                 SDL_GameControllerName(controller));
+  }
+  return controller;
+}
+
+SDL_GameController* OpenFirstAvailableController() {
+  const int joystickCount = SDL_NumJoysticks();
+  for (int index = 0; index < joystickCount; ++index) {
+    if (SDL_GameController* controller = OpenController(index)) {
+      return controller;
+    }
+  }
+  return nullptr;
+}
+
+SDL_JoystickID ControllerInstanceId(SDL_GameController* controller) {
+  if (!controller) {
+    return -1;
+  }
+  return SDL_JoystickInstanceID(SDL_GameControllerGetJoystick(controller));
+}
+
+void SendNavigationKey(blunted::ui::RmlUiSystem& ui, SDL_Keycode key) {
+  SDL_Event keyDown{};
+  keyDown.type = SDL_KEYDOWN;
+  keyDown.key.type = SDL_KEYDOWN;
+  keyDown.key.state = SDL_PRESSED;
+  keyDown.key.repeat = 0;
+  keyDown.key.keysym.scancode = SDL_GetScancodeFromKey(key);
+  keyDown.key.keysym.sym = key;
+  keyDown.key.keysym.mod = KMOD_NONE;
+  ui.HandleEvent(keyDown);
+
+  SDL_Event keyUp = keyDown;
+  keyUp.type = SDL_KEYUP;
+  keyUp.key.type = SDL_KEYUP;
+  keyUp.key.state = SDL_RELEASED;
+  ui.HandleEvent(keyUp);
+}
+
 }  // namespace
 
 int main() {
@@ -103,6 +151,7 @@ int main() {
     return 1;
   }
 
+  SDL_GameController* controller = OpenFirstAvailableController();
   UpdateDrawableSize(window, ui);
 
   bool running = true;
@@ -159,6 +208,43 @@ int main() {
           default:
             break;
         }
+      } else if (event.type == SDL_CONTROLLERBUTTONDOWN) {
+        forwardToUi = false;
+        switch (event.cbutton.button) {
+          case SDL_CONTROLLER_BUTTON_DPAD_UP:
+            SendNavigationKey(ui, SDLK_UP);
+            break;
+          case SDL_CONTROLLER_BUTTON_DPAD_DOWN:
+            SendNavigationKey(ui, SDLK_DOWN);
+            break;
+          case SDL_CONTROLLER_BUTTON_DPAD_LEFT:
+            SendNavigationKey(ui, SDLK_LEFT);
+            break;
+          case SDL_CONTROLLER_BUTTON_DPAD_RIGHT:
+            SendNavigationKey(ui, SDLK_RIGHT);
+            break;
+          case SDL_CONTROLLER_BUTTON_A:
+            activateFocusedElement = true;
+            break;
+          case SDL_CONTROLLER_BUTTON_B:
+            if (!router.Back()) {
+              running = false;
+            }
+            break;
+          default:
+            break;
+        }
+      } else if (event.type == SDL_CONTROLLERDEVICEADDED) {
+        forwardToUi = false;
+        if (!controller) {
+          controller = OpenController(event.cdevice.which);
+        }
+      } else if (event.type == SDL_CONTROLLERDEVICEREMOVED) {
+        forwardToUi = false;
+        if (controller && ControllerInstanceId(controller) == event.cdevice.which) {
+          SDL_GameControllerClose(controller);
+          controller = OpenFirstAvailableController();
+        }
       } else if (event.type == SDL_WINDOWEVENT &&
                  (event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED ||
                   event.window.event == SDL_WINDOWEVENT_RESIZED)) {
@@ -182,6 +268,9 @@ int main() {
     SDL_GL_SwapWindow(window);
   }
 
+  if (controller) {
+    SDL_GameControllerClose(controller);
+  }
   ui.Shutdown();
   SDL_GL_DeleteContext(glContext);
   SDL_DestroyWindow(window);
