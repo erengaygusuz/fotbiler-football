@@ -70,7 +70,7 @@ target_include_directories(fotbiler_ui_preview PRIVATE
   ${SDL2_INCLUDE_DIR}
   ${OPENGL_INCLUDE_DIR}
 )
-target_link_libraries(fotbiler_ui_preview PRIVATE fotbiler_rmlui)
+target_link_libraries(fotbiler_ui_preview PRIVATE fotbiler_rmlui SQLite::SQLite3)
 
 if(GF_SDL2_TARGET)
   target_link_libraries(fotbiler_ui_preview PRIVATE ${GF_SDL2_TARGET})
