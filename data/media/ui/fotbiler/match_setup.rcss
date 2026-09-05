@@ -1,0 +1,45 @@
+body { font-family: "Fotbiler Sans"; }
+
+.match-shell { position: absolute; left: 5%; top: 4.5%; width: 90%; height: 91%; }
+.match-topbar { display: flex; width: 100%; height: 9%; color: #ffffff; align-items: center; }
+.match-brand { width: 60%; font-family: "Fotbiler Display"; font-size: 29px; letter-spacing: 1.6px; }
+.match-profile { width: 40%; text-align: right; color: #bcc9d1; font-size: 12px; letter-spacing: 1px; }
+.match-heading { height: 12%; box-sizing: border-box; padding-top: 10px; border-bottom-width: 1px; border-bottom-color: #436175; color: #ffffff; }
+.match-kicker { display: block; color: #8ea2ae; font-size: 11px; letter-spacing: 1.3px; }
+.match-title { display: block; margin-top: 3px; font-family: "Fotbiler Display"; font-size: 38px; line-height: 39px; }
+
+.match-content { display: flex; width: 100%; height: 66%; padding-top: 16px; box-sizing: border-box; }
+.match-main { width: 64%; height: 100%; margin-right: 2%; }
+.match-side { width: 34%; height: 100%; }
+.match-card { position: relative; width: 100%; box-sizing: border-box; background-color: #f4f6f7; border-width: 1px; border-color: #e4e9ec; color: #10202d; }
+.match-card.dark { background-color: #17334a; border-color: #17334a; color: #ffffff; }
+.match-card.muted { background-color: #dfe5e9; border-color: #dfe5e9; }
+.match-versus-card { height: 58%; padding: 25px 30px; }
+.match-settings-card { height: 39%; margin-top: 2%; padding: 18px 22px; }
+.match-side-top { height: 58%; padding: 24px 26px; }
+.match-side-bottom { height: 39%; margin-top: 2%; padding: 18px 22px; }
+.match-section-kicker { display: block; color: #71838f; font-size: 10px; letter-spacing: 1.1px; }
+.dark .match-section-kicker { color: #a7b8c2; }
+.match-section-title { display: block; margin-top: 4px; font-family: "Fotbiler Display"; font-size: 27px; line-height: 29px; }
+.match-teams { display: flex; width: 100%; margin-top: 25px; align-items: center; justify-content: space-between; }
+.match-team { width: 38%; text-align: center; }
+.match-team-crest { display: inline-block; width: 76px; height: 76px; padding-top: 22px; box-sizing: border-box; background-color: #19d3b1; color: #10202d; font-family: "Fotbiler Display"; font-size: 28px; text-align: center; border-radius: 38px; }
+.match-team.away .match-team-crest { background-color: #ffffff; }
+.match-team-name { display: block; margin-top: 10px; font-family: "Fotbiler Display"; font-size: 19px; }
+.match-team-meta { display: block; margin-top: 3px; color: #71838f; font-size: 10px; letter-spacing: 0.8px; }
+.match-vs { width: 20%; text-align: center; }
+.match-vs-main { display: block; font-family: "Fotbiler Display"; font-size: 38px; }
+.match-vs-copy { display: block; margin-top: 2px; color: #71838f; font-size: 10px; }
+.match-setting-row { display: flex; width: 100%; padding: 8px 0; border-bottom-width: 1px; border-bottom-color: #d2dadd; font-size: 11px; }
+.match-setting-row span { width: 52%; color: #71838f; }
+.match-setting-row strong { width: 48%; text-align: right; font-family: "Fotbiler Display"; }
+.dark .match-setting-row { border-bottom-color: #34546a; }
+.dark .match-setting-row span { color: #9eb0ba; }
+.match-action { display: block; width: 100%; margin-top: 14px; padding: 11px 12px; box-sizing: border-box; background-color: #19d3b1; color: #10202d; font-family: "Fotbiler Display"; font-size: 14px; text-align: center; nav: auto; }
+.match-action.secondary { background-color: #244961; color: #d6e0e5; }
+.match-action:focus { background-color: #ffffff; color: #10202d; }
+.match-note { display: block; margin-top: 12px; color: #5f7481; font-size: 11px; line-height: 15px; }
+.dark .match-note { color: #b5c2ca; }
+.match-footer { display: flex; width: 100%; height: 7%; margin-top: 10px; padding: 0 12px; box-sizing: border-box; background-color: rgba(7,18,31,0.94); color: #c5d0d6; align-items: center; font-size: 12px; }
+.match-footer-left { width: 65%; }
+.match-footer-right { width: 35%; text-align: right; color: #8295a1; letter-spacing: 1px; }
