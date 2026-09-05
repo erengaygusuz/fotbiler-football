@@ -19,11 +19,18 @@ inline void BindNumber(RmlUiSystem& ui, const char* id, int value) {
   ui.SetElementText(id, std::to_string(value));
 }
 
-inline const CareerPlayerView* FindSelectedPlayer(const CareerUiViewModel& view) {
+inline const CareerPlayerView* FindPlayer(const CareerUiViewModel& view, int playerId) {
   for (const CareerPlayerView& player : view.squad.players) {
-    if (player.id == view.squad.selectedPlayerId) {
+    if (player.id == playerId) {
       return &player;
     }
+  }
+  return nullptr;
+}
+
+inline const CareerPlayerView* FindSelectedPlayer(const CareerUiViewModel& view) {
+  if (const CareerPlayerView* selected = FindPlayer(view, view.squad.selectedPlayerId)) {
+    return selected;
   }
   return view.squad.players.empty() ? nullptr : &view.squad.players.front();
 }
@@ -31,14 +38,27 @@ inline const CareerPlayerView* FindSelectedPlayer(const CareerUiViewModel& view)
 inline std::vector<const CareerPlayerView*> StartingPlayers(const CareerUiViewModel& view) {
   std::vector<const CareerPlayerView*> result;
   result.reserve(11);
-  for (const CareerPlayerView& player : view.squad.players) {
-    if (player.inStartingXI) {
-      result.push_back(&player);
+
+  for (int playerId : view.squad.startingPlayerIds) {
+    if (const CareerPlayerView* player = FindPlayer(view, playerId)) {
+      result.push_back(player);
       if (result.size() == 11) {
         return result;
       }
     }
   }
+
+  for (const CareerPlayerView& player : view.squad.players) {
+    if (!player.inStartingXI ||
+        std::find(result.begin(), result.end(), &player) != result.end()) {
+      continue;
+    }
+    result.push_back(&player);
+    if (result.size() == 11) {
+      return result;
+    }
+  }
+
   for (const CareerPlayerView& player : view.squad.players) {
     if (std::find(result.begin(), result.end(), &player) == result.end()) {
       result.push_back(&player);
