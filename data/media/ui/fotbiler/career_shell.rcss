@@ -49,3 +49,6 @@ body { font-family: "Fotbiler Sans"; }
 /* M1A.3: reusable table row structure. */
 .ui-table-row, .table-row, .list-row, .shortlist-row, .season-table-row, .instruction-row { display: flex; width: 100%; box-sizing: border-box; border-bottom-width: 1px; border-bottom-color: #e1e6e8; }
 .ui-table-row { padding: 7px 5px; font-size: 11px; }
+
+/* M1A.3: reusable active/selected table row state. */
+.ui-row-active, .table-row.current, .list-row.active, .shortlist-row.active, .season-table-row.current-team, .instruction-row.active { background-color: #19d3b1; color: #10202d; }
