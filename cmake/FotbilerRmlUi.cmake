@@ -91,6 +91,7 @@ endif()
 # renderer window/context.
 add_library(fotbiler_sdl_window_bridge STATIC
   ${PROJECT_SOURCE_DIR}/src/platform/fotbiler_sdl_window_bridge.cpp
+  ${PROJECT_SOURCE_DIR}/src/platform/fotbiler_sdl_window_title.cpp
 )
 target_compile_features(fotbiler_sdl_window_bridge PRIVATE cxx_std_17)
 target_include_directories(fotbiler_sdl_window_bridge PRIVATE
@@ -114,6 +115,7 @@ set_property(SOURCE
   APPEND PROPERTY COMPILE_DEFINITIONS
     SDL_CreateWindow=FotbilerSDLCreateWindow
     SDL_DestroyWindow=FotbilerSDLDestroyWindow
+    SDL_SetWindowTitle=FotbilerSDLSetWindowTitle
     SDL_PollEvent=FotbilerSDLPollEvent
     SDL_GL_SwapWindow=FotbilerSDLGLSwapWindow
     SDL_GL_DeleteContext=FotbilerSDLGLDeleteContext
