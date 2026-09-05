@@ -43,6 +43,7 @@ SDL_Window* g_runtimeWindow = nullptr;
 std::unique_ptr<blunted::ui::RmlUiSystem> g_runtimeUi;
 blunted::ui::runtime::Screen g_loadedScreen = blunted::ui::runtime::Screen::None;
 bool g_exitMatchConfirmOpen = false;
+bool g_runtimeWindowPresented = false;
 
 bool EnvironmentInt(const char* name, int& value) {
   const char* text = SDL_getenv(name);
@@ -116,9 +117,10 @@ void InitializeRuntimeUiIfNeeded(SDL_Window* window) {
   g_loadedScreen = blunted::ui::runtime::Screen::None;
   g_exitMatchConfirmOpen = false;
 
-  // The frontend already showed Fotbiler's loading document before handing
-  // execution to gameplayfootball. Keep the same visual language alive in the
-  // production window until GamePage confirms that a live Match exists.
+  // The frontend owns the visible loading presentation. The gameplay window
+  // is created hidden and is only revealed once GamePage confirms a live match.
+  // This prevents KDE/Wayland from compositing a second near-identical loading
+  // window for one or two frames during process handoff.
   if (blunted::ui::runtime::GetScreen() == blunted::ui::runtime::Screen::None) {
     blunted::ui::runtime::SetScreen(blunted::ui::runtime::Screen::Loading);
   }
@@ -132,6 +134,7 @@ void ShutdownRuntimeUi() {
   g_runtimeWindow = nullptr;
   g_loadedScreen = blunted::ui::runtime::Screen::None;
   g_exitMatchConfirmOpen = false;
+  g_runtimeWindowPresented = false;
   blunted::ui::runtime::Reset();
 }
 
@@ -218,10 +221,23 @@ void SyncDocument() {
   const blunted::ui::runtime::Screen wanted = blunted::ui::runtime::GetScreen();
   if (wanted == g_loadedScreen) return;
 
+  const blunted::ui::runtime::Screen previous = g_loadedScreen;
   g_exitMatchConfirmOpen = false;
   g_runtimeUi->UnloadDocument();
   g_loadedScreen = blunted::ui::runtime::Screen::None;
-  if (wanted == blunted::ui::runtime::Screen::None) return;
+
+  if (wanted == blunted::ui::runtime::Screen::None) {
+    // Loading -> None is the exact point at which GamePage has a live Match.
+    // Reveal the gameplay window only now, so the parent loading screen remains
+    // visually continuous until the first real 3D frame is ready.
+    if (previous == blunted::ui::runtime::Screen::Loading && g_runtimeWindow &&
+        !g_runtimeWindowPresented) {
+      SDL_ShowWindow(g_runtimeWindow);
+      SDL_RaiseWindow(g_runtimeWindow);
+      g_runtimeWindowPresented = true;
+    }
+    return;
+  }
 
   const char* path = DocumentForScreen(wanted);
   if (path && g_runtimeUi->LoadDocument(path)) {
@@ -399,9 +415,21 @@ extern "C" SDL_Window* SDLCALL FotbilerSDLCreateWindow(const char* title, int x,
     else { int savedY = 0; if (EnvironmentInt(kWindowYEnv, savedY)) y = savedY; }
   }
 
-  const char* resolvedTitle = ModernUiSessionActive() ? "Fotbiler Football" : title;
+  const bool modernSession = ModernUiSessionActive();
+  if (modernSession) {
+    // Keep the parent Fotbiler loading window visible while the child renderer
+    // creates its GL context, stadium and players. Do not let the compositor
+    // reveal this second SDL window until the match is actually live.
+    flags &= ~SDL_WINDOW_SHOWN;
+    flags |= SDL_WINDOW_HIDDEN;
+  }
+
+  const char* resolvedTitle = modernSession ? "Fotbiler Football" : title;
   SDL_Window* window = SDL_CreateWindow(resolvedTitle, x, y, w, h, flags);
-  if (ModernUiSessionActive()) g_runtimeWindow = window;
+  if (modernSession) {
+    g_runtimeWindow = window;
+    g_runtimeWindowPresented = false;
+  }
   return window;
 }
 
