@@ -6,12 +6,15 @@
 // Transitional compatibility include for legacy menu/career consumers.
 // New domain code should include "core/career/career_finance.hpp" directly.
 #include "core/career/career_finance.hpp"
+#include "presentation/career/career_presentation.hpp"
 
 namespace blunted {
 namespace CareerFinance {
 
-// Legacy presentation helper retained while menu/career screens are migrated.
-std::string GetFinancialHealthString(const CareerSave& save);
+// Legacy presentation helper retained while menu/career consumers migrate.
+inline std::string GetFinancialHealthString(const CareerSave& save) {
+  return CareerPresentation::GetFinancialHealthString(&save);
+}
 
 }  // namespace CareerFinance
 }  // namespace blunted
