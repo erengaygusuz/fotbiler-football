@@ -2,6 +2,7 @@
 <head>
   <title>Fotbiler Career Central</title>
   <link type="text/rcss" href="theme.rcss" />
+  <link type="text/rcss" href="career_shell.rcss" />
   <link type="text/rcss" href="career_central.rcss" />
 </head>
 <body>
