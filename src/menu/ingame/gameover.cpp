@@ -25,6 +25,11 @@ bool MenuSmokeFullMatchEnabled() {
   return GetConfiguration()->GetBool("menu_smoke_test_full_match", false);
 }
 
+bool ModernUiSessionActive() {
+  const char* session = std::getenv("FOTBILER_UI_MODERN_SESSION");
+  return session && session[0] != '\0' && std::string(session) != "0";
+}
+
 Gui2Caption* MakeStat(Gui2WindowManager* windowManager, const std::string& id,
                       const std::string& text, bool accent = false) {
   Gui2Caption* caption = new Gui2Caption(windowManager, id, 0, 0, 16, 3, text);
@@ -264,6 +269,17 @@ void GameOverPage::GoMainMenu() {
   }
   if (resumeCareer) GetConfiguration()->SetBool("career_resume_hub", true);
   if (leagueMatchPlayed) GetConfiguration()->SetBool("league_resume_hub", true);
+
+  // The modern frontend owns the outer application flow. Once the 3D runtime
+  // has persisted the result, terminate this child process instead of dropping
+  // into the legacy Gui2 main/career menu. ui_preview then resumes Career Central
+  // for a career session or Main Menu for a quick match.
+  if (ModernUiSessionActive()) {
+    this->Exit();
+    EnvironmentManager::GetInstance().SignalQuit();
+    delete this;
+    return;
+  }
 
   this->Exit();
   GetMenuTask()->SetMenuAction(e_MenuAction_Menu);
