@@ -18,13 +18,13 @@
       <div class="tabs">
         <div class="tab active">HOME</div>
         <div class="tab">PLAY</div>
-        <div class="tab">CAREER</div>
+        <div class="tab" tabindex="0" data-route="career-central">CAREER</div>
         <div class="tab">CUSTOMISE</div>
       </div>
 
       <div class="content">
         <div class="primary-column">
-          <div id="tile-career" class="tile hero" tabindex="0">
+          <div id="tile-career" class="tile hero" tabindex="0" autofocus data-route="career-central">
             <div class="hero-number">26</div>
             <div class="tile-kicker">BUILD YOUR FOOTBALL WORLD</div>
             <div class="tile-title">CAREER MODE</div>
