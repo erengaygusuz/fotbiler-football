@@ -1,19 +1,8 @@
-#ifndef CAREER_STAFF_HPP
-#define CAREER_STAFF_HPP
+#ifndef CAREER_STAFF_COMPAT_HPP
+#define CAREER_STAFF_COMPAT_HPP
 
-#include <vector>
+// Transitional compatibility include for legacy menu/career consumers.
+// New code should include "core/career/career_staff.hpp" directly.
+#include "core/career/career_staff.hpp"
 
-#include "../../data/careerdata.hpp"
-#include "career_common.hpp"
-
-namespace blunted {
-namespace CareerStaff {
-
-void HireStaff(CareerSave& save, const StaffMember& member);
-void FireStaff(CareerSave& save, CareerCommon::CareerEvents& events, const std::string& staffName);
-void GenerateStaffCandidates(std::vector<StaffMember>& candidates);
-
-}  // namespace CareerStaff
-}  // namespace blunted
-
-#endif  // CAREER_STAFF_HPP
+#endif  // CAREER_STAFF_COMPAT_HPP
