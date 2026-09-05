@@ -485,6 +485,11 @@ void MenuTask::ProcessPhase() {
       }
     } else {
       windowManager->GetPageFactory()->CreatePage((int)e_PageID_LoadingMatch, properties, 0);
+
+      // A modern frontend launch is a one-shot transition. Keeping this flag
+      // true made any later return-to-menu path look like a fresh QuickStart,
+      // reopening LoadingMatch and starting the same fixture again.
+      uiDirectMatchReady = false;
     }
 
   } else if (menuAction == e_MenuAction_Game) {
