@@ -2,7 +2,7 @@
 <head>
   <title>Fotbiler Tactics</title>
   <link type="text/rcss" href="theme.rcss" />
-  <link type="text/rcss" href="career_central.rcss" />
+  <link type="text/rcss" href="career_shell.rcss" />
   <link type="text/rcss" href="squad.rcss" />
   <link type="text/rcss" href="tactics.rcss" />
 </head>
@@ -106,11 +106,11 @@
         </div>
 
         <div class="mentality-strip">
-          <div class="mentality-card">ULTRA DEFENSIVE</div>
-          <div class="mentality-card">DEFENSIVE</div>
+          <div class="mentality-card"><span>ULTRA DEFENSIVE</span></div>
+          <div class="mentality-card"><span>DEFENSIVE</span></div>
           <div class="mentality-card active" tabindex="0"><span>BALANCED</span><strong>ACTIVE PLAN</strong></div>
-          <div class="mentality-card">ATTACKING</div>
-          <div class="mentality-card">ULTRA ATTACKING</div>
+          <div class="mentality-card"><span>ATTACKING</span></div>
+          <div class="mentality-card"><span>ULTRA ATTACKING</span></div>
         </div>
       </div>
 
