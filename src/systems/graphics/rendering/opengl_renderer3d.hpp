@@ -12,6 +12,8 @@
 #ifndef _HPP_GRAPHICS3D_OPENGL
 #define _HPP_GRAPHICS3D_OPENGL
 
+#include <SDL2/SDL.h>
+
 #include "interface_renderer3d.hpp"
 
 #ifdef WIN32
@@ -26,16 +28,47 @@ public:
   virtual ~OpenGLRenderer3D();
 
   virtual void SwapBuffers();
-
   virtual void SetMatrix(const std::string& shaderUniformName, const Matrix4& matrix);
-
   virtual void RenderOverlay2D(const std::vector<Overlay2DQueueEntry>& overlay2DQueue);
   virtual void RenderOverlay2D();
   virtual void RenderLights(std::deque<LightQueueEntry>& lightQueue,
                             const Matrix4& projectionMatrix, const Matrix4& viewMatrix);
 
   virtual bool CreateContext(int width, int height, int bpp, bool fullscreen);
-  virtual bool ApplyDisplaySettings(int width, int height, bool fullscreen, bool vsync);
+
+  virtual bool ApplyDisplaySettings(int width, int height, bool fullscreen, bool vsync) override {
+    if (!window || width <= 0 || height <= 0) return false;
+
+    const int displayIndex = std::max(0, SDL_GetWindowDisplayIndex(window));
+    int result = 0;
+    if (fullscreen) {
+      SDL_DisplayMode mode{};
+      mode.w = width;
+      mode.h = height;
+      if (SDL_SetWindowDisplayMode(window, &mode) != 0) result = -1;
+      if (SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN) != 0) result = -1;
+    } else {
+      if (SDL_SetWindowFullscreen(window, 0) != 0) result = -1;
+      SDL_SetWindowDisplayMode(window, nullptr);
+      SDL_SetWindowSize(window, width, height);
+      SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED_DISPLAY(displayIndex),
+                            SDL_WINDOWPOS_CENTERED_DISPLAY(displayIndex));
+    }
+
+    SDL_GL_SetSwapInterval(vsync ? 1 : 0);
+
+    int drawableWidth = width;
+    int drawableHeight = height;
+    SDL_GL_GetDrawableSize(window, &drawableWidth, &drawableHeight);
+    if (drawableWidth > 0 && drawableHeight > 0) {
+      context_width = drawableWidth;
+      context_height = drawableHeight;
+      SetViewport(0, 0, context_width, context_height);
+    }
+
+    return result == 0;
+  }
+
   virtual void Exit();
 
   virtual int CreateView(float x_percent, float y_percent, float width_percent,
@@ -142,16 +175,12 @@ protected:
   float cameraFar;
 
   int noiseTexID;
-
   float FOV;
-
   float overallBrightness;
-
   float largest_supported_anisotropy;
   void SetMaxAnisotropy();
 
   std::map<std::string, int> uniformCache;
-
   std::map<int, int> VBOPingPongMap;
   std::map<int, int> VAOPingPongMap;
   std::map<int, int> VAOReadIndex;
