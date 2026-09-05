@@ -84,18 +84,23 @@ elseif(OPENGL_LIBRARIES)
   target_link_libraries(fotbiler_ui_preview PRIVATE ${OPENGL_LIBRARIES})
 endif()
 
-# Preview assets are deliberately refreshed on every build. RML/RCSS files are
-# runtime data, not compiler inputs, so a POST_BUILD command alone can leave a
-# stale preview after a style-only edit when the executable itself is up to date.
+# RML/RCSS/font files are runtime data, not compiler inputs. Refresh them on
+# every build so a style-only edit is immediately visible in the preview.
+# Use PROJECT_BINARY_DIR directly here; referring to TARGET_FILE_DIR from this
+# utility target would make CMake infer a reverse dependency on the executable
+# and create a dependency cycle when the executable depends on this target.
+set(FOTBILER_UI_PREVIEW_RUNTIME_DIR "${PROJECT_BINARY_DIR}")
 add_custom_target(fotbiler_ui_preview_assets ALL
-  COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:fotbiler_ui_preview>/media/ui
-  COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:fotbiler_ui_preview>/media/fonts
+  COMMAND ${CMAKE_COMMAND} -E make_directory
+    "${FOTBILER_UI_PREVIEW_RUNTIME_DIR}/media/ui"
+  COMMAND ${CMAKE_COMMAND} -E make_directory
+    "${FOTBILER_UI_PREVIEW_RUNTIME_DIR}/media/fonts"
   COMMAND ${CMAKE_COMMAND} -E copy_directory
-    ${PROJECT_SOURCE_DIR}/data/media/ui
-    $<TARGET_FILE_DIR:fotbiler_ui_preview>/media/ui
+    "${PROJECT_SOURCE_DIR}/data/media/ui"
+    "${FOTBILER_UI_PREVIEW_RUNTIME_DIR}/media/ui"
   COMMAND ${CMAKE_COMMAND} -E copy_directory
-    ${PROJECT_SOURCE_DIR}/data/media/fonts
-    $<TARGET_FILE_DIR:fotbiler_ui_preview>/media/fonts
+    "${PROJECT_SOURCE_DIR}/data/media/fonts"
+    "${FOTBILER_UI_PREVIEW_RUNTIME_DIR}/media/fonts"
   COMMENT "Refreshing Fotbiler UI preview assets"
   VERBATIM
 )
