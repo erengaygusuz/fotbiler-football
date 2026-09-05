@@ -1,0 +1,52 @@
+<rml>
+<head>
+  <title>Fotbiler Match Setup</title>
+  <link type="text/rcss" href="theme.rcss" />
+  <link type="text/rcss" href="match_setup.rcss" />
+</head>
+<body>
+  <div class="screen">
+    <div class="bg-deep"></div><div class="bg-blue"></div><div class="bg-pink"></div>
+    <div class="match-shell">
+      <div class="match-topbar"><div class="match-brand"><span class="brand-mark">F</span>OTBILER FOOTBALL</div><div class="match-profile">KICK OFF · LOCAL MATCH</div></div>
+      <div class="match-heading"><span class="match-kicker">QUICK MATCH</span><span class="match-title">MATCH SETUP</span></div>
+      <div class="match-content">
+        <div class="match-main">
+          <div class="match-card match-versus-card" tabindex="0" autofocus>
+            <span class="match-section-kicker">FIXTURE</span><span class="match-section-title">CHOOSE SIDES</span>
+            <div class="match-teams">
+              <div class="match-team"><span class="match-team-crest">F</span><span class="match-team-name">FOTBILER FC</span><span class="match-team-meta">HOME · 4-2-3-1</span></div>
+              <div class="match-vs"><span class="match-vs-main">VS</span><span class="match-vs-copy">EXHIBITION</span></div>
+              <div class="match-team away"><span class="match-team-crest">A</span><span class="match-team-name">ANKARA UNITED</span><span class="match-team-meta">AWAY · 4-3-3</span></div>
+            </div>
+          </div>
+          <div class="match-card muted match-settings-card" tabindex="0">
+            <span class="match-section-kicker">MATCH RULES</span><span class="match-section-title">GAME SETTINGS</span>
+            <div class="match-setting-row"><span>HALF LENGTH</span><strong>6 MIN</strong></div>
+            <div class="match-setting-row"><span>DIFFICULTY</span><strong>PROFESSIONAL</strong></div>
+            <div class="match-setting-row"><span>GAME SPEED</span><strong>NORMAL</strong></div>
+            <div class="match-setting-row"><span>CONTROLS</span><strong>CLASSIC</strong></div>
+          </div>
+        </div>
+        <div class="match-side">
+          <div class="match-card dark match-side-top" tabindex="0">
+            <span class="match-section-kicker">ENVIRONMENT</span><span class="match-section-title">FOTBILER STADIUM</span>
+            <div class="match-setting-row"><span>TIME</span><strong>19:00</strong></div>
+            <div class="match-setting-row"><span>WEATHER</span><strong>CLEAR</strong></div>
+            <div class="match-setting-row"><span>SEASON</span><strong>SUMMER</strong></div>
+            <div class="match-setting-row"><span>REFEREE</span><strong>STRICT</strong></div>
+            <span class="match-note">The presentation is ready; the actual kick-off action will be connected to the gameplay entry point during M1A.7 integration.</span>
+            <span class="match-action">START MATCH</span>
+          </div>
+          <div class="match-card match-side-bottom" tabindex="0">
+            <span class="match-section-kicker">QUICK LINKS</span><span class="match-section-title">BEFORE KICK-OFF</span>
+            <span class="match-action secondary">CHANGE HOME TEAM</span>
+            <span class="match-action secondary">CHANGE AWAY TEAM</span>
+          </div>
+        </div>
+      </div>
+      <div class="match-footer"><div class="match-footer-left"><span class="hint"><span class="hint-key">ENTER</span>Select</span><span class="hint"><span class="hint-key">ARROWS</span>Navigate</span><span class="hint"><span class="hint-key">ESC</span>Back</span></div><div class="match-footer-right">PLAY · MATCH SETUP</div></div>
+    </div>
+  </div>
+</body>
+</rml>
