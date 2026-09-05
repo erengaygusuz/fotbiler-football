@@ -1,0 +1,27 @@
+<rml>
+<head>
+  <title>Fotbiler Match Loading</title>
+  <link type="text/rcss" href="theme.rcss" />
+  <link type="text/rcss" href="loading_match.rcss" />
+</head>
+<body>
+  <div class="screen">
+    <div class="bg-deep"></div><div class="bg-blue"></div><div class="bg-pink"></div>
+    <div class="loading-shell">
+      <div class="loading-topbar"><div class="loading-brand"><span class="brand-mark">F</span>OTBILER FOOTBALL</div><div id="loading-mode" class="loading-state">MATCH ENGINE · PREPARING</div></div>
+      <div class="loading-stage">
+        <span id="loading-kicker" class="loading-kicker">MATCH DAY</span>
+        <span id="loading-title" class="loading-title">PREPARING KICK-OFF</span>
+        <div class="loading-fixture">
+          <div class="loading-team"><span id="loading-home-crest" class="loading-crest">H</span><span id="loading-home-name" class="loading-team-name">HOME TEAM</span></div>
+          <div class="loading-vs">VS</div>
+          <div class="loading-team away"><span id="loading-away-crest" class="loading-crest">A</span><span id="loading-away-name" class="loading-team-name">AWAY TEAM</span></div>
+        </div>
+        <div class="loading-progress"><div class="loading-progress-fill"></div></div>
+        <span id="loading-copy" class="loading-copy">Synchronising fixture, controls and match settings...</span>
+      </div>
+      <div class="loading-footer"><div class="loading-footer-left">FOTBILER MATCH ENGINE</div><div class="loading-footer-right">LOADING · PLEASE WAIT</div></div>
+    </div>
+  </div>
+</body>
+</rml>
