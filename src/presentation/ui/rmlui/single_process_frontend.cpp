@@ -16,6 +16,7 @@
 #include "presentation/ui/rmlui/career_ui_preview_data.hpp"
 #include "presentation/ui/rmlui/career_ui_view_model.hpp"
 #include "presentation/ui/rmlui/rmlui_system.hpp"
+#include "presentation/ui/rmlui/runtime_settings.hpp"
 
 namespace blunted::ui {
 namespace {
@@ -41,16 +42,6 @@ struct QuickMatchState {
   int MatchLengthMinutes() const { return HalfLengthMinutes() * 2; }
   float Difficulty() const { return std::clamp(difficultyStep, 0, 4) * 0.25f; }
 };
-
-const char* DifficultyName(int step) {
-  switch (std::clamp(step, 0, 4)) {
-    case 0: return "BEGINNER";
-    case 1: return "AMATEUR";
-    case 2: return "REGULAR";
-    case 3: return "PROFESSIONAL";
-    default: return "TOP PLAYER";
-  }
-}
 
 std::string CrestLetter(const std::string& name) {
   for (char ch : name) {
@@ -135,10 +126,13 @@ struct SingleProcessFrontend::Impl {
   explicit Impl(RmlUiSystem& system)
       : ui(system),
         quickMatch(BuildQuickMatchState()),
+        settings(LoadRuntimeSettings()),
         careerSave(BuildCareerPreviewSave()),
         careerView(BuildCareerUiViewModel(careerSave)),
         detailView(BuildCareerDetailViewModel(careerSave)),
-        router([this](const std::string& path) { return LoadDocument(path); }) {}
+        router([this](const std::string& path) { return LoadDocument(path); }) {
+    quickMatch.difficultyStep = settings.difficultyStep;
+  }
 
   bool LoadDocument(const std::string& path) {
     if (!ui.LoadDocument(path)) {
@@ -150,16 +144,21 @@ struct SingleProcessFrontend::Impl {
     return true;
   }
 
+  void BindRuntimeSettings() {
+    ui.SetElementText("settings-window-mode", settings.fullscreen ? "FULLSCREEN" : "WINDOWED");
+    ui.SetElementText("settings-resolution",
+                      std::to_string(settings.Width()) + " × " + std::to_string(settings.Height()));
+    ui.SetElementText("settings-vsync", settings.vsync ? "ON" : "OFF");
+    ui.SetElementText("settings-difficulty", RuntimeDifficultyName(settings.difficultyStep));
+    ui.SetElementText("settings-game-speed", RuntimeGameSpeedName(settings.gameSpeedStep));
+    ui.SetElementText("settings-volume", std::to_string(settings.volume) + "%");
+  }
+
   void BindAll() {
     BindCareerUiViewModel(ui, careerView);
     BindCareerDetailViewModel(ui, detailView);
     BindQuickMatch();
-    ui.SetElementText("settings-window-mode", "FULLSCREEN");
-    ui.SetElementText("settings-resolution", "CURRENT DISPLAY");
-    ui.SetElementText("settings-vsync", "ON");
-    ui.SetElementText("settings-difficulty", DifficultyName(quickMatch.difficultyStep));
-    ui.SetElementText("settings-game-speed", "NORMAL");
-    ui.SetElementText("settings-volume", "80%");
+    BindRuntimeSettings();
   }
 
   void BindQuickMatch() {
@@ -168,13 +167,16 @@ struct SingleProcessFrontend::Impl {
     const TeamChoice& away = quickMatch.Away();
     ui.SetElementText("quick-home-crest", CrestLetter(home.name));
     ui.SetElementText("quick-home-name", home.name);
-    ui.SetElementText("quick-home-meta", "HOME" + (home.league.empty() ? std::string() : " · " + home.league));
+    ui.SetElementText("quick-home-meta",
+                      "HOME" + (home.league.empty() ? std::string() : " · " + home.league));
     ui.SetElementText("quick-away-crest", CrestLetter(away.name));
     ui.SetElementText("quick-away-name", away.name);
-    ui.SetElementText("quick-away-meta", "AWAY" + (away.league.empty() ? std::string() : " · " + away.league));
+    ui.SetElementText("quick-away-meta",
+                      "AWAY" + (away.league.empty() ? std::string() : " · " + away.league));
     ui.SetElementText("quick-half-length", std::to_string(quickMatch.HalfLengthMinutes()) + " MIN");
-    ui.SetElementText("quick-difficulty", DifficultyName(quickMatch.difficultyStep));
-    ui.SetElementText("quick-control-side", quickMatch.controlSide < 0 ? "KEYBOARD · HOME" : "KEYBOARD · AWAY");
+    ui.SetElementText("quick-difficulty", RuntimeDifficultyName(quickMatch.difficultyStep));
+    ui.SetElementText("quick-control-side",
+                      quickMatch.controlSide < 0 ? "KEYBOARD · HOME" : "KEYBOARD · AWAY");
     ui.SetElementText("loading-home-name", home.name);
     ui.SetElementText("loading-away-name", away.name);
     ui.SetElementText("loading-home-crest", CrestLetter(home.name));
@@ -182,7 +184,8 @@ struct SingleProcessFrontend::Impl {
   }
 
   void BindCareerLoading() {
-    const std::string clubName = careerView.header.clubName.empty() ? "CAREER CLUB" : careerView.header.clubName;
+    const std::string clubName =
+        careerView.header.clubName.empty() ? "CAREER CLUB" : careerView.header.clubName;
     ui.SetElementText("loading-mode", "CAREER MODE · MATCHDAY");
     ui.SetElementText("loading-kicker", "CAREER FIXTURE");
     ui.SetElementText("loading-title", "PREPARING CAREER MATCH");
@@ -203,6 +206,25 @@ struct SingleProcessFrontend::Impl {
     ui.SetElementProperty("quit-confirm-overlay", "display", "none");
     quitConfirmOpen = false;
     if (!ui.FocusElement("tile-career")) ui.FocusDefaultElement();
+  }
+
+  void ApplyRuntimeSettings() {
+    SaveRuntimeSettings(settings);
+
+    frontend::DisplaySettingsRequest request;
+    request.width = settings.Width();
+    request.height = settings.Height();
+    request.fullscreen = settings.fullscreen;
+    request.vsync = settings.vsync;
+    request.difficultyStep = settings.difficultyStep;
+    request.gameSpeedStep = settings.gameSpeedStep;
+    request.volume = settings.volume;
+    frontend::PublishDisplaySettings(request);
+
+    std::fprintf(stdout,
+                 "[fotbiler-ui] display settings requested: %dx%d %s, vsync=%d\n",
+                 request.width, request.height, request.fullscreen ? "fullscreen" : "windowed",
+                 request.vsync ? 1 : 0);
   }
 
   void ProcessUiRequests() {
@@ -239,10 +261,29 @@ struct SingleProcessFrontend::Impl {
       BindQuickMatch();
     } else if (action == "cycle-difficulty") {
       quickMatch.difficultyStep = (quickMatch.difficultyStep + 1) % 5;
+      settings.difficultyStep = quickMatch.difficultyStep;
       BindQuickMatch();
+      BindRuntimeSettings();
     } else if (action == "toggle-control-side") {
       quickMatch.controlSide = quickMatch.controlSide < 0 ? 1 : -1;
       BindQuickMatch();
+    } else if (action == "toggle-fullscreen") {
+      settings.fullscreen = !settings.fullscreen;
+      BindRuntimeSettings();
+    } else if (action == "cycle-resolution") {
+      settings.resolutionIndex = (settings.resolutionIndex + 1) % settings.resolutions.size();
+      BindRuntimeSettings();
+    } else if (action == "toggle-vsync") {
+      settings.vsync = !settings.vsync;
+      BindRuntimeSettings();
+    } else if (action == "cycle-game-speed") {
+      settings.gameSpeedStep = (settings.gameSpeedStep + 1) % 3;
+      BindRuntimeSettings();
+    } else if (action == "cycle-audio-volume") {
+      settings.volume = settings.volume >= 100 ? 0 : settings.volume + 10;
+      BindRuntimeSettings();
+    } else if (action == "apply-settings") {
+      ApplyRuntimeSettings();
     } else if (action == "start-quick-match") {
       if (router.Navigate(ScreenId::MatchLoading)) {
         BindQuickMatch();
@@ -354,6 +395,7 @@ struct SingleProcessFrontend::Impl {
 
   RmlUiSystem& ui;
   QuickMatchState quickMatch;
+  RuntimeSettings settings;
   CareerSave careerSave;
   CareerUiViewModel careerView;
   CareerDetailViewModel detailView;
