@@ -1,0 +1,73 @@
+<rml>
+<head>
+  <title>Fotbiler Squad</title>
+  <link type="text/rcss" href="theme.rcss" />
+  <link type="text/rcss" href="career_central.rcss" />
+  <link type="text/rcss" href="squad.rcss" />
+</head>
+<body>
+  <div class="career-screen">
+    <div class="career-bg-deep"></div>
+    <div class="career-bg-blue"></div>
+    <div class="career-bg-accent"></div>
+    <div class="career-shell">
+      <div class="career-topbar">
+        <div class="club-identity">
+          <div class="club-crest">F</div>
+          <div class="club-copy">
+            <div class="club-name">FOTBILER FC</div>
+            <div class="club-meta">MANAGER CAREER · SEASON 2026/27</div>
+          </div>
+        </div>
+        <div class="career-status">
+          <div class="status-block"><div class="status-label">SQUAD SIZE</div><div class="status-value">24</div></div>
+          <div class="status-block date-block"><div class="status-label">FORMATION</div><div class="status-value">4-2-3-1</div></div>
+        </div>
+      </div>
+      <div class="career-tabs">
+        <div class="career-tab">CENTRAL</div><div class="career-tab active">SQUAD</div><div class="career-tab">TRANSFERS</div><div class="career-tab">OFFICE</div><div class="career-tab">SEASON</div>
+      </div>
+      <div class="squad-content">
+        <div class="squad-main">
+          <div class="squad-toolbar"><div><div class="card-kicker">STARTING XI</div><div class="squad-title">TEAM MANAGEMENT</div></div><div class="squad-toolbar-right">BALANCED · 4-2-3-1</div></div>
+          <div id="formation-pitch" class="formation-pitch" tabindex="0">
+            <div class="pitch-half-line"></div><div class="pitch-circle"></div><div class="pitch-box top-box"></div><div class="pitch-box bottom-box"></div>
+            <div class="player-node pos-st"><div class="player-disc">78</div><div class="player-name">KAYA</div><div class="player-pos">ST</div></div>
+            <div class="player-node pos-lw"><div class="player-disc">75</div><div class="player-name">DEMIR</div><div class="player-pos">LW</div></div>
+            <div class="player-node selected pos-cam"><div class="player-disc">81</div><div class="player-name">YILMAZ</div><div class="player-pos">CAM</div></div>
+            <div class="player-node pos-rw"><div class="player-disc">76</div><div class="player-name">ASLAN</div><div class="player-pos">RW</div></div>
+            <div class="player-node pos-lcm"><div class="player-disc">77</div><div class="player-name">AKSOY</div><div class="player-pos">CM</div></div>
+            <div class="player-node pos-rcm"><div class="player-disc">74</div><div class="player-name">EREN</div><div class="player-pos">CM</div></div>
+            <div class="player-node pos-lb"><div class="player-disc">72</div><div class="player-name">CAN</div><div class="player-pos">LB</div></div>
+            <div class="player-node pos-lcb"><div class="player-disc">79</div><div class="player-name">TUNA</div><div class="player-pos">CB</div></div>
+            <div class="player-node pos-rcb"><div class="player-disc">78</div><div class="player-name">ARDA</div><div class="player-pos">CB</div></div>
+            <div class="player-node pos-rb"><div class="player-disc">73</div><div class="player-name">MERT</div><div class="player-pos">RB</div></div>
+            <div class="player-node pos-gk"><div class="player-disc">80</div><div class="player-name">OZAN</div><div class="player-pos">GK</div></div>
+          </div>
+        </div>
+        <div class="squad-side">
+          <div id="selected-player" class="squad-card selected-player-card" tabindex="0">
+            <div class="selected-accent"></div>
+            <div class="selected-top"><div><div class="card-kicker">SELECTED PLAYER</div><div class="selected-name">EMRE YILMAZ</div><div class="selected-meta">CAM · #10 · TURKEY</div></div><div class="overall-block"><span class="overall-number">81</span><span class="overall-label">OVR</span></div></div>
+            <div class="selected-status-row"><span class="status-pill good">FIT 94%</span><span class="status-pill">FORM GOOD</span><span class="status-pill">MORALE HAPPY</span></div>
+            <div class="attribute-row"><span>PAC</span><strong>78</strong><span>SHO</span><strong>76</strong><span>PAS</span><strong>84</strong></div>
+            <div class="attribute-row"><span>DRI</span><strong>83</strong><span>DEF</span><strong>52</strong><span>PHY</span><strong>68</strong></div>
+            <div class="selected-footer"><span>VALUE €24M</span><span>CONTRACT 2029</span></div>
+          </div>
+          <div id="squad-list" class="squad-card squad-list-card" tabindex="0">
+            <div class="squad-list-header"><span class="card-kicker">SQUAD</span><span class="list-count">24 PLAYERS</span></div>
+            <div class="list-head"><span>PLAYER</span><span>POS</span><span>OVR</span><span>FIT</span></div>
+            <div class="list-row active"><span>EMRE YILMAZ</span><span>CAM</span><span>81</span><span>94</span></div>
+            <div class="list-row"><span>OZAN KOC</span><span>GK</span><span>80</span><span>96</span></div>
+            <div class="list-row"><span>TUNA CELIK</span><span>CB</span><span>79</span><span>91</span></div>
+            <div class="list-row"><span>ARDA GUNES</span><span>CB</span><span>78</span><span>89</span></div>
+            <div class="list-row"><span>KEREM KAYA</span><span>ST</span><span>78</span><span>92</span></div>
+            <div class="list-row"><span>AHMET AKSOY</span><span>CM</span><span>77</span><span>87</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="career-control-strip"><div class="control-left"><span class="hint"><span class="hint-key">ENTER</span>Select</span><span class="hint"><span class="hint-key">ARROWS</span>Navigate</span><span class="hint"><span class="hint-key">F1</span>Main Menu</span><span class="hint"><span class="hint-key">F2</span>Central</span><span class="hint"><span class="hint-key">F3</span>Squad</span></div><div class="control-right">SQUAD · STARTING XI</div></div>
+    </div>
+  </div>
+</body>
+</rml>
