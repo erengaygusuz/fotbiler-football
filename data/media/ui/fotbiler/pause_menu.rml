@@ -1,0 +1,39 @@
+<rml>
+<head>
+  <title>Pause</title>
+  <link type="text/rcss" href="theme.rcss" />
+  <link type="text/rcss" href="runtime_shell.rcss" />
+</head>
+<body>
+  <div class="runtime-screen">
+    <div class="runtime-bg-blue"></div><div class="runtime-bg-light"></div><div class="runtime-bg-pink"></div>
+    <div class="runtime-shell">
+      <div class="runtime-topbar"><div class="runtime-brand"><span class="runtime-brand-mark">F</span>OTBILER FOOTBALL</div><div class="runtime-meta">MATCH PAUSED · 19'</div></div>
+      <div class="runtime-heading"><div class="runtime-kicker">MATCH</div><div class="runtime-title">PAUSE</div><div class="runtime-subtitle">REAL MADRID 0 - 0 FC BARCELONA</div></div>
+      <div class="runtime-content">
+        <div class="runtime-column-main">
+          <div class="runtime-card dark" style="height:100%;">
+            <div class="runtime-card-kicker">MATCH MENU</div><div class="runtime-card-title">OPTIONS</div>
+            <div class="runtime-nav-item" tabindex="0" autofocus data-action="resume-match">RESUME MATCH</div>
+            <div class="runtime-nav-item" tabindex="0" data-route="team-management">TEAM MANAGEMENT</div>
+            <div class="runtime-nav-item" tabindex="0" data-route="match-stats">MATCH FACTS</div>
+            <div class="runtime-nav-item" tabindex="0" data-route="replay-modern">INSTANT REPLAY</div>
+            <div class="runtime-nav-item" tabindex="0" data-route="runtime-settings">SETTINGS</div>
+            <div class="runtime-nav-item danger" tabindex="0" data-action="forfeit-match">FORFEIT MATCH</div>
+          </div>
+        </div>
+        <div class="runtime-column-side">
+          <div class="runtime-card dark" style="height:100%;">
+            <div class="runtime-card-kicker">LIVE</div><div class="runtime-card-title">MATCH SNAPSHOT</div>
+            <div class="runtime-scoreline"><div class="runtime-team">RMA</div><div class="runtime-score">0 - 0</div><div class="runtime-team">FCB</div></div>
+            <div class="runtime-stat"><div class="runtime-stat-value">52%</div><div class="runtime-stat-name">POSSESSION</div><div class="runtime-stat-value away">48%</div></div>
+            <div class="runtime-stat"><div class="runtime-stat-value">3</div><div class="runtime-stat-name">SHOTS</div><div class="runtime-stat-value away">2</div></div>
+            <div class="runtime-stat"><div class="runtime-stat-value">87%</div><div class="runtime-stat-name">PASS ACCURACY</div><div class="runtime-stat-value away">84%</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="runtime-footer"><div><span class="runtime-hint"><span class="runtime-key">ESC</span>Resume</span><span class="runtime-hint"><span class="runtime-key">ENTER</span>Select</span></div><div>M1C · PAUSE</div></div>
+    </div>
+  </div>
+</body>
+</rml>
