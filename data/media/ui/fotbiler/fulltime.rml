@@ -1,0 +1,38 @@
+<rml>
+<head>
+  <title>Full Time</title>
+  <link type="text/rcss" href="theme.rcss" />
+  <link type="text/rcss" href="runtime_shell.rcss" />
+</head>
+<body>
+  <div class="runtime-screen">
+    <div class="runtime-bg-blue"></div><div class="runtime-bg-light"></div><div class="runtime-bg-pink"></div>
+    <div class="runtime-shell">
+      <div class="runtime-topbar"><div class="runtime-brand"><span class="runtime-brand-mark">F</span>OTBILER FOOTBALL</div><div class="runtime-meta">FULL-TIME · FINAL</div></div>
+      <div class="runtime-heading"><div class="runtime-kicker">MATCHDAY</div><div class="runtime-title">FULL-TIME</div><div class="runtime-subtitle">Final score, match facts and player of the match.</div></div>
+      <div class="runtime-content">
+        <div class="runtime-column-main">
+          <div class="runtime-card dark" style="height:100%;">
+            <div class="runtime-scoreline"><div id="fulltime-home" class="runtime-team">REAL MADRID</div><div id="fulltime-score" class="runtime-score">2 - 1</div><div id="fulltime-away" class="runtime-team">FC BARCELONA</div></div>
+            <div class="runtime-stat"><div class="runtime-stat-value">51%</div><div class="runtime-stat-name">POSSESSION</div><div class="runtime-stat-value away">49%</div></div>
+            <div class="runtime-stat"><div class="runtime-stat-value">11</div><div class="runtime-stat-name">SHOTS</div><div class="runtime-stat-value away">8</div></div>
+            <div class="runtime-stat"><div class="runtime-stat-value">7</div><div class="runtime-stat-name">SHOTS ON TARGET</div><div class="runtime-stat-value away">4</div></div>
+            <div class="runtime-stat"><div class="runtime-stat-value">88%</div><div class="runtime-stat-name">PASS ACCURACY</div><div class="runtime-stat-value away">86%</div></div>
+            <div class="runtime-stat"><div class="runtime-stat-value">2</div><div class="runtime-stat-name">FOULS</div><div class="runtime-stat-value away">3</div></div>
+          </div>
+        </div>
+        <div class="runtime-column-side">
+          <div class="runtime-card" style="height:100%;">
+            <div class="runtime-card-kicker">PLAYER OF THE MATCH</div><div class="runtime-card-title">CRISTIANO RONALDO</div>
+            <div class="runtime-big-number">9.1</div><div class="runtime-muted">2 goals · 5 shots · 87% passing</div>
+            <div class="runtime-nav-item" tabindex="0" autofocus data-action="continue-fulltime" style="margin-top:22px;">CONTINUE</div>
+            <div class="runtime-nav-item" tabindex="0" data-route="match-stats">FULL MATCH FACTS</div>
+            <div class="runtime-nav-item" tabindex="0" data-route="replay-modern">HIGHLIGHTS</div>
+          </div>
+        </div>
+      </div>
+      <div class="runtime-footer"><div><span class="runtime-hint"><span class="runtime-key">ENTER</span>Continue</span><span class="runtime-hint"><span class="runtime-key">X</span>Match Facts</span></div><div>M1C · FULL-TIME</div></div>
+    </div>
+  </div>
+</body>
+</rml>
