@@ -16,27 +16,25 @@ using namespace blunted;
 constexpr float kMenuAspectRatio = 16.0f / 9.0f;
 
 enum e_MenuAction {
-  e_MenuAction_Menu,  // start main menu
-  e_MenuAction_Game,  // start game
+  e_MenuAction_Menu,
+  e_MenuAction_Game,
   e_MenuAction_None
 };
 
 struct SideSelection {
   int controllerID = -1;
   Gui2Image* controllerImage = nullptr;
-  int side = 0;  // -1, 0, 1
+  int side = 0;
 };
 
-// todo: just load match-, team-, and playerdata before starting match
-// this requires some bigger changes, so stick with this imperfect system for the time being
 struct QueuedFixture {
   QueuedFixture() {
     team1KitNum = 1;
     team2KitNum = 2;
     matchData = 0;
   }
-  std::vector<SideSelection> sides;  // queued match fixture
-  std::string teamID1, teamID2;      // queued match fixture
+  std::vector<SideSelection> sides;
+  std::string teamID1, teamID2;
   int team1KitNum, team2KitNum;
   MatchData* matchData;
 };
@@ -56,8 +54,8 @@ public:
   void ReleaseAllButtons();
 
   // Single-process Fotbiler lifecycle. Match pages call this instead of
-  // terminating gameplayfootball; MenuTask stops the live match in its own
-  // game phase and hands the same renderer window back to RmlUi frontend mode.
+  // terminating gameplayfootball. The frontend is revealed only after the
+  // match and audio teardown pipeline has fully drained.
   void ReturnToFotbilerFrontend(blunted::ui::frontend::ReturnTarget target);
 
   void SetControllerSetup(const std::vector<SideSelection>& sides) {
@@ -109,10 +107,15 @@ protected:
   bool PrepareFotbilerUiQuickMatch(const blunted::ui::frontend::LaunchRequest& request);
   bool PrepareFotbilerUiCareerMatch();
   void SetSingleControlledSide(int side);
+  void ApplyFotbilerDisplaySettings(const blunted::ui::frontend::DisplaySettingsRequest& request);
+  bool IsFotbilerMatchTeardownDrained() const;
+  void ProcessFotbilerFrontendReturnBarrier();
 
   e_MenuAction menuAction;
   bool uiDirectMatchReady;
   bool frontendReturnPending;
+  bool frontendReturnWaitingForTeardown;
+  int frontendReturnStableTicks;
   blunted::ui::frontend::ReturnTarget frontendReturnTarget;
 
   Gui2Image* menuBackground;
