@@ -45,6 +45,11 @@ LoadingMatchPage::LoadingMatchPage(Gui2WindowManager* windowManager, const Gui2P
   sentStartGameSignal = false;
 
   if (ModernUiSessionActive()) {
+    // MenuTask owns a legacy full-screen stadium01.png background independently
+    // from this page. Hiding this page alone therefore exposed the stadium image
+    // between modern loading and live gameplay. Keep that background disabled
+    // for the lifetime of a modern direct-match process.
+    GetMenuTask()->SetMenuBackgroundVisible(false);
     return;
   }
 
