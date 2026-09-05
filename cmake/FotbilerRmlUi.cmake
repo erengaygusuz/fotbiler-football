@@ -8,7 +8,7 @@ set(RMLUI_SAMPLES OFF CACHE BOOL "" FORCE)
 set(RMLUI_LUA_BINDINGS OFF CACHE BOOL "" FORCE)
 set(RMLUI_LOTTIE_PLUGIN OFF CACHE BOOL "" FORCE)
 set(RMLUI_SVG_PLUGIN OFF CACHE BOOL "" FORCE)
-set(RMLUI_HARFBUZZ_SAMPLE OFF CACHE BOOL "" FORCE)
+set(RMLUI_HARFBUZZ_SAMPLE OFF CACHE STRING "" FORCE)
 set(RMLUI_FONT_ENGINE freetype CACHE STRING "" FORCE)
 
 FetchContent_Declare(
@@ -63,26 +63,43 @@ if(UNIX AND NOT APPLE)
   target_link_libraries(fotbiler_rmlui PRIVATE dl m)
 endif()
 
+# Reusable modern frontend host. Its career persistence dependency is attached
+# later, after the parent CMakeLists has created menulib, so target ordering is
+# explicit and static-link resolution stays deterministic.
+add_library(fotbiler_single_process_frontend STATIC
+  ${PROJECT_SOURCE_DIR}/src/presentation/ui/rmlui/single_process_frontend.cpp
+  ${PROJECT_SOURCE_DIR}/src/presentation/ui/rmlui/single_process_frontend.hpp
+  ${PROJECT_SOURCE_DIR}/src/presentation/ui/rmlui/frontend_runtime_bridge.hpp
+)
+target_compile_features(fotbiler_single_process_frontend PRIVATE cxx_std_17)
+target_include_directories(fotbiler_single_process_frontend PRIVATE
+  ${PROJECT_SOURCE_DIR}/src
+  ${SDL2_INCLUDE_DIR}
+)
+target_link_libraries(fotbiler_single_process_frontend
+  PUBLIC fotbiler_rmlui
+  PRIVATE SQLite::SQLite3
+)
+if(FOTBILER_BASE_SDL2_TARGET)
+  target_link_libraries(fotbiler_single_process_frontend PRIVATE ${FOTBILER_BASE_SDL2_TARGET})
+elseif(SDL2_LIBRARIES)
+  target_link_libraries(fotbiler_single_process_frontend PRIVATE ${SDL2_LIBRARIES})
+endif()
+
 # Production SDL/RmlUi bridge. It owns no second window: both the modern
 # frontend host and in-match overlays render into gameplayfootball's existing
 # renderer window/context.
 add_library(fotbiler_sdl_window_bridge STATIC
   ${PROJECT_SOURCE_DIR}/src/platform/fotbiler_sdl_window_bridge.cpp
-  ${PROJECT_SOURCE_DIR}/src/presentation/ui/rmlui/single_process_frontend.cpp
-  ${PROJECT_SOURCE_DIR}/src/presentation/ui/rmlui/single_process_frontend.hpp
-  ${PROJECT_SOURCE_DIR}/src/presentation/ui/rmlui/frontend_runtime_bridge.hpp
 )
 target_compile_features(fotbiler_sdl_window_bridge PRIVATE cxx_std_17)
 target_include_directories(fotbiler_sdl_window_bridge PRIVATE
   ${PROJECT_SOURCE_DIR}/src
   ${SDL2_INCLUDE_DIR}
 )
-# menulib is declared later by the parent CMakeLists. CMake resolves this plain
-# target name at generate time; the dependency gives the frontend host access to
-# the same career persistence implementation used by gameplayfootball.
 target_link_libraries(fotbiler_sdl_window_bridge
   PUBLIC fotbiler_rmlui
-  PRIVATE SQLite::SQLite3 menulib
+  PRIVATE fotbiler_single_process_frontend
 )
 if(FOTBILER_BASE_SDL2_TARGET)
   target_link_libraries(fotbiler_sdl_window_bridge PRIVATE ${FOTBILER_BASE_SDL2_TARGET})
