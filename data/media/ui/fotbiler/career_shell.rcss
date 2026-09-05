@@ -186,3 +186,40 @@ body {
   font-size: 11px;
   letter-spacing: 0.9px;
 }
+
+/* M1A.3: reusable card primitive. Existing screen classes are compatibility aliases. */
+.ui-card,
+.career-card,
+.squad-card,
+.transfer-card,
+.office-panel,
+.season-card,
+.tactic-card {
+  position: relative;
+  box-sizing: border-box;
+  overflow: hidden;
+  background-color: #f7f8f9;
+  border-width: 2px;
+  border-color: #f7f8f9;
+  color: #10202d;
+  nav: auto;
+  transition: transform border-color background-color 0.15s sine-out;
+}
+
+.ui-card:hover,
+.ui-card:focus,
+.career-card:hover,
+.career-card:focus,
+.squad-card:hover,
+.squad-card:focus,
+.transfer-card:hover,
+.transfer-card:focus,
+.office-panel:hover,
+.office-panel:focus,
+.season-card:hover,
+.season-card:focus,
+.tactic-card:hover,
+.tactic-card:focus {
+  transform: translateY(-2px);
+  border-color: #ffffff;
+}
