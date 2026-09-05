@@ -84,7 +84,10 @@ elseif(OPENGL_LIBRARIES)
   target_link_libraries(fotbiler_ui_preview PRIVATE ${OPENGL_LIBRARIES})
 endif()
 
-add_custom_command(TARGET fotbiler_ui_preview POST_BUILD
+# Preview assets are deliberately refreshed on every build. RML/RCSS files are
+# runtime data, not compiler inputs, so a POST_BUILD command alone can leave a
+# stale preview after a style-only edit when the executable itself is up to date.
+add_custom_target(fotbiler_ui_preview_assets ALL
   COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:fotbiler_ui_preview>/media/ui
   COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:fotbiler_ui_preview>/media/fonts
   COMMAND ${CMAKE_COMMAND} -E copy_directory
@@ -93,5 +96,7 @@ add_custom_command(TARGET fotbiler_ui_preview POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy_directory
     ${PROJECT_SOURCE_DIR}/data/media/fonts
     $<TARGET_FILE_DIR:fotbiler_ui_preview>/media/fonts
-  COMMENT "Copying Fotbiler UI preview assets"
+  COMMENT "Refreshing Fotbiler UI preview assets"
+  VERBATIM
 )
+add_dependencies(fotbiler_ui_preview fotbiler_ui_preview_assets)
