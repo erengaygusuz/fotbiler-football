@@ -1,10 +1,8 @@
-// Fotbiler SDL/window bridge and modern match-overlay host.
+// Fotbiler production SDL/window and RmlUi host.
 //
-// The production renderer still owns SDL_Window and the OpenGL context. Rather
-// than create a second UI window, modern match overlays are injected at the two
-// stable SDL boundaries already used by OpenGLRenderer3D: event polling and
-// buffer swap. This lets RmlUi render in the exact same window/context as the
-// 3D match while the broader frontend migration continues.
+// One SDL window and one OpenGL context are owned by OpenGLRenderer3D. The
+// modern frontend, loading presentation and in-match overlays all render into
+// that same context; only the application state changes.
 
 #ifdef SDL_CreateWindow
 #undef SDL_CreateWindow
@@ -28,8 +26,10 @@
 #include <memory>
 #include <string>
 
+#include "presentation/ui/rmlui/frontend_runtime_bridge.hpp"
 #include "presentation/ui/rmlui/rmlui_system.hpp"
 #include "presentation/ui/rmlui/runtime_ui_bridge.hpp"
+#include "presentation/ui/rmlui/single_process_frontend.hpp"
 
 namespace {
 
@@ -41,7 +41,9 @@ constexpr const char* kLoadingAwayNameEnv = "FOTBILER_UI_LOADING_AWAY_NAME";
 
 SDL_Window* g_runtimeWindow = nullptr;
 std::unique_ptr<blunted::ui::RmlUiSystem> g_runtimeUi;
+std::unique_ptr<blunted::ui::SingleProcessFrontend> g_frontendHost;
 blunted::ui::runtime::Screen g_loadedScreen = blunted::ui::runtime::Screen::None;
+blunted::ui::frontend::AppMode g_lastAppMode = blunted::ui::frontend::AppMode::Frontend;
 bool g_exitMatchConfirmOpen = false;
 bool g_runtimeWindowPresented = false;
 
@@ -75,9 +77,25 @@ void SetEnvironmentInt(const char* name, int value) {
   SDL_setenv(name, text.c_str(), 1);
 }
 
+bool EnvironmentFlag(const char* name) {
+  const char* value = SDL_getenv(name);
+  return value && value[0] != '\0' && std::string(value) != "0";
+}
+
 bool ModernUiSessionActive() {
-  const char* session = SDL_getenv("FOTBILER_UI_MODERN_SESSION");
-  return session && session[0] != '\0' && std::string(session) != "0";
+  return EnvironmentFlag("FOTBILER_UI_MODERN_SESSION");
+}
+
+bool ModernFrontendAppActive() {
+  return EnvironmentFlag("FOTBILER_UI_MODERN_APP");
+}
+
+bool ModernUiActive() {
+  return ModernFrontendAppActive() || ModernUiSessionActive();
+}
+
+bool LegacyProcessHandoffActive() {
+  return ModernUiSessionActive() && !ModernFrontendAppActive();
 }
 
 int CenteredOnDisplay(int displayIndex) {
@@ -102,7 +120,7 @@ const char* DocumentForScreen(blunted::ui::runtime::Screen screen) {
 }
 
 void InitializeRuntimeUiIfNeeded(SDL_Window* window) {
-  if (!ModernUiSessionActive() || !window || g_runtimeUi) return;
+  if (!ModernUiActive() || !window || g_runtimeUi) return;
 
   int width = 0;
   int height = 0;
@@ -117,16 +135,27 @@ void InitializeRuntimeUiIfNeeded(SDL_Window* window) {
   g_loadedScreen = blunted::ui::runtime::Screen::None;
   g_exitMatchConfirmOpen = false;
 
-  // The frontend owns the visible loading presentation. The gameplay window
-  // is created hidden and is only revealed once GamePage confirms a live match.
-  // This prevents KDE/Wayland from compositing a second near-identical loading
-  // window for one or two frames during process handoff.
-  if (blunted::ui::runtime::GetScreen() == blunted::ui::runtime::Screen::None) {
-    blunted::ui::runtime::SetScreen(blunted::ui::runtime::Screen::Loading);
+  if (ModernFrontendAppActive()) {
+    g_frontendHost = std::make_unique<blunted::ui::SingleProcessFrontend>(*g_runtimeUi);
+    if (!g_frontendHost->Initialize()) {
+      g_frontendHost.reset();
+      return;
+    }
+    g_lastAppMode = blunted::ui::frontend::GetAppMode();
+  } else {
+    // Compatibility path for the old preview -> gameplayfootball handoff. This
+    // disappears once the standalone preview is only used as a design lab.
+    if (blunted::ui::runtime::GetScreen() == blunted::ui::runtime::Screen::None) {
+      blunted::ui::runtime::SetScreen(blunted::ui::runtime::Screen::Loading);
+    }
   }
 }
 
 void ShutdownRuntimeUi() {
+  if (g_frontendHost) {
+    g_frontendHost->Shutdown();
+    g_frontendHost.reset();
+  }
   if (g_runtimeUi) {
     g_runtimeUi->Shutdown();
     g_runtimeUi.reset();
@@ -136,6 +165,7 @@ void ShutdownRuntimeUi() {
   g_exitMatchConfirmOpen = false;
   g_runtimeWindowPresented = false;
   blunted::ui::runtime::Reset();
+  blunted::ui::frontend::Reset();
 }
 
 void BindLoadingContext() {
@@ -168,9 +198,7 @@ void HideExitMatchConfirmation() {
   if (!g_runtimeUi) return;
   g_runtimeUi->SetElementProperty("exit-match-confirm-overlay", "display", "none");
   g_exitMatchConfirmOpen = false;
-  if (!g_runtimeUi->FocusElement("pause-exit-match")) {
-    g_runtimeUi->FocusDefaultElement();
-  }
+  if (!g_runtimeUi->FocusElement("pause-exit-match")) g_runtimeUi->FocusDefaultElement();
 }
 
 void HandleRoute(const std::string& route) {
@@ -188,7 +216,6 @@ void HandleRoute(const std::string& route) {
 
 void HandleAction(const std::string& action) {
   using blunted::ui::runtime::Command;
-
   if (action == "cancel-exit-match") {
     HideExitMatchConfirmation();
     return;
@@ -217,7 +244,6 @@ void ConsumeUiRequests() {
 
 void SyncDocument() {
   if (!g_runtimeUi) return;
-
   const blunted::ui::runtime::Screen wanted = blunted::ui::runtime::GetScreen();
   if (wanted == g_loadedScreen) return;
 
@@ -227,11 +253,8 @@ void SyncDocument() {
   g_loadedScreen = blunted::ui::runtime::Screen::None;
 
   if (wanted == blunted::ui::runtime::Screen::None) {
-    // Loading -> None is the exact point at which GamePage has a live Match.
-    // Reveal the gameplay window only now, so the parent loading screen remains
-    // visually continuous until the first real 3D frame is ready.
-    if (previous == blunted::ui::runtime::Screen::Loading && g_runtimeWindow &&
-        !g_runtimeWindowPresented) {
+    if (LegacyProcessHandoffActive() && previous == blunted::ui::runtime::Screen::Loading &&
+        g_runtimeWindow && !g_runtimeWindowPresented) {
       SDL_ShowWindow(g_runtimeWindow);
       SDL_RaiseWindow(g_runtimeWindow);
       g_runtimeWindowPresented = true;
@@ -247,11 +270,29 @@ void SyncDocument() {
   }
 }
 
+void SyncFrontendMode() {
+  if (!ModernFrontendAppActive() || !g_frontendHost || !g_runtimeUi) return;
+  const blunted::ui::frontend::AppMode mode = blunted::ui::frontend::GetAppMode();
+  if (mode == g_lastAppMode) return;
+
+  if (mode == blunted::ui::frontend::AppMode::Match) {
+    g_frontendHost->SuspendForMatch();
+    g_loadedScreen = blunted::ui::runtime::Screen::None;
+    g_exitMatchConfirmOpen = false;
+  } else if (mode == blunted::ui::frontend::AppMode::Frontend) {
+    g_runtimeUi->UnloadDocument();
+    g_loadedScreen = blunted::ui::runtime::Screen::None;
+    g_exitMatchConfirmOpen = false;
+    g_frontendHost->Resume(blunted::ui::frontend::GetReturnTarget());
+  }
+  // Loading is entered by the frontend host itself, which has already loaded
+  // and bound the loading document in this same RmlUi context.
+  g_lastAppMode = mode;
+}
+
 void BindMatchSnapshot() {
   if (!g_runtimeUi || g_loadedScreen == blunted::ui::runtime::Screen::None ||
-      g_loadedScreen == blunted::ui::runtime::Screen::Loading) {
-    return;
-  }
+      g_loadedScreen == blunted::ui::runtime::Screen::Loading) return;
 
   const blunted::ui::runtime::MatchSnapshot snapshot = blunted::ui::runtime::ReadMatchSnapshot();
   const std::string score = std::to_string(snapshot.homeScore) + " - " +
@@ -301,50 +342,35 @@ void SendNavigationKey(SDL_Keycode key) {
 }
 
 bool HandleRuntimeInput(SDL_Event& event) {
-  if (!g_runtimeUi || blunted::ui::runtime::GetScreen() == blunted::ui::runtime::Screen::None) {
+  if (!g_runtimeUi || blunted::ui::runtime::GetScreen() == blunted::ui::runtime::Screen::None)
     return false;
-  }
 
   using blunted::ui::runtime::Command;
   using blunted::ui::runtime::Screen;
-
-  // Loading is a non-interactive handoff state. Swallow player input until the
-  // live match page explicitly clears it, while still allowing SDL_QUIT to pass
-  // through because it is not classified as an input event here.
-  if (blunted::ui::runtime::GetScreen() == Screen::Loading) {
-    return IsInputEvent(event.type);
-  }
+  if (blunted::ui::runtime::GetScreen() == Screen::Loading) return IsInputEvent(event.type);
 
   if (event.type == SDL_KEYDOWN && event.key.repeat == 0) {
     if (g_exitMatchConfirmOpen) {
       switch (event.key.keysym.sym) {
-        case SDLK_ESCAPE:
-          HideExitMatchConfirmation();
-          return true;
+        case SDLK_ESCAPE: HideExitMatchConfirmation(); return true;
         case SDLK_LEFT:
-        case SDLK_UP:
-          g_runtimeUi->FocusElement("exit-match-cancel");
-          return true;
+        case SDLK_UP: g_runtimeUi->FocusElement("exit-match-cancel"); return true;
         case SDLK_RIGHT:
-        case SDLK_DOWN:
-          g_runtimeUi->FocusElement("exit-match-accept");
-          return true;
+        case SDLK_DOWN: g_runtimeUi->FocusElement("exit-match-accept"); return true;
         case SDLK_RETURN:
         case SDLK_KP_ENTER:
           g_runtimeUi->ActivateFocusedElement();
           ConsumeUiRequests();
           return true;
-        default:
-          return IsInputEvent(event.type);
+        default: return IsInputEvent(event.type);
       }
     }
 
     if (event.key.keysym.sym == SDLK_ESCAPE) {
-      if (blunted::ui::runtime::GetScreen() == Screen::Pause) {
+      if (blunted::ui::runtime::GetScreen() == Screen::Pause)
         blunted::ui::runtime::SendCommand(Command::ResumeMatch);
-      } else {
+      else
         blunted::ui::runtime::SetScreen(Screen::Pause);
-      }
       return true;
     }
     if (event.key.keysym.sym == SDLK_RETURN || event.key.keysym.sym == SDLK_KP_ENTER) {
@@ -358,22 +384,15 @@ bool HandleRuntimeInput(SDL_Event& event) {
     if (g_exitMatchConfirmOpen) {
       switch (event.cbutton.button) {
         case SDL_CONTROLLER_BUTTON_DPAD_LEFT:
-        case SDL_CONTROLLER_BUTTON_DPAD_UP:
-          g_runtimeUi->FocusElement("exit-match-cancel");
-          return true;
+        case SDL_CONTROLLER_BUTTON_DPAD_UP: g_runtimeUi->FocusElement("exit-match-cancel"); return true;
         case SDL_CONTROLLER_BUTTON_DPAD_RIGHT:
-        case SDL_CONTROLLER_BUTTON_DPAD_DOWN:
-          g_runtimeUi->FocusElement("exit-match-accept");
-          return true;
+        case SDL_CONTROLLER_BUTTON_DPAD_DOWN: g_runtimeUi->FocusElement("exit-match-accept"); return true;
         case SDL_CONTROLLER_BUTTON_A:
           g_runtimeUi->ActivateFocusedElement();
           ConsumeUiRequests();
           return true;
-        case SDL_CONTROLLER_BUTTON_B:
-          HideExitMatchConfirmation();
-          return true;
-        default:
-          return true;
+        case SDL_CONTROLLER_BUTTON_B: HideExitMatchConfirmation(); return true;
+        default: return true;
       }
     }
 
@@ -409,26 +428,32 @@ extern "C" SDL_Window* SDLCALL FotbilerSDLCreateWindow(const char* title, int x,
   const int displayCount = SDL_GetNumVideoDisplays();
   if (EnvironmentInt(kDisplayIndexEnv, displayIndex) && displayIndex >= 0 && displayIndex < displayCount) {
     const bool fullscreen = (flags & (SDL_WINDOW_FULLSCREEN | SDL_WINDOW_FULLSCREEN_DESKTOP)) != 0;
-    if (fullscreen || SDL_WINDOWPOS_ISCENTERED(x) || SDL_WINDOWPOS_ISUNDEFINED(x)) x = CenteredOnDisplay(displayIndex);
-    else { int savedX = 0; if (EnvironmentInt(kWindowXEnv, savedX)) x = savedX; }
-    if (fullscreen || SDL_WINDOWPOS_ISCENTERED(y) || SDL_WINDOWPOS_ISUNDEFINED(y)) y = CenteredOnDisplay(displayIndex);
-    else { int savedY = 0; if (EnvironmentInt(kWindowYEnv, savedY)) y = savedY; }
+    if (fullscreen || SDL_WINDOWPOS_ISCENTERED(x) || SDL_WINDOWPOS_ISUNDEFINED(x))
+      x = CenteredOnDisplay(displayIndex);
+    else {
+      int savedX = 0;
+      if (EnvironmentInt(kWindowXEnv, savedX)) x = savedX;
+    }
+    if (fullscreen || SDL_WINDOWPOS_ISCENTERED(y) || SDL_WINDOWPOS_ISUNDEFINED(y))
+      y = CenteredOnDisplay(displayIndex);
+    else {
+      int savedY = 0;
+      if (EnvironmentInt(kWindowYEnv, savedY)) y = savedY;
+    }
   }
 
-  const bool modernSession = ModernUiSessionActive();
-  if (modernSession) {
-    // Keep the parent Fotbiler loading window visible while the child renderer
-    // creates its GL context, stadium and players. Do not let the compositor
-    // reveal this second SDL window until the match is actually live.
+  const bool modernActive = ModernUiActive();
+  const bool legacyHandoff = LegacyProcessHandoffActive();
+  if (legacyHandoff) {
     flags &= ~SDL_WINDOW_SHOWN;
     flags |= SDL_WINDOW_HIDDEN;
   }
 
-  const char* resolvedTitle = modernSession ? "Fotbiler Football" : title;
+  const char* resolvedTitle = modernActive ? "Fotbiler Football" : title;
   SDL_Window* window = SDL_CreateWindow(resolvedTitle, x, y, w, h, flags);
-  if (modernSession) {
+  if (modernActive) {
     g_runtimeWindow = window;
-    g_runtimeWindowPresented = false;
+    g_runtimeWindowPresented = !legacyHandoff;
   }
   return window;
 }
@@ -447,8 +472,10 @@ extern "C" void SDLCALL FotbilerSDLDestroyWindow(SDL_Window* window) {
 
 extern "C" int SDLCALL FotbilerSDLPollEvent(SDL_Event* event) {
   while (SDL_PollEvent(event)) {
-    if (ModernUiSessionActive() && g_runtimeWindow) {
+    if (ModernUiActive() && g_runtimeWindow) {
       InitializeRuntimeUiIfNeeded(g_runtimeWindow);
+      SyncFrontendMode();
+
       if (event->type == SDL_WINDOWEVENT &&
           (event->window.event == SDL_WINDOWEVENT_SIZE_CHANGED ||
            event->window.event == SDL_WINDOWEVENT_RESIZED) && g_runtimeUi) {
@@ -456,7 +483,17 @@ extern "C" int SDLCALL FotbilerSDLPollEvent(SDL_Event* event) {
         SDL_GL_GetDrawableSize(g_runtimeWindow, &width, &height);
         if (width > 0 && height > 0) g_runtimeUi->SetDimensions(width, height);
       }
-      if (HandleRuntimeInput(*event)) continue;
+
+      if (ModernFrontendAppActive() && g_frontendHost &&
+          blunted::ui::frontend::GetAppMode() != blunted::ui::frontend::AppMode::Match) {
+        if (event->type == SDL_QUIT) {
+          blunted::ui::frontend::RequestQuit();
+          continue;
+        }
+        if (g_frontendHost->HandleEvent(*event) || IsInputEvent(event->type)) continue;
+      } else if (HandleRuntimeInput(*event)) {
+        continue;
+      }
     }
     return 1;
   }
@@ -464,23 +501,28 @@ extern "C" int SDLCALL FotbilerSDLPollEvent(SDL_Event* event) {
 }
 
 extern "C" void SDLCALL FotbilerSDLGLSwapWindow(SDL_Window* window) {
-  if (ModernUiSessionActive()) {
+  if (ModernUiActive()) {
     InitializeRuntimeUiIfNeeded(window);
-    SyncDocument();
-    if (g_runtimeUi && blunted::ui::runtime::GetScreen() != blunted::ui::runtime::Screen::None) {
-      if (g_loadedScreen == blunted::ui::runtime::Screen::Loading) BindLoadingContext();
-      BindMatchSnapshot();
-      g_runtimeUi->Update();
-      g_runtimeUi->Render();
-      ConsumeUiRequests();
+    SyncFrontendMode();
+
+    if (ModernFrontendAppActive() && g_frontendHost &&
+        blunted::ui::frontend::GetAppMode() != blunted::ui::frontend::AppMode::Match) {
+      g_frontendHost->UpdateAndRender();
+    } else {
+      SyncDocument();
+      if (g_runtimeUi && blunted::ui::runtime::GetScreen() != blunted::ui::runtime::Screen::None) {
+        if (g_loadedScreen == blunted::ui::runtime::Screen::Loading) BindLoadingContext();
+        BindMatchSnapshot();
+        g_runtimeUi->Update();
+        g_runtimeUi->Render();
+        ConsumeUiRequests();
+      }
     }
   }
   SDL_GL_SwapWindow(window);
 }
 
 extern "C" void SDLCALL FotbilerSDLGLDeleteContext(SDL_GLContext context) {
-  // RmlUi's GL renderer owns buffers/textures tied to this context. Release
-  // those resources while the context is still current and valid.
   ShutdownRuntimeUi();
   SDL_GL_DeleteContext(context);
 }
