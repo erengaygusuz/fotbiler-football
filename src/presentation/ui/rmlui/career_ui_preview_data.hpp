@@ -2,7 +2,9 @@
 #define FOTBILER_CAREER_UI_PREVIEW_DATA_HPP
 
 #include <string>
+#include <vector>
 
+#include "application/career/career_save_service.hpp"
 #include "data/careerdata.hpp"
 
 namespace blunted::ui {
@@ -36,13 +38,35 @@ inline InboxItem MakePreviewInboxItem(int id, InboxItemType type, const char* su
   return item;
 }
 
+inline bool TryLoadPersistedCareer(CareerSave& save) {
+  std::vector<TransferBid> bids;
+  // gameplayfootball and fotbiler_ui_preview are launched from the same build
+  // directory, so this is the exact persistence location used by CareerDatabase.
+  if (CareerSaveService::LoadSlot("user/career", -1, save, bids)) {
+    return true;
+  }
+  return CareerSaveService::LoadSlot("user/career", 0, save, bids);
+}
+
+inline void SeedPersistedCareer(const CareerSave& save) {
+  std::vector<TransferBid> bids;
+  CareerSaveService::SaveSlot("user/career", 0, save, bids);
+  CareerSaveService::SaveSlot("user/career", -1, save, bids);
+}
+
 }  // namespace detail
 
-// This source deliberately uses CareerSave, the existing career persistence
-// model, rather than a second UI-only mock domain. M1A.7 can replace this
-// factory with the active loaded save without changing the RmlUi binder.
+// The modern UI now opens the same durable CareerSave used by gameplayfootball.
+// The rich seed below is only used the first time no career exists yet; it is
+// persisted immediately so PLAY MATCH, match results, and subsequent UI runs
+// all operate on one state instead of an isolated presentation-only mock.
 inline CareerSave BuildCareerPreviewSave() {
   using namespace detail;
+
+  CareerSave persisted;
+  if (TryLoadPersistedCareer(persisted)) {
+    return persisted;
+  }
 
   CareerSave save;
   save.name = "FOTBILER FC";
@@ -55,6 +79,7 @@ inline CareerSave BuildCareerPreviewSave() {
   save.club.reputation = 76;
 
   save.transferBudget = 24500000;
+  save.wageBudget = 750000;
   save.finance.cash = 42800000;
   save.finance.transferBudget = 24500000;
   save.finance.wageBudget = 750000;
@@ -85,6 +110,7 @@ inline CareerSave BuildCareerPreviewSave() {
   save.season.currentSeason = 2026;
   save.season.currentWeek = 3;
   save.season.maxWeeks = 36;
+  save.season.inPreseason = false;
   save.season.transferWindowOpen = true;
   save.seasonWins = 1;
   save.seasonDraws = 1;
@@ -131,7 +157,9 @@ inline CareerSave BuildCareerPreviewSave() {
   };
   save.fanBase = 68;
   save.stadium.capacity = 28000;
+  save.stadium.name = "FOTBILER STADIUM";
 
+  SeedPersistedCareer(save);
   return save;
 }
 
