@@ -1,8 +1,26 @@
 body { font-family: "Fotbiler Sans"; }
 
-.season-content { width: 100%; height: 61%; padding-top: 14px; }
-.season-top-row { display: flex; width: 100%; height: 58%; }
-.season-bottom-row { display: flex; width: 100%; height: 40%; margin-top: 2%; }
+/* Keep the whole Season page inside the career shell regardless of nested percentage behaviour in RmlUi. */
+.season-content {
+  position: absolute;
+  left: 0;
+  top: 17.5%;
+  bottom: 10.5%;
+  width: 100%;
+  height: auto;
+  padding-top: 12px;
+  box-sizing: border-box;
+}
+.season-content + .career-control-strip {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 8.5%;
+  margin-top: 0;
+}
+.season-top-row { display: flex; width: 100%; height: 57%; }
+.season-bottom-row { display: flex; width: 100%; height: 41%; margin-top: 2%; }
 .season-card { position: relative; box-sizing: border-box; overflow: hidden; background-color: #f7f8f9; border-width: 2px; border-color: #f7f8f9; color: #10202d; nav: auto; transition: transform border-color 0.15s sine-out; }
 .season-card:hover, .season-card:focus { transform: translateY(-2px); border-color: #ffffff; }
 .season-header { display: flex; width: 100%; justify-content: space-between; align-items: center; }
@@ -14,7 +32,7 @@ body { font-family: "Fotbiler Sans"; }
 .weekday-row { display: flex; width: 100%; margin-top: 8px; padding-bottom: 4px; border-bottom-width: 1px; border-bottom-color: #d2d9dd; color: #71838f; font-size: 8px; letter-spacing: 0.8px; }
 .weekday-row span { width: 14.285%; text-align: center; }
 .calendar-grid { display: flex; flex-wrap: wrap; width: 100%; margin-top: 3px; }
-.day { position: relative; width: 14.285%; height: 45px; box-sizing: border-box; padding: 4px 6px; border-right-width: 1px; border-bottom-width: 1px; border-color: #e0e5e8; background-color: #f7f8f9; color: #425865; font-size: 9px; }
+.day { position: relative; width: 14.285%; height: 42px; box-sizing: border-box; padding: 4px 6px; border-right-width: 1px; border-bottom-width: 1px; border-color: #e0e5e8; background-color: #f7f8f9; color: #425865; font-size: 9px; }
 .day b { display: block; font-family: "Fotbiler Display"; font-size: 11px; }
 .day.muted { color: #aeb9bf; background-color: #edf0f2; }
 .day.current { background-color: #19d3b1; color: #10202d; }
@@ -41,23 +59,23 @@ body { font-family: "Fotbiler Sans"; }
 .progress-track { width: 100%; height: 5px; margin-top: 5px; background-color: #27495f; }
 .progress-fill { width: 8%; height: 100%; background-color: #19d3b1; }
 
-.table-card { width: 49%; height: 100%; margin-right: 2%; padding: 13px 16px; }
-.results-card { width: 27%; height: 100%; margin-right: 2%; padding: 13px 16px; background-color: #dfe5e9; border-color: #dfe5e9; }
-.stats-card { width: 20%; height: 100%; padding: 13px 16px; background-color: #17334a; border-color: #17334a; color: #ffffff; }
+.table-card { width: 49%; height: 100%; margin-right: 2%; padding: 12px 16px; }
+.results-card { width: 27%; height: 100%; margin-right: 2%; padding: 12px 16px; background-color: #dfe5e9; border-color: #dfe5e9; }
+.stats-card { width: 20%; height: 100%; padding: 12px 16px; background-color: #17334a; border-color: #17334a; color: #ffffff; }
 .stats-card .card-kicker { color: #a9bbc6; }
 .season-table-head, .season-table-row { display: flex; width: 100%; box-sizing: border-box; }
-.season-table-head { margin-top: 6px; padding-bottom: 3px; color: #81919b; border-bottom-width: 1px; border-bottom-color: #d4dbdf; font-size: 8px; }
-.season-table-row { padding: 4px 4px; border-bottom-width: 1px; border-bottom-color: #e1e6e8; font-size: 10px; }
+.season-table-head { margin-top: 5px; padding-bottom: 3px; color: #81919b; border-bottom-width: 1px; border-bottom-color: #d4dbdf; font-size: 8px; }
+.season-table-row { padding: 4px; border-bottom-width: 1px; border-bottom-color: #e1e6e8; font-size: 10px; }
 .season-table-head span:nth-child(1), .season-table-row span:nth-child(1) { width: 12%; }
 .season-table-head span:nth-child(2), .season-table-row span:nth-child(2) { width: 58%; }
 .season-table-head span:nth-child(3), .season-table-row span:nth-child(3) { width: 15%; text-align: right; }
 .season-table-head span:nth-child(4), .season-table-row span:nth-child(4) { width: 15%; text-align: right; }
 .season-table-row.current-team { background-color: #19d3b1; color: #10202d; }
-.result-row { display: flex; width: 100%; margin-top: 6px; padding: 5px 0; border-bottom-width: 1px; border-bottom-color: #c9d1d6; justify-content: space-between; font-size: 9px; }
+.result-row { display: flex; width: 100%; margin-top: 5px; padding: 5px 0; border-bottom-width: 1px; border-bottom-color: #c9d1d6; justify-content: space-between; font-size: 9px; }
 .result-row strong { font-family: "Fotbiler Display"; font-size: 15px; }
 .result-row.next { background-color: #19d3b1; padding-left: 7px; padding-right: 7px; box-sizing: border-box; }
-.next-label { display: block; margin-top: 7px; color: #6c7d87; font-size: 8px; letter-spacing: 0.8px; }
-.big-stat { display: block; margin-top: 3px; font-family: "Fotbiler Display"; font-size: 36px; line-height: 36px; color: #19d3b1; }
+.next-label { display: block; margin-top: 6px; color: #6c7d87; font-size: 8px; letter-spacing: 0.8px; }
+.big-stat { display: block; margin-top: 3px; font-family: "Fotbiler Display"; font-size: 34px; line-height: 34px; color: #19d3b1; }
 .big-stat-label { display: block; color: #9fb2bd; font-size: 8px; letter-spacing: 0.9px; }
-.mini-stat { display: flex; width: 100%; margin-top: 6px; padding-top: 5px; border-top-width: 1px; border-top-color: #34546a; color: #a9bbc6; font-size: 8px; justify-content: space-between; }
+.mini-stat { display: flex; width: 100%; margin-top: 5px; padding-top: 4px; border-top-width: 1px; border-top-color: #34546a; color: #a9bbc6; font-size: 8px; justify-content: space-between; }
 .mini-stat strong { color: #ffffff; font-family: "Fotbiler Display"; font-size: 11px; }
