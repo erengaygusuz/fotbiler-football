@@ -92,3 +92,12 @@ body { font-family: "Fotbiler Sans"; }
 .ui-metric-track, .metric-track { width: 100%; overflow: hidden; background-color: #27495f; }
 .ui-metric-fill, .metric-fill { height: 100%; background-color: #19d3b1; }
 .ui-metric-value { color: #ffffff; font-family: "Fotbiler Display"; }
+
+/* M1A.3: reusable empty and loading states for data-backed screens. */
+.ui-state { display: block; width: 100%; padding: 28px 24px; box-sizing: border-box; text-align: center; color: #667681; }
+.ui-state__icon { display: block; width: 44px; height: 44px; margin-left: auto; margin-right: auto; line-height: 44px; border-radius: 22px; background-color: #dfe5e9; color: #214d70; font-family: "Fotbiler Display"; font-size: 18px; }
+.ui-state__title { display: block; margin-top: 10px; color: #10202d; font-family: "Fotbiler Display"; font-size: 20px; }
+.ui-state__copy { display: block; width: 70%; margin: 6px auto 0 auto; font-size: 11px; line-height: 15px; }
+.ui-state--dark { color: #a9bbc6; }
+.ui-state--dark .ui-state__title { color: #ffffff; }
+.ui-loading-dot { display: inline-block; width: 8px; height: 8px; margin: 10px 3px 0 3px; border-radius: 4px; background-color: #19d3b1; }
