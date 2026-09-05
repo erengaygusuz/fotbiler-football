@@ -7,9 +7,9 @@
 #include <sqlite3.h>
 
 #include <algorithm>
+#include <cstdio>
 #include <cstdlib>
 #include <filesystem>
-#include <cstdio>
 #include <string>
 #include <vector>
 
@@ -25,6 +25,7 @@ namespace {
 
 constexpr int kInitialWidth = 1600;
 constexpr int kInitialHeight = 900;
+constexpr Uint64 kLoadingHoldMs = 700;
 
 struct TeamChoice {
   int id = 0;
@@ -39,7 +40,7 @@ struct QuickMatchSetupState {
   std::vector<int> halfLengths{5, 10, 15, 20, 30, 45};
   std::size_t halfLengthIndex = 0;
   int difficultyStep = 3;
-  int controlSide = -1;  // -1 = home, 1 = away, matching the legacy side convention.
+  int controlSide = -1;
 
   const TeamChoice& Home() const { return teams.at(homeIndex); }
   const TeamChoice& Away() const { return teams.at(awayIndex); }
@@ -83,8 +84,8 @@ std::string EscapeRmlText(const std::string& value) {
   return escaped;
 }
 
-std::string TeamCrestLetter(const TeamChoice& team) {
-  for (char ch : team.name) {
+std::string CrestLetter(const std::string& name) {
+  for (char ch : name) {
     if ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z')) {
       return std::string(1, static_cast<char>(ch >= 'a' && ch <= 'z' ? ch - 32 : ch));
     }
@@ -183,11 +184,11 @@ void BindQuickMatchSetup(blunted::ui::RmlUiSystem& ui, const QuickMatchSetupStat
 
   const TeamChoice& home = state.Home();
   const TeamChoice& away = state.Away();
-  ui.SetElementText("quick-home-crest", EscapeRmlText(TeamCrestLetter(home)));
+  ui.SetElementText("quick-home-crest", EscapeRmlText(CrestLetter(home.name)));
   ui.SetElementText("quick-home-name", EscapeRmlText(home.name));
   ui.SetElementText("quick-home-meta",
                     EscapeRmlText("HOME" + (home.league.empty() ? std::string() : " · " + home.league)));
-  ui.SetElementText("quick-away-crest", EscapeRmlText(TeamCrestLetter(away)));
+  ui.SetElementText("quick-away-crest", EscapeRmlText(CrestLetter(away.name)));
   ui.SetElementText("quick-away-name", EscapeRmlText(away.name));
   ui.SetElementText("quick-away-meta",
                     EscapeRmlText("AWAY" + (away.league.empty() ? std::string() : " · " + away.league)));
@@ -196,12 +197,25 @@ void BindQuickMatchSetup(blunted::ui::RmlUiSystem& ui, const QuickMatchSetupStat
   ui.SetElementText("quick-control-side",
                     state.controlSide < 0 ? "KEYBOARD · HOME" : "KEYBOARD · AWAY");
 
-  // The modern loading document reuses these ids so a final binding pass can
-  // display the exact fixture selected on Match Setup.
   ui.SetElementText("loading-home-name", EscapeRmlText(home.name));
   ui.SetElementText("loading-away-name", EscapeRmlText(away.name));
-  ui.SetElementText("loading-home-crest", EscapeRmlText(TeamCrestLetter(home)));
-  ui.SetElementText("loading-away-crest", EscapeRmlText(TeamCrestLetter(away)));
+  ui.SetElementText("loading-home-crest", EscapeRmlText(CrestLetter(home.name)));
+  ui.SetElementText("loading-away-crest", EscapeRmlText(CrestLetter(away.name)));
+}
+
+void BindCareerLoading(blunted::ui::RmlUiSystem& ui,
+                       const blunted::ui::CareerUiViewModel& careerView) {
+  const std::string clubName =
+      careerView.header.clubName.empty() ? "CAREER CLUB" : careerView.header.clubName;
+  ui.SetElementText("loading-mode", "CAREER MODE · MATCHDAY");
+  ui.SetElementText("loading-kicker", "CAREER FIXTURE");
+  ui.SetElementText("loading-title", "PREPARING CAREER MATCH");
+  ui.SetElementText("loading-home-name", EscapeRmlText(clubName));
+  ui.SetElementText("loading-home-crest", EscapeRmlText(CrestLetter(clubName)));
+  ui.SetElementText("loading-away-name", "NEXT LEAGUE OPPONENT");
+  ui.SetElementText("loading-away-crest", "A");
+  ui.SetElementText("loading-copy",
+                    "Loading the active career fixture. The final score will be autosaved after full time.");
 }
 
 void AdvanceTeam(QuickMatchSetupState& state, bool home) {
@@ -286,6 +300,25 @@ PreviewExitAction ConsumePendingAction(blunted::ui::RmlUiSystem& ui,
   std::fprintf(stdout, "Fotbiler UI Preview: runtime action '%s' is not wired.\n",
                action.c_str());
   return PreviewExitAction::None;
+}
+
+bool BeginRuntimeHandoff(PreviewExitAction action, blunted::ui::RmlUiSystem& ui,
+                         blunted::ui::ScreenRouter& router,
+                         const QuickMatchSetupState& quickMatch,
+                         const blunted::ui::CareerUiViewModel& careerView) {
+  if (!router.Navigate(blunted::ui::ScreenId::MatchLoading)) {
+    std::fprintf(stderr, "Fotbiler UI Preview: could not open modern loading screen.\n");
+    return false;
+  }
+  if (action == PreviewExitAction::LaunchCareerMatch) {
+    BindCareerLoading(ui, careerView);
+  } else {
+    BindQuickMatchSetup(ui, quickMatch);
+    ui.SetElementText("loading-mode", "QUICK MATCH · MATCH ENGINE");
+    ui.SetElementText("loading-kicker", "KICK OFF");
+    ui.SetElementText("loading-title", "PREPARING MATCH");
+  }
+  return true;
 }
 
 std::string GetGameplayExecutablePath() {
@@ -469,10 +502,25 @@ int main() {
   UpdateDrawableSize(window, ui);
 
   bool running = true;
+  bool handoffPending = false;
+  Uint64 handoffDeadlineMs = 0;
   PreviewExitAction exitAction = PreviewExitAction::None;
+
   while (running) {
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
+      if (handoffPending) {
+        if (event.type == SDL_QUIT) {
+          exitAction = PreviewExitAction::None;
+          running = false;
+        } else if (event.type == SDL_WINDOWEVENT &&
+                   (event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED ||
+                    event.window.event == SDL_WINDOWEVENT_RESIZED)) {
+          UpdateDrawableSize(window, ui);
+        }
+        continue;
+      }
+
       bool forwardToUi = true;
       bool activateFocusedElement = false;
 
@@ -585,7 +633,12 @@ int main() {
       const PreviewExitAction action = ConsumePendingAction(ui, quickMatch);
       if (action != PreviewExitAction::None) {
         exitAction = action;
-        running = false;
+        if (BeginRuntimeHandoff(action, ui, router, quickMatch, careerView)) {
+          handoffPending = true;
+          handoffDeadlineMs = SDL_GetTicks64() + kLoadingHoldMs;
+        } else {
+          running = false;
+        }
         break;
       }
     }
@@ -600,6 +653,10 @@ int main() {
     ui.Update();
     ui.Render();
     SDL_GL_SwapWindow(window);
+
+    if (handoffPending && SDL_GetTicks64() >= handoffDeadlineMs) {
+      running = false;
+    }
   }
 
   const std::string gameplayExecutable =
