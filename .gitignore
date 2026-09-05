@@ -13,3 +13,6 @@ dist/
 tools/*_bin
 *.save
 
+
+# Generated IDE compile database
+/compile_commands.json
