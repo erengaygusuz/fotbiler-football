@@ -15,9 +15,14 @@ namespace {
 
 const char* kLoadingFallbackLogo = "media/menu/league.png";
 
-bool ModernUiSessionActive() {
-  const char* session = std::getenv("FOTBILER_UI_MODERN_SESSION");
-  return session && session[0] != '\0' && std::string(session) != "0";
+bool EnvironmentFlagEnabled(const char* name) {
+  const char* value = std::getenv(name);
+  return value && value[0] != '\0' && std::string(value) != "0";
+}
+
+bool ModernUiActive() {
+  return EnvironmentFlagEnabled("FOTBILER_UI_MODERN_SESSION") ||
+         EnvironmentFlagEnabled("FOTBILER_UI_MODERN_APP");
 }
 
 std::string ResolveTeamLogo(const TeamData* teamData) {
@@ -33,9 +38,9 @@ std::string ResolveTeamLogo(const TeamData* teamData) {
 LoadingMatchPage::LoadingMatchPage(Gui2WindowManager* windowManager, const Gui2PageData& pageData)
     : Gui2Page(windowManager, pageData) {
   // LoadingMatch still owns the legacy state transition that creates MatchData.
-  // Modern Fotbiler sessions keep that state-machine responsibility for now,
-  // but must never expose the old Gui2 loading presentation between the RmlUi
-  // loading screen and the 3D match.
+  // Modern Fotbiler keeps that state-machine responsibility for now, but the
+  // Gui2 presentation must never be visible under either the old process handoff
+  // or the new single-process RmlUi frontend.
   MatchData* matchData = new MatchData(GetMenuTask()->GetTeamID(0), GetMenuTask()->GetTeamID(1));
   GetMenuTask()->SetMatchData(matchData);
 
@@ -44,11 +49,7 @@ LoadingMatchPage::LoadingMatchPage(Gui2WindowManager* windowManager, const Gui2P
   windowManager->GetPagePath()->Clear();
   sentStartGameSignal = false;
 
-  if (ModernUiSessionActive()) {
-    // MenuTask owns a legacy full-screen stadium01.png background independently
-    // from this page. Hiding this page alone therefore exposed the stadium image
-    // between modern loading and live gameplay. Keep that background disabled
-    // for the lifetime of a modern direct-match process.
+  if (ModernUiActive()) {
     GetMenuTask()->SetMenuBackgroundVisible(false);
     return;
   }
@@ -118,10 +119,7 @@ void LoadingMatchPage::Process() {
 
   if (!sentStartGameSignal) {
     sentStartGameSignal = true;
-    // Legacy sessions retain a visible loading frame. The modern frontend has
-    // already rendered its own loading transition, so do not insert an extra
-    // 100 ms legacy presentation gap there.
-    if (!ModernUiSessionActive()) {
+    if (!ModernUiActive()) {
       EnvironmentManager::GetInstance().Pause_ms(100);
     }
     GetMenuTask()->SetMenuAction(e_MenuAction_Game);
