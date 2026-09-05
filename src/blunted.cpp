@@ -1,5 +1,7 @@
 #include "blunted.hpp"
 
+#include <cstdlib>
+
 #include "SDL2/SDL_ttf.h"
 #include "base/log.hpp"
 #include "base/properties.hpp"
@@ -28,6 +30,15 @@
 #include "scene/resources/surface.hpp"
 #include "systems/isystem.hpp"
 #include "utils/console.hpp"
+
+namespace {
+
+bool ModernUiSessionActive() {
+  const char* session = std::getenv("FOTBILER_UI_MODERN_SESSION");
+  return session && session[0] != '\0' && session[0] != '0';
+}
+
+}  // namespace
 
 namespace boost {
 void assertion_failed(char const* expr, char const* function, char const* file, long line) {
@@ -177,7 +188,14 @@ void Exit() {
 
   printf("READY\n");
 
-  EnvironmentManager::GetInstance().Pause_ms(1000);
+  // Upstream kept the process alive for a full second after all gameplay,
+  // graphics and input systems were already torn down. That delay is visible
+  // in the modern frontend handoff as a stale loading window after leaving a
+  // match. Preserve it for the legacy application path, but modern Fotbiler
+  // sessions should return immediately once teardown is complete.
+  if (!ModernUiSessionActive()) {
+    EnvironmentManager::GetInstance().Pause_ms(1000);
+  }
   EnvironmentManager::GetInstance().Destroy();
 
   TTF_Quit();
