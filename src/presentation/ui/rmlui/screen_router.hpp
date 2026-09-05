@@ -19,6 +19,15 @@ enum class ScreenId {
   Season,
   Tactics,
   Inbox,
+  Finances,
+  Contracts,
+  Staff,
+  Scouting,
+  YouthAcademy,
+  PlayerDetails,
+  CompetitionDetails,
+  CalendarDetails,
+  MatchDetails,
 };
 
 struct ScreenRoute {
@@ -94,8 +103,8 @@ public:
   }
 
 private:
-  static const std::array<ScreenRoute, 8>& Routes() {
-    static constexpr std::array<ScreenRoute, 8> routes = {{
+  static const std::array<ScreenRoute, 17>& Routes() {
+    static constexpr std::array<ScreenRoute, 17> routes = {{
         {ScreenId::MainMenu, "main-menu", "media/ui/fotbiler/main_menu.rml"},
         {ScreenId::CareerCentral, "career-central", "media/ui/fotbiler/career_central.rml"},
         {ScreenId::Squad, "squad", "media/ui/fotbiler/squad.rml"},
@@ -104,6 +113,15 @@ private:
         {ScreenId::Season, "season", "media/ui/fotbiler/season.rml"},
         {ScreenId::Tactics, "tactics", "media/ui/fotbiler/tactics.rml"},
         {ScreenId::Inbox, "inbox", "media/ui/fotbiler/inbox.rml"},
+        {ScreenId::Finances, "finances", "media/ui/fotbiler/finances.rml"},
+        {ScreenId::Contracts, "contracts", "media/ui/fotbiler/contracts.rml"},
+        {ScreenId::Staff, "staff", "media/ui/fotbiler/staff.rml"},
+        {ScreenId::Scouting, "scouting", "media/ui/fotbiler/scouting.rml"},
+        {ScreenId::YouthAcademy, "youth-academy", "media/ui/fotbiler/youth_academy.rml"},
+        {ScreenId::PlayerDetails, "player-details", "media/ui/fotbiler/player_details.rml"},
+        {ScreenId::CompetitionDetails, "competition-details", "media/ui/fotbiler/competition_details.rml"},
+        {ScreenId::CalendarDetails, "calendar-details", "media/ui/fotbiler/calendar_details.rml"},
+        {ScreenId::MatchDetails, "match-details", "media/ui/fotbiler/match_details.rml"},
     }};
     return routes;
   }
