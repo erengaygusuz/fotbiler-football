@@ -19,6 +19,11 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(RmlUi)
 
+# Preserve the actual SDL target before GF_SDL2_TARGET is wrapped for the
+# production executable. The standalone UI lab must keep linking directly to
+# SDL rather than recursively pulling in the production runtime bridge.
+set(FOTBILER_BASE_SDL2_TARGET ${GF_SDL2_TARGET})
+
 add_library(fotbiler_rmlui STATIC
   ${rmlui_SOURCE_DIR}/Backends/RmlUi_Platform_SDL.cpp
   ${rmlui_SOURCE_DIR}/Backends/RmlUi_Renderer_GL3.cpp
@@ -42,8 +47,8 @@ target_include_directories(fotbiler_rmlui
 
 target_link_libraries(fotbiler_rmlui PUBLIC RmlUi::RmlUi)
 
-if(GF_SDL2_TARGET)
-  target_link_libraries(fotbiler_rmlui PRIVATE ${GF_SDL2_TARGET})
+if(FOTBILER_BASE_SDL2_TARGET)
+  target_link_libraries(fotbiler_rmlui PRIVATE ${FOTBILER_BASE_SDL2_TARGET})
 elseif(SDL2_LIBRARIES)
   target_link_libraries(fotbiler_rmlui PRIVATE ${SDL2_LIBRARIES})
 endif()
@@ -79,8 +84,8 @@ target_link_libraries(fotbiler_sdl_window_bridge
   PUBLIC fotbiler_rmlui
   PRIVATE SQLite::SQLite3 menulib
 )
-if(GF_SDL2_TARGET)
-  target_link_libraries(fotbiler_sdl_window_bridge PRIVATE ${GF_SDL2_TARGET})
+if(FOTBILER_BASE_SDL2_TARGET)
+  target_link_libraries(fotbiler_sdl_window_bridge PRIVATE ${FOTBILER_BASE_SDL2_TARGET})
 elseif(SDL2_LIBRARIES)
   target_link_libraries(fotbiler_sdl_window_bridge PRIVATE ${SDL2_LIBRARIES})
 endif()
@@ -100,8 +105,8 @@ set_property(SOURCE
 # Keep the bridge scoped to the production executable. Directory-wide linking
 # leaks into GoogleTest's install/export graph and breaks configure generation.
 add_library(fotbiler_runtime_sdl INTERFACE)
-if(GF_SDL2_TARGET)
-  target_link_libraries(fotbiler_runtime_sdl INTERFACE ${GF_SDL2_TARGET})
+if(FOTBILER_BASE_SDL2_TARGET)
+  target_link_libraries(fotbiler_runtime_sdl INTERFACE ${FOTBILER_BASE_SDL2_TARGET})
 elseif(SDL2_LIBRARIES)
   target_link_libraries(fotbiler_runtime_sdl INTERFACE ${SDL2_LIBRARIES})
 endif()
@@ -124,8 +129,8 @@ target_include_directories(fotbiler_ui_preview PRIVATE
 )
 target_link_libraries(fotbiler_ui_preview PRIVATE fotbiler_rmlui SQLite::SQLite3)
 
-if(GF_SDL2_TARGET)
-  target_link_libraries(fotbiler_ui_preview PRIVATE ${GF_SDL2_TARGET})
+if(FOTBILER_BASE_SDL2_TARGET)
+  target_link_libraries(fotbiler_ui_preview PRIVATE ${FOTBILER_BASE_SDL2_TARGET})
 elseif(SDL2_LIBRARIES)
   target_link_libraries(fotbiler_ui_preview PRIVATE ${SDL2_LIBRARIES})
 endif()
