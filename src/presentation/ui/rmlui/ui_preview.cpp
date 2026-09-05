@@ -13,7 +13,8 @@ namespace {
 
 constexpr int kInitialWidth = 1600;
 constexpr int kInitialHeight = 900;
-constexpr const char* kPreviewDocument = "media/ui/fotbiler/main_menu.rml";
+constexpr const char* kMainMenuDocument = "media/ui/fotbiler/main_menu.rml";
+constexpr const char* kCareerCentralDocument = "media/ui/fotbiler/career_central.rml";
 
 void UpdateDrawableSize(SDL_Window* window, blunted::ui::RmlUiSystem& ui) {
   int width = 0;
@@ -23,6 +24,14 @@ void UpdateDrawableSize(SDL_Window* window, blunted::ui::RmlUiSystem& ui) {
     glViewport(0, 0, width, height);
     ui.SetDimensions(width, height);
   }
+}
+
+bool LoadPreviewDocument(blunted::ui::RmlUiSystem& ui, const char* path) {
+  if (ui.LoadDocument(path)) {
+    return true;
+  }
+  std::fprintf(stderr, "Fotbiler UI Preview: could not load %s\n", path);
+  return false;
 }
 
 }  // namespace
@@ -77,8 +86,7 @@ int main() {
     return 1;
   }
 
-  if (!ui.LoadDocument(kPreviewDocument)) {
-    std::fprintf(stderr, "Fotbiler UI Preview: could not load %s\n", kPreviewDocument);
+  if (!LoadPreviewDocument(ui, kMainMenuDocument)) {
     ui.Shutdown();
     SDL_GL_DeleteContext(glContext);
     SDL_DestroyWindow(window);
@@ -96,6 +104,10 @@ int main() {
         running = false;
       } else if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE) {
         running = false;
+      } else if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_F1) {
+        LoadPreviewDocument(ui, kMainMenuDocument);
+      } else if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_F2) {
+        LoadPreviewDocument(ui, kCareerCentralDocument);
       } else if (event.type == SDL_WINDOWEVENT &&
                  (event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED ||
                   event.window.event == SDL_WINDOWEVENT_RESIZED)) {
