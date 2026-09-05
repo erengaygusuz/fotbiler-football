@@ -86,3 +86,9 @@ body { font-family: "Fotbiler Sans"; }
 .ui-subtab, .tactics-subtab { position: relative; color: #657a87; letter-spacing: 1px; }
 .ui-subtab.active, .tactics-subtab.active { color: #10202d; font-family: "Fotbiler Display"; }
 .ui-subtab.active:after, .tactics-subtab.active:after { content: ""; position: absolute; left: 18px; right: 18px; bottom: 0; height: 4px; background-color: #19d3b1; }
+
+/* M1A.3: reusable metric bar for tactical and analytical values. */
+.ui-metric-row, .metric-row { display: flex; width: 100%; justify-content: space-between; }
+.ui-metric-track, .metric-track { width: 100%; overflow: hidden; background-color: #27495f; }
+.ui-metric-fill, .metric-fill { height: 100%; background-color: #19d3b1; }
+.ui-metric-value { color: #ffffff; font-family: "Fotbiler Display"; }
