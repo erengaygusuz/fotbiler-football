@@ -14,6 +14,8 @@
 
 #include <SDL2/SDL.h>
 
+#include <algorithm>
+
 #include "interface_renderer3d.hpp"
 
 #ifdef WIN32
@@ -65,6 +67,20 @@ public:
       context_height = drawableHeight;
       SetViewport(0, 0, context_width, context_height);
     }
+
+    // These uniforms were initialized from the original context dimensions.
+    // Refresh them after a live resolution/fullscreen change so the next match
+    // does not use stale deferred/post-process sampling coordinates.
+    const char* contextShaders[] = {"ambient", "lighting", "postprocess"};
+    for (const char* shaderName : contextShaders) {
+      if (shaders.find(shaderName) == shaders.end()) continue;
+      UseShader(shaderName);
+      SetUniformFloat(shaderName, "contextX", 0.0f);
+      SetUniformFloat(shaderName, "contextY", 0.0f);
+      SetUniformFloat(shaderName, "contextWidth", static_cast<float>(context_width));
+      SetUniformFloat(shaderName, "contextHeight", static_cast<float>(context_height));
+    }
+    UseShader("");
 
     return result == 0;
   }
