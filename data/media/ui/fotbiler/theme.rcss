@@ -124,15 +124,20 @@ body {
   nav: auto;
 }
 
+/* Focus and active state must stay visually distinct. The green underline belongs
+   only to the active route; focus uses text colour so automatic first-focus cannot
+   make two tabs look selected at the same time. */
 .tab[data-route]:focus {
   color: var(--white);
-  border-bottom-width: 4px;
-  border-bottom-color: var(--accent);
 }
 
 .career-tab[data-route]:focus,
 .tactics-subtab[data-route]:focus {
   color: #ffffff;
+  border-bottom-width: 0px;
+}
+
+.career-tab.active[data-route]:focus {
   border-bottom-width: 4px;
   border-bottom-color: #19d3b1;
 }
