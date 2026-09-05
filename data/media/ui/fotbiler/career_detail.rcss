@@ -1,0 +1,50 @@
+body { font-family: "Fotbiler Sans"; }
+
+.career-detail-content { display: flex; width: 100%; height: 70%; padding-top: 18px; }
+.career-detail-main { width: 61%; height: 100%; margin-right: 2%; }
+.career-detail-side { width: 37%; height: 100%; }
+.career-detail-card { width: 100%; box-sizing: border-box; padding: 22px 24px; }
+.career-detail-card.full { height: 100%; }
+.career-detail-card.top { height: 56%; }
+.career-detail-card.bottom { height: 42%; margin-top: 2%; }
+.career-detail-card.dark { background-color: #17334a; border-color: #17334a; color: #ffffff; }
+.career-detail-card.muted { background-color: #dfe5e9; border-color: #dfe5e9; }
+.career-detail-card.dark .card-kicker { color: #a9bbc6; }
+
+.career-detail-title { display: block; margin-top: 5px; font-family: "Fotbiler Display"; font-size: 32px; line-height: 34px; }
+.career-detail-title.light { color: #ffffff; }
+.career-detail-subtitle { display: block; margin-top: 4px; color: #6b7d88; font-size: 11px; letter-spacing: 0.8px; }
+.dark .career-detail-subtitle { color: #9fb2bd; }
+
+.detail-stat-grid { display: flex; flex-wrap: wrap; width: 100%; margin-top: 18px; }
+.detail-stat { width: 31%; margin-right: 2%; margin-bottom: 14px; padding: 11px 12px; box-sizing: border-box; background-color: #edf0f2; }
+.dark .detail-stat { background-color: #203f55; }
+.detail-stat span, .detail-stat strong { display: block; }
+.detail-stat span { color: #71838f; font-size: 9px; letter-spacing: 0.8px; }
+.dark .detail-stat span { color: #9fb2bd; }
+.detail-stat strong { margin-top: 3px; font-family: "Fotbiler Display"; font-size: 19px; color: #10202d; }
+.dark .detail-stat strong { color: #ffffff; }
+.detail-stat.accent strong { color: #19d3b1; }
+
+.detail-list-head, .detail-list-row { display: flex; width: 100%; box-sizing: border-box; }
+.detail-list-head { margin-top: 14px; padding: 0 8px 6px 8px; border-bottom-width: 1px; border-bottom-color: #d3dadd; color: #81919b; font-size: 9px; letter-spacing: 0.7px; }
+.detail-list-row { padding: 9px 8px; border-bottom-width: 1px; border-bottom-color: #e1e6e8; color: #304957; font-size: 11px; }
+.detail-list-row.active { background-color: #19d3b1; color: #10202d; }
+.detail-list-row strong { font-family: "Fotbiler Display"; color: #10202d; }
+.detail-list-row.active strong { color: #10202d; }
+.detail-list-row .right { text-align: right; }
+
+.detail-hero-number { display: block; margin-top: 8px; font-family: "Fotbiler Display"; font-size: 58px; line-height: 58px; color: #19d3b1; }
+.detail-hero-label { display: block; color: #9fb2bd; font-size: 10px; letter-spacing: 1px; }
+.detail-copy { display: block; width: 88%; margin-top: 18px; color: #b8c6ce; font-size: 14px; line-height: 19px; }
+.detail-divider { width: 100%; height: 1px; margin-top: 17px; background-color: #34546a; }
+.detail-action { display: inline-block; margin-top: 16px; margin-right: 7px; padding: 7px 10px; background-color: #244961; color: #d6e0e5; font-size: 9px; letter-spacing: 0.8px; }
+.detail-action.primary { background-color: #19d3b1; color: #10202d; }
+
+.detail-progress-row { display: flex; width: 100%; margin-top: 12px; justify-content: space-between; color: #607887; font-size: 10px; }
+.detail-progress-row strong { font-family: "Fotbiler Display"; color: #10202d; }
+.detail-progress-track { width: 100%; height: 7px; margin-top: 5px; background-color: #cdd6db; }
+.detail-progress-fill { height: 100%; background-color: #19d3b1; }
+
+.detail-note { display: block; margin-top: 10px; padding: 9px 11px; background-color: #edf0f2; color: #5d7482; font-size: 10px; line-height: 14px; }
+.dark .detail-note { background-color: #203f55; color: #b7c5cd; }
