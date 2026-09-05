@@ -1,0 +1,96 @@
+.confirm-overlay {
+  display: none;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(4, 12, 20, 0.82);
+}
+
+.confirm-panel {
+  display: block;
+  position: absolute;
+  left: 29%;
+  top: 31%;
+  width: 42%;
+  min-height: 34%;
+  box-sizing: border-box;
+  padding: 30px 34px 28px 34px;
+  background-color: #f4f6f7;
+  color: #0a1c2a;
+  border-top-width: 5px;
+  border-top-color: #19d3b1;
+}
+
+.confirm-kicker {
+  display: block;
+  margin-bottom: 6px;
+  color: #6b7d88;
+  font-size: 12px;
+  letter-spacing: 1.5px;
+}
+
+.confirm-title {
+  display: block;
+  margin-bottom: 12px;
+  font-family: "Fotbiler Display";
+  font-size: 34px;
+  line-height: 38px;
+  color: #0a1c2a;
+}
+
+.confirm-copy {
+  display: block;
+  width: 92%;
+  margin-bottom: 25px;
+  color: #637581;
+  font-size: 15px;
+  line-height: 20px;
+}
+
+.confirm-actions {
+  display: flex;
+  width: 100%;
+  height: 52px;
+}
+
+.confirm-button {
+  display: block;
+  box-sizing: border-box;
+  width: 49%;
+  height: 52px;
+  padding-top: 16px;
+  background-color: #17384d;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 900;
+  text-align: center;
+  nav: auto;
+}
+
+.confirm-button + .confirm-button {
+  margin-left: 2%;
+}
+
+.confirm-button:focus {
+  background-color: #19d3b1;
+  color: #071523;
+}
+
+.confirm-button.danger {
+  background-color: #7d284d;
+}
+
+.confirm-button.danger:focus {
+  background-color: #dd3c91;
+  color: #ffffff;
+}
+
+.confirm-hint {
+  display: block;
+  margin-top: 17px;
+  color: #7c8d97;
+  font-size: 11px;
+  letter-spacing: .4px;
+}
