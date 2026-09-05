@@ -440,9 +440,6 @@ int LaunchGameplayFootball(const std::string& executablePath, PreviewExitAction 
     }
   }
 
-  // Use the exact current drawable geometry, not just the saved logical
-  // resolution. This keeps the frontend loading document and gameplay loading
-  // document pixel-identical across fullscreen/HiDPI monitor handoff.
   SetEnvInt("FOTBILER_UI_CONTEXT_FULLSCREEN", settings.fullscreen ? 1 : 0);
   SetEnvInt("FOTBILER_UI_CONTEXT_X", contextWidth);
   SetEnvInt("FOTBILER_UI_CONTEXT_Y", contextHeight);
@@ -476,8 +473,6 @@ int LaunchGameplayFootball(const std::string& executablePath, PreviewExitAction 
     std::fprintf(stderr, "Fotbiler UI Preview: failed to launch gameplayfootball.\n");
   }
 
-  // The same frontend process resumes after the match. Do not recursively
-  // launch a second fotbiler_ui_preview process.
   SDL_setenv("FOTBILER_UI_CAREER_MATCH", "0", 1);
   SDL_setenv("FOTBILER_UI_QUICK_MATCH", "0", 1);
   SDL_setenv("FOTBILER_UI_MODERN_SESSION", "0", 1);
@@ -783,11 +778,11 @@ int main() {
                      runtimeResult);
       }
 
-      // Child process focus/context changes must not force a second frontend
-      // process. Resume this exact SDL window and RmlUi context in place.
+      // Prepare the return document and its first rendered frame before asking
+      // the compositor to expose/raise the frontend again. The old order raised
+      // this window while its front buffer still contained MatchLoading, which
+      // caused a visible one-frame loading flash after the gameplay child quit.
       SDL_GL_MakeCurrent(window, glContext);
-      SDL_ShowWindow(window);
-      SDL_RaiseWindow(window);
       UpdateDrawableSize(window, ui);
 
       const blunted::ui::ScreenId returnScreen =
@@ -804,6 +799,14 @@ int main() {
       if (!router.Reset(returnScreen)) {
         std::fprintf(stderr, "Fotbiler UI Preview: could not restore frontend after match.\n");
         running = false;
+      } else {
+        glClearColor(0.035f, 0.055f, 0.09f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+        ui.Update();
+        ui.Render();
+        SDL_GL_SwapWindow(window);
+        SDL_ShowWindow(window);
+        SDL_RaiseWindow(window);
       }
     }
   }
