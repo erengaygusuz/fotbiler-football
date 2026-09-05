@@ -1,0 +1,53 @@
+<rml>
+<head>
+  <title>Fotbiler Season</title>
+  <link type="text/rcss" href="theme.rcss" />
+  <link type="text/rcss" href="career_central.rcss" />
+  <link type="text/rcss" href="season.rcss" />
+</head>
+<body>
+  <div class="career-screen">
+    <div class="career-bg-deep"></div><div class="career-bg-blue"></div><div class="career-bg-accent"></div>
+    <div class="career-shell">
+      <div class="career-topbar">
+        <div class="club-identity"><div class="club-crest">F</div><div class="club-copy"><div class="club-name">FOTBILER FC</div><div class="club-meta">MANAGER CAREER · SEASON 2026/27</div></div></div>
+        <div class="career-status"><div class="status-block"><div class="status-label">LEAGUE POSITION</div><div class="status-value">3RD</div></div><div class="status-block date-block"><div class="status-label">AUGUST</div><div class="status-value">17</div></div></div>
+      </div>
+      <div class="career-tabs"><div class="career-tab">CENTRAL</div><div class="career-tab">SQUAD</div><div class="career-tab">TRANSFERS</div><div class="career-tab">OFFICE</div><div class="career-tab active">SEASON</div></div>
+
+      <div class="season-content">
+        <div class="season-top-row">
+          <div class="season-card calendar-card" tabindex="0">
+            <div class="season-header"><div><div class="card-kicker">CALENDAR</div><div class="season-title">AUGUST 2026</div></div><div class="month-nav">‹ JUL&nbsp;&nbsp;&nbsp; SEP ›</div></div>
+            <div class="weekday-row"><span>MON</span><span>TUE</span><span>WED</span><span>THU</span><span>FRI</span><span>SAT</span><span>SUN</span></div>
+            <div class="calendar-grid">
+              <div class="day muted">27</div><div class="day muted">28</div><div class="day muted">29</div><div class="day muted">30</div><div class="day muted">31</div><div class="day"><b>1</b></div><div class="day"><b>2</b></div>
+              <div class="day"><b>3</b></div><div class="day"><b>4</b></div><div class="day"><b>5</b></div><div class="day"><b>6</b></div><div class="day"><b>7</b></div><div class="day"><b>8</b></div><div class="day"><b>9</b></div>
+              <div class="day"><b>10</b></div><div class="day"><b>11</b></div><div class="day"><b>12</b></div><div class="day"><b>13</b></div><div class="day"><b>14</b></div><div class="day"><b>15</b></div><div class="day"><b>16</b></div>
+              <div class="day current"><b>17</b><span class="day-note">TODAY</span></div><div class="day"><b>18</b></div><div class="day fixture"><b>19</b><span class="fixture-tag home">H</span><span class="day-note">ANKARA UTD</span></div><div class="day"><b>20</b></div><div class="day"><b>21</b></div><div class="day"><b>22</b></div><div class="day"><b>23</b></div>
+              <div class="day fixture"><b>24</b><span class="fixture-tag away">A</span><span class="day-note">CAPITAL 06</span></div><div class="day"><b>25</b></div><div class="day"><b>26</b></div><div class="day"><b>27</b></div><div class="day"><b>28</b></div><div class="day"><b>29</b></div><div class="day"><b>30</b></div>
+              <div class="day"><b>31</b></div><div class="day muted">1</div><div class="day muted">2</div><div class="day muted">3</div><div class="day muted">4</div><div class="day muted">5</div><div class="day muted">6</div>
+            </div>
+          </div>
+
+          <div class="season-card competitions-card" tabindex="0">
+            <div class="card-kicker">COMPETITIONS</div><div class="season-title light">SEASON OVERVIEW</div>
+            <div class="competition-row active-comp"><div class="comp-badge">L</div><div class="comp-copy"><strong>FOTBILER PREMIER LEAGUE</strong><span>3RD · 4 PTS</span></div><div class="comp-state">ACTIVE</div></div>
+            <div class="competition-row"><div class="comp-badge cup">C</div><div class="comp-copy"><strong>NATIONAL CUP</strong><span>ROUND 3 · OCTOBER</span></div><div class="comp-state dim">UPCOMING</div></div>
+            <div class="competition-row"><div class="comp-badge euro">E</div><div class="comp-copy"><strong>CONTINENTAL QUALIFIER</strong><span>PLAYOFF PATH</span></div><div class="comp-state dim">SEP 12</div></div>
+            <div class="season-progress"><span>SEASON PROGRESS</span><strong>8%</strong></div><div class="progress-track"><div class="progress-fill"></div></div>
+          </div>
+        </div>
+
+        <div class="season-bottom-row">
+          <div class="season-card table-card" tabindex="0"><div class="season-header"><div class="card-kicker">LEAGUE TABLE</div><div class="small-link">FULL TABLE</div></div><div class="season-table-head"><span>POS</span><span>CLUB</span><span>PL</span><span>PTS</span></div><div class="season-table-row"><span>1</span><span>NORTH CITY</span><span>2</span><span>6</span></div><div class="season-table-row"><span>2</span><span>ANKARA UNITED</span><span>2</span><span>6</span></div><div class="season-table-row current-team"><span>3</span><span>FOTBILER FC</span><span>2</span><span>4</span></div><div class="season-table-row"><span>4</span><span>CAPITAL 06</span><span>2</span><span>4</span></div></div>
+          <div class="season-card results-card" tabindex="0"><div class="card-kicker">RECENT RESULTS</div><div class="result-row"><span>FOT</span><strong>2–0</strong><span>BLU</span></div><div class="result-row"><span>NOR</span><strong>1–1</strong><span>FOT</span></div><div class="next-label">NEXT · AUG 19</div><div class="result-row next"><span>FOT</span><strong>VS</strong><span>ANK</span></div></div>
+          <div class="season-card stats-card" tabindex="0"><div class="card-kicker">SEASON STATS</div><div class="big-stat">4</div><div class="big-stat-label">POINTS</div><div class="mini-stat"><span>GOALS</span><strong>5</strong></div><div class="mini-stat"><span>CONCEDED</span><strong>2</strong></div><div class="mini-stat"><span>CLEAN SHEETS</span><strong>1</strong></div></div>
+        </div>
+      </div>
+
+      <div class="career-control-strip"><div class="control-left"><span class="hint"><span class="hint-key">ENTER</span>Select</span><span class="hint"><span class="hint-key">ARROWS</span>Navigate</span><span class="hint"><span class="hint-key">F2</span>Central</span><span class="hint"><span class="hint-key">F3</span>Squad</span><span class="hint"><span class="hint-key">F4</span>Transfers</span><span class="hint"><span class="hint-key">F5</span>Office</span><span class="hint"><span class="hint-key">F6</span>Season</span></div><div class="control-right">SEASON · AUGUST 2026</div></div>
+    </div>
+  </div>
+</body>
+</rml>

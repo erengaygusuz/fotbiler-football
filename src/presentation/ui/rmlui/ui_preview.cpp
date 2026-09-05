@@ -18,6 +18,7 @@ constexpr const char* kCareerCentralDocument = "media/ui/fotbiler/career_central
 constexpr const char* kSquadDocument = "media/ui/fotbiler/squad.rml";
 constexpr const char* kTransfersDocument = "media/ui/fotbiler/transfers.rml";
 constexpr const char* kOfficeDocument = "media/ui/fotbiler/office.rml";
+constexpr const char* kSeasonDocument = "media/ui/fotbiler/season.rml";
 
 void UpdateDrawableSize(SDL_Window* window, blunted::ui::RmlUiSystem& ui) {
   int width = 0;
@@ -117,6 +118,8 @@ int main() {
         LoadPreviewDocument(ui, kTransfersDocument);
       } else if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_F5) {
         LoadPreviewDocument(ui, kOfficeDocument);
+      } else if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_F6) {
+        LoadPreviewDocument(ui, kSeasonDocument);
       } else if (event.type == SDL_WINDOWEVENT &&
                  (event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED ||
                   event.window.event == SDL_WINDOWEVENT_RESIZED)) {
