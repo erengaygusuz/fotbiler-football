@@ -90,7 +90,13 @@ public:
   void SetMenuAction(e_MenuAction menuAction) { this->menuAction = menuAction; }
 
 protected:
+  bool PrepareFotbilerUiDirectMatch();
+  bool PrepareFotbilerUiQuickMatch();
+  bool PrepareFotbilerUiCareerMatch();
+  void SetSingleControlledSide(int side);
+
   e_MenuAction menuAction;
+  bool uiDirectMatchReady;
 
   Gui2Image* menuBackground;
   Lockable<QueuedFixture> queuedFixture;  // todo: we can probably unlock this stuff
