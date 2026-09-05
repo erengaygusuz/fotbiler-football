@@ -34,6 +34,13 @@ bool LoadPreviewDocument(blunted::ui::RmlUiSystem& ui, const std::string& path) 
   return false;
 }
 
+void NavigatePendingRoute(blunted::ui::RmlUiSystem& ui, blunted::ui::ScreenRouter& router) {
+  const std::string route = ui.ConsumeRouteRequest();
+  if (!route.empty() && !router.NavigateByName(route)) {
+    std::fprintf(stderr, "Fotbiler UI Preview: unknown or failed route %s\n", route.c_str());
+  }
+}
+
 }  // namespace
 
 int main() {
@@ -102,33 +109,69 @@ int main() {
   while (running) {
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
+      bool forwardToUi = true;
+      bool activateFocusedElement = false;
+
       if (event.type == SDL_QUIT) {
         running = false;
-      } else if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE) {
-        if (!router.Back()) {
-          running = false;
+        forwardToUi = false;
+      } else if (event.type == SDL_KEYDOWN && event.key.repeat == 0) {
+        switch (event.key.keysym.sym) {
+          case SDLK_ESCAPE:
+            if (!router.Back()) {
+              running = false;
+            }
+            forwardToUi = false;
+            break;
+          case SDLK_RETURN:
+          case SDLK_KP_ENTER:
+            activateFocusedElement = true;
+            forwardToUi = false;
+            break;
+          case SDLK_F1:
+            router.Navigate(blunted::ui::ScreenId::MainMenu);
+            forwardToUi = false;
+            break;
+          case SDLK_F2:
+            router.Navigate(blunted::ui::ScreenId::CareerCentral);
+            forwardToUi = false;
+            break;
+          case SDLK_F3:
+            router.Navigate(blunted::ui::ScreenId::Squad);
+            forwardToUi = false;
+            break;
+          case SDLK_F4:
+            router.Navigate(blunted::ui::ScreenId::Transfers);
+            forwardToUi = false;
+            break;
+          case SDLK_F5:
+            router.Navigate(blunted::ui::ScreenId::Office);
+            forwardToUi = false;
+            break;
+          case SDLK_F6:
+            router.Navigate(blunted::ui::ScreenId::Season);
+            forwardToUi = false;
+            break;
+          case SDLK_F7:
+            router.Navigate(blunted::ui::ScreenId::Tactics);
+            forwardToUi = false;
+            break;
+          default:
+            break;
         }
-      } else if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_F1) {
-        router.Navigate(blunted::ui::ScreenId::MainMenu);
-      } else if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_F2) {
-        router.Navigate(blunted::ui::ScreenId::CareerCentral);
-      } else if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_F3) {
-        router.Navigate(blunted::ui::ScreenId::Squad);
-      } else if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_F4) {
-        router.Navigate(blunted::ui::ScreenId::Transfers);
-      } else if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_F5) {
-        router.Navigate(blunted::ui::ScreenId::Office);
-      } else if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_F6) {
-        router.Navigate(blunted::ui::ScreenId::Season);
-      } else if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_F7) {
-        router.Navigate(blunted::ui::ScreenId::Tactics);
       } else if (event.type == SDL_WINDOWEVENT &&
                  (event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED ||
                   event.window.event == SDL_WINDOWEVENT_RESIZED)) {
         UpdateDrawableSize(window, ui);
       }
 
-      ui.HandleEvent(event);
+      if (forwardToUi) {
+        ui.HandleEvent(event);
+      }
+      if (activateFocusedElement) {
+        ui.ActivateFocusedElement();
+      }
+      NavigatePendingRoute(ui, router);
     }
 
     glClearColor(0.035f, 0.055f, 0.09f, 1.0f);
