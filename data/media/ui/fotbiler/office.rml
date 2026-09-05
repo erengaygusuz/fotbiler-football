@@ -2,7 +2,7 @@
 <head>
   <title>Fotbiler Office</title>
   <link type="text/rcss" href="theme.rcss" />
-  <link type="text/rcss" href="career_central.rcss" />
+  <link type="text/rcss" href="career_shell.rcss" />
   <link type="text/rcss" href="office.rcss" />
 </head>
 <body>
