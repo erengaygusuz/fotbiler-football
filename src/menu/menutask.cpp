@@ -62,6 +62,17 @@ bool DatabaseHasTeam(int teamID) {
   return result && !result->data.empty();
 }
 
+int FirstDatabaseTeamID() {
+  if (!GetDB()) {
+    return 0;
+  }
+  auto result = GetDB()->Query("select id from teams order by id limit 1");
+  if (!result || result->data.empty() || result->data.front().empty()) {
+    return 0;
+  }
+  return std::atoi(result->data.front().front().c_str());
+}
+
 std::string DatabaseTeamName(int teamID) {
   if (!GetDB() || teamID <= 0) {
     return "Opponent";
@@ -72,6 +83,21 @@ std::string DatabaseTeamName(int teamID) {
     return result->data.front().front();
   }
   return "Opponent";
+}
+
+std::string DatabaseTeamLeague(int teamID) {
+  if (!GetDB() || teamID <= 0) {
+    return "Default League";
+  }
+  auto result = GetDB()->Query(
+      "select coalesce(leagues.name, 'Default League') from teams "
+      "left join leagues on teams.league_id = leagues.id where teams.id = " +
+      std::to_string(teamID) + " limit 1");
+  if (result && !result->data.empty() && !result->data.front().empty() &&
+      !result->data.front().front().empty()) {
+    return result->data.front().front();
+  }
+  return "Default League";
 }
 
 bool FindCareerOpponent(int userTeamID, int currentWeek, int& opponentTeamID,
@@ -100,6 +126,56 @@ bool FindCareerOpponent(int userTeamID, int currentWeek, int& opponentTeamID,
   opponentTeamID = std::atoi(result->data[index][0].c_str());
   opponentName = result->data[index][1];
   return opponentTeamID > 0;
+}
+
+bool EnsureModernUiCareerSave(CareerDatabase& career) {
+  if (career.GetActiveSave()) {
+    return true;
+  }
+  if (career.LoadCareerSlot(-1) || career.LoadCareerSlot(0)) {
+    return true;
+  }
+
+  // The RmlUi career screens used to be backed only by BuildCareerPreviewSave.
+  // Launching PLAY MATCH therefore started a new gameplayfootball process with
+  // no persisted CareerDatabase state, so MenuTask correctly fell back to the
+  // legacy main menu. Until the full new-career wizard is migrated, bootstrap
+  // one real save at the integration boundary so the modern career flow always
+  // has a durable fixture/result target.
+  int teamID = DatabaseHasTeam(3) ? 3 : FirstDatabaseTeamID();
+  if (teamID <= 0 || !DatabaseHasTeam(teamID)) {
+    std::fprintf(stderr, "[fotbiler-ui] Career Match: database has no usable team\n");
+    return false;
+  }
+
+  if (!career.CreateNewCareer("FOTBILER FC", "manager", "EREN")) {
+    std::fprintf(stderr, "[fotbiler-ui] Career Match: could not create integration career save\n");
+    return false;
+  }
+
+  CareerSave* save = career.GetActiveSave();
+  if (!save) {
+    return false;
+  }
+  save->club.clubID = teamID;
+  save->club.clubName = "FOTBILER FC";
+  save->club.leagueName = DatabaseTeamLeague(teamID);
+  save->club.stadiumName = "FOTBILER STADIUM";
+  save->stadium.name = "FOTBILER STADIUM";
+  save->season.currentWeek = std::max(1, save->season.currentWeek);
+  save->season.maxWeeks = std::max(1, save->season.maxWeeks);
+  save->season.inPreseason = false;
+
+  const bool primarySaved = career.SaveCareerData();
+  const bool autoSaved = career.AutoSave();
+  if (!primarySaved && !autoSaved) {
+    std::fprintf(stderr, "[fotbiler-ui] Career Match: integration career could not be persisted\n");
+    return false;
+  }
+
+  std::printf("[fotbiler-ui] Career Match: bootstrapped persisted modern career for team %d\n",
+              teamID);
+  return true;
 }
 
 }  // namespace
@@ -275,17 +351,32 @@ bool MenuTask::PrepareFotbilerUiQuickMatch() {
 bool MenuTask::PrepareFotbilerUiCareerMatch() {
   CareerDatabase& career = CareerDatabase::GetInstance();
   career.Initialize("user/career");
-  if (!career.GetActiveSave()) {
-    if (!career.LoadCareerSlot(-1) && !career.LoadCareerSlot(0)) {
-      std::fprintf(stderr, "[fotbiler-ui] Career Match: no career save could be loaded\n");
-      return false;
-    }
+  if (!EnsureModernUiCareerSave(career)) {
+    std::fprintf(stderr, "[fotbiler-ui] Career Match: no usable career save is available\n");
+    return false;
   }
 
   CareerSave* save = career.GetActiveSave();
-  if (!save || save->club.clubID <= 0 || !DatabaseHasTeam(save->club.clubID)) {
-    std::fprintf(stderr, "[fotbiler-ui] Career Match: active club has no valid database team\n");
+  if (!save) {
     return false;
+  }
+
+  if (save->club.clubID <= 0 || !DatabaseHasTeam(save->club.clubID)) {
+    const int repairedTeamID = DatabaseHasTeam(3) ? 3 : FirstDatabaseTeamID();
+    if (repairedTeamID <= 0 || !DatabaseHasTeam(repairedTeamID)) {
+      std::fprintf(stderr, "[fotbiler-ui] Career Match: active club has no valid database team\n");
+      return false;
+    }
+    std::fprintf(stderr,
+                 "[fotbiler-ui] Career Match: repairing invalid club id %d to database team %d\n",
+                 save->club.clubID, repairedTeamID);
+    save->club.clubID = repairedTeamID;
+    if (save->club.clubName.empty()) {
+      save->club.clubName = DatabaseTeamName(repairedTeamID);
+    }
+    save->club.leagueName = DatabaseTeamLeague(repairedTeamID);
+    career.SaveCareerData();
+    career.AutoSave();
   }
 
   const int userTeamID = save->club.clubID;
