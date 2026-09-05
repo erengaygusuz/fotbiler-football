@@ -1,6 +1,7 @@
 #include "rmlui_system.hpp"
 
 #include <memory>
+#include <string>
 
 #include <RmlUi/Core/Context.h>
 #include <RmlUi/Core/Core.h>
@@ -10,6 +11,32 @@
 #include "RmlUi_Renderer_GL3.h"
 
 namespace blunted::ui {
+namespace {
+
+std::string GetExecutableAssetPath(const char* relativePath) {
+  char* basePath = SDL_GetBasePath();
+  std::string path = basePath ? basePath : "";
+  SDL_free(basePath);
+  path += relativePath;
+  return path;
+}
+
+bool LoadFotbilerFonts() {
+  const std::string sansPath =
+      GetExecutableAssetPath("media/fonts/alegreya/AlegreyaSans-ExtraBold.ttf");
+  const std::string displayPath =
+      GetExecutableAssetPath("media/fonts/alegreya/AlegreyaSansSC-Black.ttf");
+
+  const bool sansLoaded =
+      Rml::LoadFontFace(sansPath, "Fotbiler Sans", Rml::Style::FontStyle::Normal,
+                        Rml::Style::FontWeight::Normal);
+  const bool displayLoaded =
+      Rml::LoadFontFace(displayPath, "Fotbiler Display", Rml::Style::FontStyle::Normal,
+                        Rml::Style::FontWeight::Normal);
+  return sansLoaded && displayLoaded;
+}
+
+}  // namespace
 
 class RmlUiSystem::Impl {
 public:
@@ -62,6 +89,11 @@ bool RmlUiSystem::Initialize(SDL_Window* window, int width, int height) {
     return false;
   }
   impl->rmlInitialized = true;
+
+  if (!LoadFotbilerFonts()) {
+    Shutdown();
+    return false;
+  }
 
   impl->context = Rml::CreateContext("fotbiler", Rml::Vector2i(width, height));
   if (!impl->context) {

@@ -1,13 +1,3 @@
-@font-face {
-  font-family: "Fotbiler Sans";
-  src: "/media/fonts/alegreya/AlegreyaSans-ExtraBold.ttf";
-}
-
-@font-face {
-  font-family: "Fotbiler Display";
-  src: "/media/fonts/alegreya/AlegreyaSansSC-Black.ttf";
-}
-
 body {
   --bg-deep: #07121f;
   --bg-mid: #10283a;
