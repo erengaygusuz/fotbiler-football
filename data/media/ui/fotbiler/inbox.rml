@@ -3,6 +3,7 @@
   <title>Fotbiler Inbox</title>
   <link type="text/rcss" href="theme.rcss" />
   <link type="text/rcss" href="career_shell.rcss" />
+  <link type="text/rcss" href="career_detail.rcss" />
   <link type="text/rcss" href="inbox.rcss" />
 </head>
 <body>
@@ -14,6 +15,7 @@
         <div class="career-status"><div class="status-block"><div class="status-label">UNREAD</div><div id="inbox-unread-count" class="status-value">3</div></div><div class="status-block date-block"><div class="status-label">TOTAL</div><div id="inbox-total-count" class="status-value">4</div></div></div>
       </div>
       <div class="career-tabs"><div class="career-tab" tabindex="0" data-route="career-central">CENTRAL</div><div class="career-tab" tabindex="0" data-route="squad">SQUAD</div><div class="career-tab" tabindex="0" data-route="transfers">TRANSFERS</div><div class="career-tab active" tabindex="0" data-route="office">OFFICE</div><div class="career-tab" tabindex="0" data-route="season">SEASON</div></div>
+      <div class="career-detail-nav"><div class="career-detail-nav-item active" tabindex="0" data-route="inbox">INBOX</div><div class="career-detail-nav-item" tabindex="0" data-route="finances">FINANCES</div><div class="career-detail-nav-item" tabindex="0" data-route="contracts">CONTRACTS</div><div class="career-detail-nav-item" tabindex="0" data-route="staff">STAFF</div></div>
 
       <div class="inbox-content">
         <div class="inbox-list-column">
