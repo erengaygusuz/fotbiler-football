@@ -25,8 +25,6 @@
 
 namespace {
 
-constexpr int kInitialWidth = 1600;
-constexpr int kInitialHeight = 900;
 constexpr Uint64 kLoadingHoldMs = 700;
 
 struct TeamChoice {
@@ -368,16 +366,6 @@ std::string GetGameplayExecutablePath() {
   return path;
 }
 
-std::string GetPreviewExecutablePath() {
-  std::string path = GetExecutableBasePath();
-#ifdef _WIN32
-  path += "fotbiler_ui_preview.exe";
-#else
-  path += "fotbiler_ui_preview";
-#endif
-  return path;
-}
-
 void SetEnvInt(const char* name, int value) {
   const std::string text = std::to_string(value);
   SDL_setenv(name, text.c_str(), 1);
@@ -389,13 +377,26 @@ void SetEnvFloat(const char* name, float value) {
   SDL_setenv(name, text, 1);
 }
 
+void PublishWindowPlacement(SDL_Window* window) {
+  if (!window) return;
+  const int displayIndex = SDL_GetWindowDisplayIndex(window);
+  if (displayIndex >= 0) SetEnvInt("FOTBILER_UI_DISPLAY_INDEX", displayIndex);
+  int x = 0;
+  int y = 0;
+  SDL_GetWindowPosition(window, &x, &y);
+  SetEnvInt("FOTBILER_UI_WINDOW_X", x);
+  SetEnvInt("FOTBILER_UI_WINDOW_Y", y);
+}
+
 int LaunchGameplayFootball(const std::string& executablePath, PreviewExitAction action,
-                           const QuickMatchSetupState& quickMatch, const RuntimeSettingsState& settings) {
+                           const QuickMatchSetupState& quickMatch,
+                           const RuntimeSettingsState& settings, SDL_Window* frontendWindow) {
   if (executablePath.empty() || !std::filesystem::exists(executablePath)) {
     std::fprintf(stderr, "Fotbiler UI Preview: gameplay executable not found at %s\n", executablePath.c_str());
     return 1;
   }
 
+  PublishWindowPlacement(frontendWindow);
   SaveRuntimeSettings(settings);
   SetEnvInt("FOTBILER_UI_CONTEXT_FULLSCREEN", settings.fullscreen ? 1 : 0);
   SetEnvInt("FOTBILER_UI_CONTEXT_X", settings.Width());
@@ -417,24 +418,19 @@ int LaunchGameplayFootball(const std::string& executablePath, PreviewExitAction 
   }
 
   const std::string command = "\"" + executablePath + "\"";
-  std::fprintf(stdout, "Fotbiler UI Preview: launching %s\n", executablePath.c_str());
+  std::fprintf(stdout, "Fotbiler UI Preview: launching %s while keeping frontend alive.\n",
+               executablePath.c_str());
   const int result = std::system(command.c_str());
   if (result == -1) {
     std::fprintf(stderr, "Fotbiler UI Preview: failed to launch gameplayfootball.\n");
-    return 1;
   }
 
-  // Keep the player in the modern frontend after the legacy 3D runtime exits.
+  // The same frontend process resumes after the match. Do not recursively
+  // launch a second fotbiler_ui_preview process.
   SDL_setenv("FOTBILER_UI_CAREER_MATCH", "0", 1);
   SDL_setenv("FOTBILER_UI_QUICK_MATCH", "0", 1);
   SDL_setenv("FOTBILER_UI_MODERN_SESSION", "0", 1);
-  SDL_setenv("FOTBILER_UI_RESUME_CAREER", action == PreviewExitAction::LaunchCareerMatch ? "1" : "0", 1);
-  const std::string previewExecutable = GetPreviewExecutablePath();
-  if (std::filesystem::exists(previewExecutable)) {
-    const std::string previewCommand = "\"" + previewExecutable + "\"";
-    return std::system(previewCommand.c_str());
-  }
-  return result;
+  return result == -1 ? 1 : result;
 }
 
 SDL_GameController* OpenController(int deviceIndex) {
@@ -491,10 +487,14 @@ int main() {
   SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
   SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
 
+  RuntimeSettingsState settings = LoadRuntimeSettings();
+  Uint32 windowFlags =
+      SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_SHOWN;
+  if (settings.fullscreen) windowFlags |= SDL_WINDOW_FULLSCREEN;
+
   SDL_Window* window = SDL_CreateWindow(
-      "Fotbiler Football - FIFA Era UI Preview", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-      kInitialWidth, kInitialHeight,
-      SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_SHOWN);
+      "Fotbiler Football", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+      settings.Width(), settings.Height(), windowFlags);
   if (!window) {
     std::fprintf(stderr, "Fotbiler UI Preview: window creation failed: %s\n", SDL_GetError());
     SDL_Quit();
@@ -510,7 +510,7 @@ int main() {
   }
 
   SDL_GL_MakeCurrent(window, glContext);
-  SDL_GL_SetSwapInterval(1);
+  SDL_GL_SetSwapInterval(settings.vsync ? 1 : 0);
   int drawableWidth = 0;
   int drawableHeight = 0;
   SDL_GL_GetDrawableSize(window, &drawableWidth, &drawableHeight);
@@ -524,11 +524,10 @@ int main() {
     return 1;
   }
 
-  const CareerSave previewSave = blunted::ui::BuildCareerPreviewSave();
-  const blunted::ui::CareerUiViewModel careerView = blunted::ui::BuildCareerUiViewModel(previewSave);
-  const blunted::ui::CareerDetailViewModel detailView = blunted::ui::BuildCareerDetailViewModel(previewSave);
+  CareerSave previewSave = blunted::ui::BuildCareerPreviewSave();
+  blunted::ui::CareerUiViewModel careerView = blunted::ui::BuildCareerUiViewModel(previewSave);
+  blunted::ui::CareerDetailViewModel detailView = blunted::ui::BuildCareerDetailViewModel(previewSave);
   QuickMatchSetupState quickMatch = BuildQuickMatchSetupState();
-  RuntimeSettingsState settings = LoadRuntimeSettings();
   quickMatch.difficultyStep = settings.difficultyStep;
 
   blunted::ui::ScreenRouter router([&](const std::string& path) {
@@ -544,7 +543,7 @@ int main() {
       EnvironmentFlagEnabled("FOTBILER_UI_RESUME_CAREER") ? blunted::ui::ScreenId::CareerCentral
                                                           : blunted::ui::ScreenId::MainMenu;
   SDL_setenv("FOTBILER_UI_RESUME_CAREER", "0", 1);
-  if (!router.Navigate(initialScreen)) {
+  if (!router.Reset(initialScreen)) {
     ui.Shutdown();
     SDL_GL_DeleteContext(glContext);
     SDL_DestroyWindow(window);
@@ -568,7 +567,8 @@ int main() {
           exitAction = PreviewExitAction::None;
           running = false;
         } else if (event.type == SDL_WINDOWEVENT &&
-                   (event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED || event.window.event == SDL_WINDOWEVENT_RESIZED)) {
+                   (event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED ||
+                    event.window.event == SDL_WINDOWEVENT_RESIZED)) {
           UpdateDrawableSize(window, ui);
         }
         continue;
@@ -629,7 +629,8 @@ int main() {
           controller = OpenFirstAvailableController();
         }
       } else if (event.type == SDL_WINDOWEVENT &&
-                 (event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED || event.window.event == SDL_WINDOWEVENT_RESIZED)) {
+                 (event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED ||
+                  event.window.event == SDL_WINDOWEVENT_RESIZED)) {
         UpdateDrawableSize(window, ui);
       }
 
@@ -651,25 +652,54 @@ int main() {
     }
 
     if (!running) break;
+
     glClearColor(0.035f, 0.055f, 0.09f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     ui.Update();
     ui.Render();
     SDL_GL_SwapWindow(window);
-    if (handoffPending && SDL_GetTicks64() >= handoffDeadlineMs) running = false;
-  }
 
-  const std::string gameplayExecutable =
-      exitAction != PreviewExitAction::None ? GetGameplayExecutablePath() : std::string();
+    if (handoffPending && SDL_GetTicks64() >= handoffDeadlineMs) {
+      const PreviewExitAction completedAction = exitAction;
+      handoffPending = false;
+      exitAction = PreviewExitAction::None;
+
+      const int runtimeResult = LaunchGameplayFootball(
+          GetGameplayExecutablePath(), completedAction, quickMatch, settings, window);
+      if (runtimeResult != 0) {
+        std::fprintf(stderr, "Fotbiler UI Preview: gameplay runtime returned status %d.\n",
+                     runtimeResult);
+      }
+
+      // Child process focus/context changes must not force a second frontend
+      // process. Resume this exact SDL window and RmlUi context in place.
+      SDL_GL_MakeCurrent(window, glContext);
+      SDL_ShowWindow(window);
+      SDL_RaiseWindow(window);
+      UpdateDrawableSize(window, ui);
+
+      const blunted::ui::ScreenId returnScreen =
+          completedAction == PreviewExitAction::LaunchCareerMatch
+              ? blunted::ui::ScreenId::CareerCentral
+              : blunted::ui::ScreenId::MatchSetup;
+
+      if (completedAction == PreviewExitAction::LaunchCareerMatch) {
+        previewSave = blunted::ui::BuildCareerPreviewSave();
+        careerView = blunted::ui::BuildCareerUiViewModel(previewSave);
+        detailView = blunted::ui::BuildCareerDetailViewModel(previewSave);
+      }
+
+      if (!router.Reset(returnScreen)) {
+        std::fprintf(stderr, "Fotbiler UI Preview: could not restore frontend after match.\n");
+        running = false;
+      }
+    }
+  }
 
   if (controller) SDL_GameControllerClose(controller);
   ui.Shutdown();
   SDL_GL_DeleteContext(glContext);
   SDL_DestroyWindow(window);
   SDL_Quit();
-
-  if (exitAction != PreviewExitAction::None) {
-    return LaunchGameplayFootball(gameplayExecutable, exitAction, quickMatch, settings);
-  }
   return 0;
 }
