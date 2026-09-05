@@ -1,6 +1,4 @@
-body {
-  font-family: "Fotbiler Sans";
-}
+body { font-family: "Fotbiler Sans"; }
 
 /* Shared career chrome used by Central, Squad, Transfers, Office, Season and Tactics. */
 .career-screen { position: relative; width: 100%; height: 100%; overflow: hidden; background-color: #eef2f4; color: #10202d; }
@@ -38,3 +36,8 @@ body {
 
 /* M1A.3: muted card modifier for secondary information surfaces. */
 .ui-card-muted, .form-card, .window-card, .contracts-card, .club-card, .results-card { background-color: #dfe5e9; border-color: #dfe5e9; color: #10202d; }
+
+/* M1A.3: reusable card header layout. */
+.ui-card-header, .card-header-row, .squad-list-header, .shortlist-header, .office-card-header, .season-header, .instructions-head { display: flex; width: 100%; justify-content: space-between; }
+.ui-card-header--center, .season-header { align-items: center; }
+.ui-card-header__link, .card-link, .small-link { color: #467084; font-size: 11px; letter-spacing: 1px; }
