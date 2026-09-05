@@ -6,6 +6,7 @@
 #include <sstream>
 #include <string>
 #include <unordered_set>
+#include <utility>
 #include <vector>
 
 #include "data/careerdata.hpp"
@@ -38,6 +39,7 @@ struct CareerPlayerView {
 
 struct CareerSquadView {
   std::vector<CareerPlayerView> players;
+  std::vector<int> startingPlayerIds;
   int selectedPlayerId = 0;
   std::string formation = "4-2-3-1";
   int chemistry = 0;
@@ -125,6 +127,16 @@ inline std::string FormatCareerMoney(long long value) {
   return out.str();
 }
 
+inline std::string FormatCareerSeasonLabel(int season) {
+  if (season >= 1900 && season < 9999) {
+    const int nextYear = (season + 1) % 100;
+    std::ostringstream out;
+    out << "SEASON " << season << '/' << std::setw(2) << std::setfill('0') << nextYear;
+    return out.str();
+  }
+  return "SEASON " + std::to_string(std::max(1, season));
+}
+
 inline std::string TrainingFocusLabel(TrainingFocus focus) {
   switch (focus) {
     case TrainingFocus::FITNESS:
@@ -151,7 +163,7 @@ inline CareerUiViewModel BuildCareerUiViewModel(const CareerSave& save) {
     view.header.clubName = "UNNAMED CLUB";
   }
   view.header.managerName = save.managerName;
-  view.header.seasonLabel = "SEASON " + std::to_string(save.currentSeason);
+  view.header.seasonLabel = FormatCareerSeasonLabel(save.currentSeason);
   view.header.leagueName = save.club.leagueName;
   view.header.transferBudget = FormatCareerMoney(
       save.finance.transferBudget != 0 ? save.finance.transferBudget : save.transferBudget);
@@ -164,6 +176,7 @@ inline CareerUiViewModel BuildCareerUiViewModel(const CareerSave& save) {
       !save.squad.roster.empty() ? save.squad.roster : save.roster;
   const std::unordered_set<int> startingIds(save.squad.startingXIPlayerIDs.begin(),
                                             save.squad.startingXIPlayerIDs.end());
+  view.squad.startingPlayerIds = save.squad.startingXIPlayerIDs;
   view.squad.players.reserve(roster.size());
   for (const PlayerCareerState& player : roster) {
     CareerPlayerView playerView;
@@ -181,10 +194,14 @@ inline CareerUiViewModel BuildCareerUiViewModel(const CareerSave& save) {
     playerView.inStartingXI = startingIds.find(player.playerID) != startingIds.end();
     view.squad.players.push_back(std::move(playerView));
   }
-  if (!save.squad.startingXIPlayerIDs.empty()) {
-    view.squad.selectedPlayerId = save.squad.startingXIPlayerIDs.front();
-  } else if (!view.squad.players.empty()) {
-    view.squad.selectedPlayerId = view.squad.players.front().id;
+
+  if (!view.squad.players.empty()) {
+    const auto selected = std::max_element(
+        view.squad.players.begin(), view.squad.players.end(),
+        [](const CareerPlayerView& left, const CareerPlayerView& right) {
+          return left.overall < right.overall;
+        });
+    view.squad.selectedPlayerId = selected->id;
   }
   view.squad.chemistry = save.squad.chemistry;
 
