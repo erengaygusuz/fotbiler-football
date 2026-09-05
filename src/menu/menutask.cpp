@@ -22,12 +22,30 @@
 #include "managers/resourcemanagerpool.hpp"
 #include "pagefactory.hpp"
 #include "presentation/ui/rmlui/runtime_ui_bridge.hpp"
+#include "scene/scene2d/scene2d.hpp"
+#include "systems/audio/rendering/interface_audiorenderer.hpp"
+#include "systems/graphics/rendering/interface_renderer3d.hpp"
 #include "utils/database.hpp"
 #include "visualoptions.hpp"
 
 using namespace blunted;
 
 namespace {
+
+class FotbilerPipelineFence final : public Command {
+public:
+  explicit FotbilerPipelineFence(const std::string& name) : Command(name) {}
+
+protected:
+  bool Execute(void* = nullptr) override { return true; }
+};
+
+void DrainThreadQueue(Thread* thread, const std::string& fenceName) {
+  if (!thread) return;
+  boost::intrusive_ptr<FotbilerPipelineFence> fence(new FotbilerPipelineFence(fenceName));
+  thread->messageQueue.PushMessage(fence);
+  fence->Wait();
+}
 
 bool EnvironmentFlagEnabled(const char* name) {
   const char* value = std::getenv(name);
@@ -40,9 +58,7 @@ bool ModernFrontendAppActive() {
 
 int EnvironmentInt(const char* name, int fallback) {
   const char* value = std::getenv(name);
-  if (!value || value[0] == '\0') {
-    return fallback;
-  }
+  if (!value || value[0] == '\0') return fallback;
   char* end = nullptr;
   const long parsed = std::strtol(value, &end, 10);
   return end && *end == '\0' ? static_cast<int>(parsed) : fallback;
@@ -50,38 +66,28 @@ int EnvironmentInt(const char* name, int fallback) {
 
 float EnvironmentFloat(const char* name, float fallback) {
   const char* value = std::getenv(name);
-  if (!value || value[0] == '\0') {
-    return fallback;
-  }
+  if (!value || value[0] == '\0') return fallback;
   char* end = nullptr;
   const float parsed = std::strtof(value, &end);
   return end && *end == '\0' ? parsed : fallback;
 }
 
 bool DatabaseHasTeam(int teamID) {
-  if (!GetDB() || teamID <= 0) {
-    return false;
-  }
+  if (!GetDB() || teamID <= 0) return false;
   auto result = GetDB()->Query("select id from teams where id = " + std::to_string(teamID) +
                                " limit 1");
   return result && !result->data.empty();
 }
 
 int FirstDatabaseTeamID() {
-  if (!GetDB()) {
-    return 0;
-  }
+  if (!GetDB()) return 0;
   auto result = GetDB()->Query("select id from teams order by id limit 1");
-  if (!result || result->data.empty() || result->data.front().empty()) {
-    return 0;
-  }
+  if (!result || result->data.empty() || result->data.front().empty()) return 0;
   return std::atoi(result->data.front().front().c_str());
 }
 
 std::string DatabaseTeamName(int teamID) {
-  if (!GetDB() || teamID <= 0) {
-    return "Opponent";
-  }
+  if (!GetDB() || teamID <= 0) return "Opponent";
   auto result = GetDB()->Query("select name from teams where id = " + std::to_string(teamID) +
                                " limit 1");
   if (result && !result->data.empty() && !result->data.front().empty()) {
@@ -91,9 +97,7 @@ std::string DatabaseTeamName(int teamID) {
 }
 
 std::string DatabaseTeamLeague(int teamID) {
-  if (!GetDB() || teamID <= 0) {
-    return "Default League";
-  }
+  if (!GetDB() || teamID <= 0) return "Default League";
   auto result = GetDB()->Query(
       "select coalesce(leagues.name, 'Default League') from teams "
       "left join leagues on teams.league_id = leagues.id where teams.id = " +
@@ -107,9 +111,7 @@ std::string DatabaseTeamLeague(int teamID) {
 
 bool FindCareerOpponent(int userTeamID, int currentWeek, int& opponentTeamID,
                         std::string& opponentName) {
-  if (!GetDB() || userTeamID <= 0) {
-    return false;
-  }
+  if (!GetDB() || userTeamID <= 0) return false;
 
   auto result = GetDB()->Query(
       "select id, name from teams where id <> " + std::to_string(userTeamID) +
@@ -119,27 +121,19 @@ bool FindCareerOpponent(int userTeamID, int currentWeek, int& opponentTeamID,
     result = GetDB()->Query("select id, name from teams where id <> " +
                             std::to_string(userTeamID) + " order by id");
   }
-  if (!result || result->data.empty()) {
-    return false;
-  }
+  if (!result || result->data.empty()) return false;
 
   const std::size_t index =
       static_cast<std::size_t>(std::max(0, currentWeek - 1)) % result->data.size();
-  if (result->data[index].size() < 2) {
-    return false;
-  }
+  if (result->data[index].size() < 2) return false;
   opponentTeamID = std::atoi(result->data[index][0].c_str());
   opponentName = result->data[index][1];
   return opponentTeamID > 0;
 }
 
 bool EnsureModernUiCareerSave(CareerDatabase& career) {
-  if (career.GetActiveSave()) {
-    return true;
-  }
-  if (career.LoadCareerSlot(-1) || career.LoadCareerSlot(0)) {
-    return true;
-  }
+  if (career.GetActiveSave()) return true;
+  if (career.LoadCareerSlot(-1) || career.LoadCareerSlot(0)) return true;
 
   int teamID = DatabaseHasTeam(3) ? 3 : FirstDatabaseTeamID();
   if (teamID <= 0 || !DatabaseHasTeam(teamID)) {
@@ -153,9 +147,7 @@ bool EnsureModernUiCareerSave(CareerDatabase& career) {
   }
 
   CareerSave* save = career.GetActiveSave();
-  if (!save) {
-    return false;
-  }
+  if (!save) return false;
   save->club.clubID = teamID;
   save->club.clubName = "FOTBILER FC";
   save->club.leagueName = DatabaseTeamLeague(teamID);
@@ -194,17 +186,15 @@ void SetActiveController(int side, bool keyboard) {
       }
       break;
     }
-    if (i == sides.size() - 1)
-      menuControllerID = 0;
+    if (i == sides.size() - 1) menuControllerID = 0;
   }
 
   GetMenuTask()->SetActiveJoystickID(menuControllerID);
   if (keyboard) {
-    if (keyboardActive) {
+    if (keyboardActive)
       GetMenuTask()->EnableKeyboard();
-    } else {
+    else
       GetMenuTask()->DisableKeyboard();
-    }
   } else {
     GetMenuTask()->EnableKeyboard();
   }
@@ -221,14 +211,10 @@ MenuTask::MenuTask(float aspectRatio, float margin, TTF_Font* defaultFont,
   Gui2Style* style = windowManager->GetStyle();
 
   windowManager->onSoundClick = [this]() {
-    if (GetGameTask() && GetGameTask()->GetMenuScene()) {
-      GetGameTask()->GetMenuScene()->PlayClickSound();
-    }
+    if (GetGameTask() && GetGameTask()->GetMenuScene()) GetGameTask()->GetMenuScene()->PlayClickSound();
   };
   windowManager->onSoundHover = [this]() {
-    if (GetGameTask() && GetGameTask()->GetMenuScene()) {
-      GetGameTask()->GetMenuScene()->PlayHoverSound();
-    }
+    if (GetGameTask() && GetGameTask()->GetMenuScene()) GetGameTask()->GetMenuScene()->PlayHoverSound();
   };
 
   style->SetFont(e_TextType_Default, defaultFont);
@@ -270,11 +256,10 @@ MenuTask::MenuTask(float aspectRatio, float margin, TTF_Font* defaultFont,
     for (int i = 0; i < size; i++) {
       SideSelection side;
       side.controllerID = i;
-      if ((size > 1 && i == 1) || (size == 1 && i == 0)) {
+      if ((size > 1 && i == 1) || (size == 1 && i == 0))
         side.side = -1;
-      } else {
+      else
         side.side = 0;
-      }
       queuedFixture->sides.push_back(side);
     }
 
@@ -289,13 +274,9 @@ MenuTask::MenuTask(float aspectRatio, float margin, TTF_Font* defaultFont,
 }
 
 MenuTask::~MenuTask() {
-  if (Verbose())
-    printf("exiting menutask.. ");
-
+  if (Verbose()) printf("exiting menutask.. ");
   delete windowManager->GetPageFactory();
-
-  if (Verbose())
-    printf("done\n");
+  if (Verbose()) printf("done\n");
 }
 
 void MenuTask::SetSingleControlledSide(int side) {
@@ -444,11 +425,10 @@ bool MenuTask::PrepareFotbilerUiCareerMatch() {
 
 bool MenuTask::PrepareFotbilerUiDirectMatch() {
   bool ready = false;
-  if (EnvironmentFlagEnabled("FOTBILER_UI_CAREER_MATCH")) {
+  if (EnvironmentFlagEnabled("FOTBILER_UI_CAREER_MATCH"))
     ready = PrepareFotbilerUiCareerMatch();
-  } else if (EnvironmentFlagEnabled("FOTBILER_UI_QUICK_MATCH")) {
+  else if (EnvironmentFlagEnabled("FOTBILER_UI_QUICK_MATCH"))
     ready = PrepareFotbilerUiQuickMatch();
-  }
 
   if (ready) {
     SDL_setenv("FOTBILER_UI_QUICK_MATCH", "0", 1);
@@ -463,6 +443,50 @@ void MenuTask::ReturnToFotbilerFrontend(blunted::ui::frontend::ReturnTarget targ
   menuAction = e_MenuAction_Menu;
 }
 
+void MenuTask::DrainFotbilerRuntimePipelines() {
+  // Match::Exit() enqueues renderer-side destruction work (including crowd
+  // audio source deletion). A fence placed after those commands proves they
+  // have actually executed before the frontend becomes visible again.
+  if (GetAudioSystem()) {
+    DrainThreadQueue(GetAudioSystem()->GetAudioRenderer(), "fotbiler_audio_teardown_fence");
+  }
+  if (GetGraphicsSystem()) {
+    DrainThreadQueue(GetGraphicsSystem()->GetRenderer3D(), "fotbiler_graphics_teardown_fence");
+  }
+}
+
+void MenuTask::ApplyFotbilerDisplaySettings(
+    const blunted::ui::frontend::DisplaySettingsRequest& request) {
+  GraphicsSystem* graphics = GetGraphicsSystem();
+  if (!graphics) return;
+
+  if (!graphics->ApplyDisplaySettings(request.width, request.height, request.fullscreen,
+                                      request.vsync)) {
+    std::fprintf(stderr, "[fotbiler-ui] failed to apply display settings %dx%d\n",
+                 request.width, request.height);
+    return;
+  }
+
+  int width = 0;
+  int height = 0;
+  int bpp = 0;
+  graphics->GetContextSize(width, height, bpp);
+  GetConfiguration()->SetInt("context_x", width);
+  GetConfiguration()->SetInt("context_y", height);
+  GetConfiguration()->SetInt("context_bpp", bpp);
+  GetConfiguration()->SetBool("context_fullscreen", graphics->IsFullscreen());
+  GetConfiguration()->SetBool("context_vsync", request.vsync);
+  GetConfiguration()->Set("match_difficulty",
+                          static_cast<float>(std::clamp(request.difficultyStep, 0, 4)) * 0.25f);
+  GetConfiguration()->SetInt("fotbiler_game_speed", request.gameSpeedStep);
+  GetConfiguration()->SetInt("fotbiler_master_volume", request.volume);
+
+  if (GetScene2D()) GetScene2D()->SetContextSize(width, height, bpp);
+
+  std::printf("[fotbiler-ui] live display active: %dx%d %s, vsync=%d\n", width, height,
+              graphics->IsFullscreen() ? "fullscreen" : "windowed", request.vsync ? 1 : 0);
+}
+
 void MenuTask::ProcessPhase() {
   Gui2Task::ProcessPhase();
 
@@ -472,14 +496,18 @@ void MenuTask::ProcessPhase() {
       return;
     }
 
+    blunted::ui::frontend::DisplaySettingsRequest displayRequest;
+    if (blunted::ui::frontend::ConsumeDisplaySettings(displayRequest)) {
+      ApplyFotbilerDisplaySettings(displayRequest);
+    }
+
     blunted::ui::frontend::LaunchRequest request;
     if (blunted::ui::frontend::ConsumeLaunchRequest(request)) {
       bool ready = false;
-      if (request.kind == blunted::ui::frontend::LaunchKind::Career) {
+      if (request.kind == blunted::ui::frontend::LaunchKind::Career)
         ready = PrepareFotbilerUiCareerMatch();
-      } else if (request.kind == blunted::ui::frontend::LaunchKind::QuickMatch) {
+      else if (request.kind == blunted::ui::frontend::LaunchKind::QuickMatch)
         ready = PrepareFotbilerUiQuickMatch(request);
-      }
 
       if (ready) {
         uiDirectMatchReady = true;
@@ -503,7 +531,9 @@ void MenuTask::ProcessPhase() {
       GetConfiguration()->SetBool("league_resume_hub", false);
 
       if (frontendReturnPending) {
+        DrainFotbilerRuntimePipelines();
         blunted::ui::runtime::Reset();
+        ReleaseAllButtons();
         blunted::ui::frontend::ReturnToFrontend(frontendReturnTarget);
         frontendReturnPending = false;
       } else if (uiDirectMatchReady) {
@@ -524,11 +554,10 @@ void MenuTask::ProcessPhase() {
                                                                       : (int)e_PageID_CareerHub;
         windowManager->GetPageFactory()->CreatePage(hubPage, properties, 0);
       } else if (!QuickStart()) {
-        if (!IsReleaseVersion()) {
+        if (!IsReleaseVersion())
           windowManager->GetPageFactory()->CreatePage((int)e_PageID_MainMenu, properties, 0);
-        } else {
+        else
           windowManager->GetPageFactory()->CreatePage((int)e_PageID_Intro, properties, 0);
-        }
       } else {
         windowManager->GetPageFactory()->CreatePage((int)e_PageID_LoadingMatch, properties, 0);
         uiDirectMatchReady = false;
@@ -545,13 +574,10 @@ void MenuTask::ProcessPhase() {
 }
 
 bool MenuTask::QuickStart() {
-  if (uiDirectMatchReady) {
-    return true;
-  }
+  if (uiDirectMatchReady) return true;
   const bool developerQuickStart =
       !IsReleaseVersion() && GetConfiguration()->GetBool("quick_start", false);
-  return developerQuickStart &&
-         EnvironmentManager::GetInstance().GetTime_ms() < 10000;
+  return developerQuickStart && EnvironmentManager::GetInstance().GetTime_ms() < 10000;
 }
 
 void MenuTask::QuitGame() {
