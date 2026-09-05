@@ -39,13 +39,26 @@ struct LaunchRequest {
   int controlSide = -1;
 };
 
+struct DisplaySettingsRequest {
+  int width = 1920;
+  int height = 1080;
+  bool fullscreen = true;
+  bool vsync = true;
+  int difficultyStep = 3;
+  int gameSpeedStep = 1;
+  int volume = 80;
+};
+
 inline std::atomic<int> g_appMode{static_cast<int>(AppMode::Frontend)};
 inline std::atomic<int> g_sessionKind{static_cast<int>(SessionKind::None)};
 inline std::atomic<int> g_returnTarget{static_cast<int>(ReturnTarget::MainMenu)};
 inline std::atomic<bool> g_quitRequested{false};
 inline std::atomic<bool> g_launchPending{false};
+inline std::atomic<bool> g_displaySettingsPending{false};
 inline std::mutex g_launchMutex;
+inline std::mutex g_displaySettingsMutex;
 inline LaunchRequest g_launchRequest;
+inline DisplaySettingsRequest g_displaySettingsRequest;
 
 inline void SetAppMode(AppMode mode) {
   g_appMode.store(static_cast<int>(mode), std::memory_order_release);
@@ -106,6 +119,21 @@ inline bool ConsumeLaunchRequest(LaunchRequest& outRequest) {
   return outRequest.kind != LaunchKind::None;
 }
 
+inline void PublishDisplaySettings(const DisplaySettingsRequest& request) {
+  std::lock_guard<std::mutex> lock(g_displaySettingsMutex);
+  g_displaySettingsRequest = request;
+  g_displaySettingsPending.store(true, std::memory_order_release);
+}
+
+inline bool ConsumeDisplaySettings(DisplaySettingsRequest& outRequest) {
+  if (!g_displaySettingsPending.exchange(false, std::memory_order_acq_rel)) {
+    return false;
+  }
+  std::lock_guard<std::mutex> lock(g_displaySettingsMutex);
+  outRequest = g_displaySettingsRequest;
+  return true;
+}
+
 inline void RequestQuit() {
   g_quitRequested.store(true, std::memory_order_release);
 }
@@ -130,8 +158,15 @@ inline void Reset() {
   SetReturnTarget(ReturnTarget::MainMenu);
   g_quitRequested.store(false, std::memory_order_release);
   g_launchPending.store(false, std::memory_order_release);
-  std::lock_guard<std::mutex> lock(g_launchMutex);
-  g_launchRequest = LaunchRequest{};
+  g_displaySettingsPending.store(false, std::memory_order_release);
+  {
+    std::lock_guard<std::mutex> lock(g_launchMutex);
+    g_launchRequest = LaunchRequest{};
+  }
+  {
+    std::lock_guard<std::mutex> lock(g_displaySettingsMutex);
+    g_displaySettingsRequest = DisplaySettingsRequest{};
+  }
 }
 
 }  // namespace blunted::ui::frontend
