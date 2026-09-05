@@ -1,0 +1,53 @@
+<rml>
+<head>
+  <title>Fotbiler Finances</title>
+  <link type="text/rcss" href="theme.rcss" />
+  <link type="text/rcss" href="career_shell.rcss" />
+  <link type="text/rcss" href="career_detail.rcss" />
+</head>
+<body>
+  <div class="career-screen">
+    <div class="career-bg-deep"></div><div class="career-bg-blue"></div><div class="career-bg-accent"></div>
+    <div class="career-shell">
+      <div class="career-topbar">
+        <div class="club-identity"><div class="club-crest">F</div><div class="club-copy"><div id="career-club-name" class="club-name">FOTBILER FC</div><div id="career-club-meta" class="club-meta">MANAGER CAREER · SEASON 2026/27</div></div></div>
+        <div class="career-status"><div class="status-block"><div class="status-label">CLUB BALANCE</div><div id="finance-cash" class="status-value">€42.8M</div></div><div class="status-block date-block"><div class="status-label">TRANSFER</div><div id="finance-transfer-budget" class="status-value">€24.5M</div></div></div>
+      </div>
+      <div class="career-tabs"><div class="career-tab" tabindex="0" data-route="career-central">CENTRAL</div><div class="career-tab" tabindex="0" data-route="squad">SQUAD</div><div class="career-tab" tabindex="0" data-route="transfers">TRANSFERS</div><div class="career-tab active" tabindex="0" data-route="office">OFFICE</div><div class="career-tab" tabindex="0" data-route="season">SEASON</div></div>
+
+      <div class="career-detail-content">
+        <div class="career-detail-main">
+          <div class="ui-card career-detail-card top dark" tabindex="0">
+            <div class="card-kicker">FINANCIAL POSITION</div><div class="career-detail-title light">CLUB FINANCES</div><div class="career-detail-subtitle">Current operating position and available sporting budget.</div>
+            <div class="detail-stat-grid">
+              <div class="detail-stat accent"><span>CASH</span><strong id="finance-net-worth">€42.8M</strong></div>
+              <div class="detail-stat"><span>TRANSFER BUDGET</span><strong id="finance-transfer-budget-copy">€24.5M</strong></div>
+              <div class="detail-stat"><span>WAGE BUDGET</span><strong id="finance-wage-budget">€750K</strong></div>
+              <div class="detail-stat"><span>WEEKLY WAGES</span><strong id="finance-weekly-wages">€612K</strong></div>
+              <div class="detail-stat"><span>TOTAL REVENUE</span><strong id="finance-total-revenue">€0</strong></div>
+              <div class="detail-stat"><span>TOTAL EXPENSES</span><strong id="finance-total-expenses">€0</strong></div>
+            </div>
+          </div>
+          <div class="ui-card career-detail-card bottom" tabindex="0">
+            <div class="card-kicker">TRANSFER ACTIVITY</div><div class="career-detail-title">SEASON MOVEMENT</div>
+            <div class="detail-stat-grid"><div class="detail-stat"><span>SPENDING</span><strong id="finance-transfer-spending">€0</strong></div><div class="detail-stat accent"><span>INCOME</span><strong id="finance-transfer-income">€0</strong></div><div class="detail-stat"><span>DEBT LEVEL</span><strong id="finance-debt-level">0</strong></div></div>
+          </div>
+        </div>
+        <div class="career-detail-side">
+          <div class="ui-card career-detail-card full muted" tabindex="0">
+            <div class="card-kicker">REVENUE STREAMS</div><div class="career-detail-title">INCOME BREAKDOWN</div><div class="career-detail-subtitle">Where the club's operating revenue is being generated.</div>
+            <div class="detail-list-head"><span style="width:65%">SOURCE</span><span class="right" style="width:35%">AMOUNT</span></div>
+            <div class="detail-list-row"><span style="width:65%">MATCHDAY</span><strong id="finance-matchday-income" class="right" style="width:35%">€0</strong></div>
+            <div class="detail-list-row"><span style="width:65%">SPONSORS</span><strong id="finance-sponsor-income" class="right" style="width:35%">€0</strong></div>
+            <div class="detail-list-row"><span style="width:65%">MERCHANDISE</span><strong id="finance-merch-income" class="right" style="width:35%">€0</strong></div>
+            <div class="detail-list-row"><span style="width:65%">TV REVENUE</span><strong id="finance-tv-revenue" class="right" style="width:35%">€5.0M</strong></div>
+            <div class="detail-note">Financial values are read from the active CareerSave model. Live league database revenue reconciliation will be attached during integration.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="career-control-strip"><div class="control-left"><span class="hint"><span class="hint-key">ARROWS</span>Navigate</span><span class="hint"><span class="hint-key">ESC</span>Back</span><span class="hint"><span class="hint-key">F5</span>Office</span></div><div class="control-right">OFFICE · FINANCES</div></div>
+    </div>
+  </div>
+</body>
+</rml>
