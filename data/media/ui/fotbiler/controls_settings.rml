@@ -9,7 +9,7 @@
     <div class="runtime-bg-blue"></div><div class="runtime-bg-light"></div><div class="runtime-bg-pink"></div>
     <div class="runtime-shell">
       <div class="runtime-topbar"><div class="runtime-brand"><span class="runtime-brand-mark">F</span>OTBILER FOOTBALL</div><div class="runtime-meta">SETTINGS · CONTROLS</div></div>
-      <div class="runtime-heading"><div class="runtime-kicker">INPUT</div><div class="runtime-title">KEYBOARD SETTINGS</div><div class="runtime-subtitle" id="controls-capture-status">Select an action, then press the new key. Changes are saved immediately.</div></div>
+      <div class="runtime-heading"><div class="runtime-kicker">INPUT</div><div id="controls-title" class="runtime-title">KEYBOARD SETTINGS</div><div class="runtime-subtitle" id="controls-capture-status">Select an action, then press the new key. Changes are saved immediately.</div></div>
       <div class="runtime-content">
         <div class="runtime-column-main">
           <div class="runtime-card dark" style="height:100%;">
@@ -37,7 +37,7 @@
             <div class="runtime-row" tabindex="0" data-action="bind-key-15"><div class="runtime-label">DRIBBLE</div><div id="control-key-15" class="runtime-value">C</div></div>
             <div class="runtime-row" tabindex="0" data-action="bind-key-16"><div class="runtime-label">SELECT</div><div id="control-key-16" class="runtime-value">F1</div></div>
             <div class="runtime-row" tabindex="0" data-action="bind-key-17"><div class="runtime-label">START</div><div id="control-key-17" class="runtime-value">RETURN</div></div>
-            <div class="runtime-nav-item" tabindex="0" data-action="reset-keyboard-bindings" style="margin-top:10px;">RESET KEYBOARD DEFAULTS</div>
+            <div id="controls-reset" class="runtime-nav-item" tabindex="0" data-action="reset-keyboard-bindings" style="margin-top:10px;">RESET KEYBOARD DEFAULTS</div>
             <div id="controls-gamepad-status" class="runtime-muted">GAMEPADS · DETECTING</div>
           </div>
         </div>
