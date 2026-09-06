@@ -4,6 +4,8 @@
 #include <memory>
 #include <string>
 
+#include "presentation/ui/rmlui/ui_action.hpp"
+
 struct SDL_Window;
 union SDL_Event;
 
@@ -45,8 +47,12 @@ public:
   // the current RmlUi event dispatch has completed.
   std::string ConsumeRouteRequest();
 
-  // data-action clicks are queued separately from navigation so runtime
-  // integrations can hand commands such as START MATCH to the real game.
+  // Structured player-facing commands. A document can supply optional
+  // data-action-args="key=value;..." payload alongside data-action.
+  UiAction ConsumeAction();
+
+  // Compatibility helper for the already-wired parameterless frontend actions.
+  // New feature-parity work should prefer ConsumeAction().
   std::string ConsumeActionRequest();
 
   // Activates the current focus target and restores a deterministic default
