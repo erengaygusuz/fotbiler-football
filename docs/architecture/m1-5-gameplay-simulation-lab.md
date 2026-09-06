@@ -149,6 +149,26 @@ The CSV contains scenario inputs, seed, W/D/L, goals, shots, conversion, possess
 
 CTest includes `GameplaySimulationRunner.Smoke`, which executes the real command-line tool on a small scenario and requires both CSV and JSON files to be writable.
 
+## M1.5E — Full 3D telemetry bridge
+
+The playable and fast engines now publish completed runtime samples through the same canonical result/telemetry vocabulary.
+
+`MatchResult` explicitly marks whether shots, possession and scorer data are available. `FastMatchEngine` supplies all three today. `Full3DMatchEngine::Complete()` supplies the normalized final score but deliberately leaves those advanced-stat flags false because the playable engine does not yet expose trustworthy canonical values at this boundary.
+
+`MatchSimulationTelemetry` therefore tracks metric coverage separately from completed-match count. Shot averages/conversion use only runs that actually contain shot data; possession averages use only runs that contain possession data; scorer aggregation uses only runs where scorer data is available. Default values such as `userPossession = 50` can no longer masquerade as real Full3D telemetry.
+
+`core/match/runtime_match_telemetry.hpp` provides process-local development telemetry:
+
+- completed fast simulations are recorded by `FastMatchEngine`;
+- completed playable matches are recorded by `Full3DMatchEngine::Complete()` after home/away normalization;
+- fast and Full3D samples remain separate;
+- `CompareFull3DAgainstFast()` compares score distributions immediately and only enables shots/possession/scorer comparisons when both engines actually expose those metrics;
+- the registry can be reset and is intentionally not serialized into a career save.
+
+This bridge is engine-level rather than Career-UI-specific. Career currently reaches `Full3DMatchEngine::Complete()` from its pending-fixture completion path, so real played career scores enter the same runtime diagnostics automatically. The same adapter also remains reusable by future competition, tournament or online presentation flows.
+
+When the playable engine later exposes canonical shots, possession or scorer information, the Full3D adapter can populate those fields and flip the corresponding availability flags; the telemetry aggregation and comparison model do not need a second design.
+
 ## Planned M1.5 slices
 
 ### M1.5A — Batch telemetry foundation
@@ -188,12 +208,14 @@ CTest includes `GameplaySimulationRunner.Smoke`, which executes the real command
 
 ### M1.5E — Full 3D telemetry bridge
 
-- [ ] Feed playable-match final score into the same report model
-- [ ] Add shots/possession once the 3D engine exposes canonical match stats
-- [ ] Compare fast-sim and 3D distributions without forcing them to be identical
+- [x] Feed completed playable-match final score into the same telemetry model
+- [x] Keep unavailable Full3D shots/possession/scorers explicit instead of fabricating values
+- [x] Compare fast-sim and Full3D distributions only on metrics shared by both engines
 
 ## Exit criteria
 
 M1.5 is complete when a developer can run a deterministic scenario suite headlessly, inspect stable aggregate metrics, detect statistically meaningful regressions, and compare fast-simulation behavior with the canonical 3D result boundary.
+
+M1.5 now satisfies this boundary-level exit criterion. Fitness coupling and richer playable-match statistics remain intentional later gameplay/career work rather than hidden changes inside the validation milestone.
 
 Only after that should M2 World + Date + Persistence and M3 Competition Engine rely heavily on these outcomes.
