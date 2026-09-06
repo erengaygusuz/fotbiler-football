@@ -205,9 +205,10 @@ const std::string& Localization::GetCurrentLanguage() const {
 // ---------------------------------------------------------------------------
 
 std::vector<std::string> Localization::GetAvailableLanguages() {
-  // Statically enumerated list that matches the locale files shipped in
-  // data/locale/.  Extend this list when adding new translations.
-  return {"en", "es", "fr", "de", "pt"};
+  // Keep Turkish immediately after English so the modern Settings cycle is
+  // convenient for local development and QA while still exposing every
+  // shipped locale through the same catalog.
+  return {"en", "tr", "es", "fr", "de", "pt"};
 }
 
 // ---------------------------------------------------------------------------
@@ -217,6 +218,8 @@ std::vector<std::string> Localization::GetAvailableLanguages() {
 std::string Localization::GetLanguageDisplayName(const std::string& code) {
   if (code == "en")
     return "English";
+  if (code == "tr")
+    return "Türkçe";
   if (code == "es")
     return "Español";
   if (code == "fr")
