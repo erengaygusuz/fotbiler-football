@@ -81,11 +81,18 @@ The guardrails currently cover:
 - balanced home possession;
 - paired home-vs-away goal-difference advantage;
 - Possession and Counter Attack possession bands;
-- CF/ST share of user goals, plus a zero-goalkeeper-scoring invariant for the canonical roster.
+- CF/ST share of user goals;
+- goalkeeper scorer ineligibility, including high-form and goalkeeper-only edge scenarios.
 
 The scorer distribution is possible because `MatchSimulationTelemetry` now keeps aggregate scorer-name counts. This is intentionally generic enough for the M1.5D report writer to export the same data instead of rebuilding statistics in a separate tool.
 
 The initial bands are deliberately wider than seeded sample variance. If a future gameplay change intentionally moves outside one of them, the expected workflow is to inspect the report first and then change the guardrail with a documented tuning reason, not simply widen tests until they pass.
+
+### Large-run scorer finding
+
+The first 22-scenario / 220,000-match headless report exposed a real scorer-selection bug that the original equal-form guardrail did not reach: a goalkeeper with `matchForm >= 80` received the generic form scorer-weight bonus after its positional weight had been set to zero. A goalkeeper-only roster also used the first roster entry as a synthetic scorer fallback.
+
+The simulation now keeps goalkeepers at zero scorer weight regardless of OVR/form bonuses. If an edge roster contains no eligible outfield scorer, the team goal remains valid but no player is falsely credited. Dedicated regression coverage protects both the high-form and goalkeeper-only cases.
 
 ## M1.5D — Headless runner
 
@@ -121,6 +128,21 @@ A previous CSV report can be supplied as a comparison baseline:
   --baseline build/reports/baseline.csv
 ```
 
+For a full-catalogue baseline, write it directly to a dedicated filename before running any single-scenario experiments:
+
+```bash
+./build/fotbiler_sim \
+  --runs 10000 \
+  --csv build/simulation-reports/baseline.csv \
+  --json build/simulation-reports/baseline.json
+
+./build/fotbiler_sim \
+  --runs 10000 \
+  --baseline build/simulation-reports/baseline.csv
+```
+
+`latest.csv` is intentionally overwritten by every run. Therefore, copying `latest.csv` after a single-scenario run creates a single-row baseline; all other catalogue scenarios will correctly report `no matching baseline row`.
+
 Baseline comparison is deliberately informational: it prints current-minus-baseline deltas for goals, goals against, goal difference, win rate, and possession. Statistical guardrail tests remain the hard regression gate; an intentional tuning change should not be blocked merely because it differs from an older report.
 
 The CSV contains scenario inputs, seed, W/D/L, goals, shots, conversion, possession, and top scorer. JSON additionally contains the full scorer-goal map for each scenario.
@@ -154,6 +176,7 @@ CTest includes `GameplaySimulationRunner.Smoke`, which executes the real command
 - [x] Shot-to-goal sanity bands
 - [x] Possession sanity and strategy deltas
 - [x] Scorer-position distribution checks
+- [x] Goalkeeper scorer ineligibility across high-form and degenerate-roster cases
 
 ### M1.5D — Headless runner
 
@@ -161,6 +184,7 @@ CTest includes `GameplaySimulationRunner.Smoke`, which executes the real command
 - [x] CSV/JSON report output
 - [x] Scenario seed recorded in every report
 - [x] Optional comparison against a saved baseline
+- [x] Safe full-catalogue baseline workflow documented
 
 ### M1.5E — Full 3D telemetry bridge
 
