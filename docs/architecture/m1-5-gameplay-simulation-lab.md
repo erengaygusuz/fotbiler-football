@@ -87,6 +87,46 @@ The scorer distribution is possible because `MatchSimulationTelemetry` now keeps
 
 The initial bands are deliberately wider than seeded sample variance. If a future gameplay change intentionally moves outside one of them, the expected workflow is to inspect the report first and then change the guardrail with a documented tuning reason, not simply widen tests until they pass.
 
+## M1.5D — Headless runner
+
+`tools/simulation/fotbiler_sim.cpp` is a standalone command-line runner for the scenario catalogue. It links only the career simulation core (`career_common.cpp` and `career_sim.cpp`); it does not depend on SDL, OpenGL, RmlUi, or the playable-match presentation stack.
+
+The CMake option `GAMEPLAYFOOTBALL_BUILD_SIMULATION_TOOLS` controls the target and defaults to `ON`. The executable target is `fotbiler_sim`.
+
+Typical usage:
+
+```bash
+./build/fotbiler_sim --runs 10000
+./build/fotbiler_sim --scenario opposition_equal --runs 100000
+./build/fotbiler_sim --scenario venue_home_equal --runs 50000 --seed 20260906
+./build/fotbiler_sim --list
+```
+
+Unless overridden, output is written beside the executable under `simulation-reports/latest.csv` and `simulation-reports/latest.json`.
+
+Custom output paths:
+
+```bash
+./build/fotbiler_sim \
+  --runs 10000 \
+  --csv build/reports/baseline.csv \
+  --json build/reports/baseline.json
+```
+
+A previous CSV report can be supplied as a comparison baseline:
+
+```bash
+./build/fotbiler_sim \
+  --runs 10000 \
+  --baseline build/reports/baseline.csv
+```
+
+Baseline comparison is deliberately informational: it prints current-minus-baseline deltas for goals, goals against, goal difference, win rate, and possession. Statistical guardrail tests remain the hard regression gate; an intentional tuning change should not be blocked merely because it differs from an older report.
+
+The CSV contains scenario inputs, seed, W/D/L, goals, shots, conversion, possession, and top scorer. JSON additionally contains the full scorer-goal map for each scenario.
+
+CTest includes `GameplaySimulationRunner.Smoke`, which executes the real command-line tool on a small scenario and requires both CSV and JSON files to be writable.
+
 ## Planned M1.5 slices
 
 ### M1.5A — Batch telemetry foundation
@@ -117,10 +157,10 @@ The initial bands are deliberately wider than seeded sample variance. If a futur
 
 ### M1.5D — Headless runner
 
-- [ ] CLI/test executable for thousands of matches without presentation
-- [ ] CSV/JSON report output
-- [ ] Scenario seed recorded in every report
-- [ ] Optional comparison against a saved baseline
+- [x] CLI/test executable for thousands of matches without presentation
+- [x] CSV/JSON report output
+- [x] Scenario seed recorded in every report
+- [x] Optional comparison against a saved baseline
 
 ### M1.5E — Full 3D telemetry bridge
 
