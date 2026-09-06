@@ -1,0 +1,28 @@
+<rml>
+<head><title>Fotbiler Gamepad Functions</title><link type="text/rcss" href="theme.rcss" /><link type="text/rcss" href="runtime_shell.rcss" /></head>
+<body><div class="runtime-screen"><div class="runtime-bg-blue"></div><div class="runtime-bg-light"></div><div class="runtime-bg-pink"></div><div class="runtime-shell">
+<div class="runtime-topbar"><div class="runtime-brand"><span class="runtime-brand-mark">F</span>OTBILER FOOTBALL</div><div class="runtime-meta">SETTINGS · GAMEPAD FUNCTIONS</div></div>
+<div class="runtime-heading"><div class="runtime-kicker">FOOTBALL CONTROLS</div><div class="runtime-title">FUNCTION MAPPING</div><div class="runtime-subtitle">Select a football action to cycle its logical gamepad button. Changes save immediately.</div></div>
+<div class="runtime-content"><div class="runtime-column-main"><div class="runtime-card dark" style="height:100%;"><div class="runtime-card-kicker">MOVEMENT &amp; ATTACK</div><div class="runtime-card-title">PRIMARY FUNCTIONS</div>
+<div class="runtime-row" tabindex="0" autofocus data-action="cycle-gamepad-function-0"><div class="runtime-label">MOVE UP</div><div id="gamepad-function-0" class="runtime-value">-</div></div>
+<div class="runtime-row" tabindex="0" data-action="cycle-gamepad-function-1"><div class="runtime-label">MOVE RIGHT</div><div id="gamepad-function-1" class="runtime-value">-</div></div>
+<div class="runtime-row" tabindex="0" data-action="cycle-gamepad-function-2"><div class="runtime-label">MOVE DOWN</div><div id="gamepad-function-2" class="runtime-value">-</div></div>
+<div class="runtime-row" tabindex="0" data-action="cycle-gamepad-function-3"><div class="runtime-label">MOVE LEFT</div><div id="gamepad-function-3" class="runtime-value">-</div></div>
+<div class="runtime-row" tabindex="0" data-action="cycle-gamepad-function-4"><div class="runtime-label">THROUGH PASS</div><div id="gamepad-function-4" class="runtime-value">-</div></div>
+<div class="runtime-row" tabindex="0" data-action="cycle-gamepad-function-5"><div class="runtime-label">HIGH PASS</div><div id="gamepad-function-5" class="runtime-value">-</div></div>
+<div class="runtime-row" tabindex="0" data-action="cycle-gamepad-function-6"><div class="runtime-label">SHORT PASS</div><div id="gamepad-function-6" class="runtime-value">-</div></div>
+<div class="runtime-row" tabindex="0" data-action="cycle-gamepad-function-7"><div class="runtime-label">SHOOT</div><div id="gamepad-function-7" class="runtime-value">-</div></div>
+<div class="runtime-row" tabindex="0" data-action="cycle-gamepad-function-8"><div class="runtime-label">KEEPER RUSH</div><div id="gamepad-function-8" class="runtime-value">-</div></div>
+</div></div><div class="runtime-column-side"><div class="runtime-card" style="height:100%;"><div class="runtime-card-kicker">DEFENCE &amp; MODIFIERS</div><div class="runtime-card-title">MORE FUNCTIONS</div>
+<div class="runtime-row" tabindex="0" data-action="cycle-gamepad-function-9"><div class="runtime-label">SLIDING</div><div id="gamepad-function-9" class="runtime-value">-</div></div>
+<div class="runtime-row" tabindex="0" data-action="cycle-gamepad-function-10"><div class="runtime-label">PRESSURE</div><div id="gamepad-function-10" class="runtime-value">-</div></div>
+<div class="runtime-row" tabindex="0" data-action="cycle-gamepad-function-11"><div class="runtime-label">2ND MAN PRESS</div><div id="gamepad-function-11" class="runtime-value">-</div></div>
+<div class="runtime-row" tabindex="0" data-action="cycle-gamepad-function-12"><div class="runtime-label">SWITCH PLAYER</div><div id="gamepad-function-12" class="runtime-value">-</div></div>
+<div class="runtime-row" tabindex="0" data-action="cycle-gamepad-function-13"><div class="runtime-label">SPECIAL</div><div id="gamepad-function-13" class="runtime-value">-</div></div>
+<div class="runtime-row" tabindex="0" data-action="cycle-gamepad-function-14"><div class="runtime-label">SPRINT</div><div id="gamepad-function-14" class="runtime-value">-</div></div>
+<div class="runtime-row" tabindex="0" data-action="cycle-gamepad-function-15"><div class="runtime-label">DRIBBLE</div><div id="gamepad-function-15" class="runtime-value">-</div></div>
+<div class="runtime-row" tabindex="0" data-action="cycle-gamepad-function-16"><div class="runtime-label">SELECT</div><div id="gamepad-function-16" class="runtime-value">-</div></div>
+<div class="runtime-row" tabindex="0" data-action="cycle-gamepad-function-17"><div class="runtime-label">START</div><div id="gamepad-function-17" class="runtime-value">-</div></div>
+</div></div></div>
+<div class="runtime-footer"><div><span class="runtime-hint"><span class="runtime-key">ENTER / A</span>Next Button</span><span class="runtime-hint"><span class="runtime-key">ESC / B</span>Back</span></div><div>M1B · FUNCTION MAPPING</div></div>
+</div></div></body></rml>
