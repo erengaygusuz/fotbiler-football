@@ -15,41 +15,67 @@ struct MatchSimulationTelemetry {
   int requestedRuns = 0;
   int completedRuns = 0;
   int interactiveRuns = 0;
+  int completedInteractiveRuns = 0;
+  int shotStatRuns = 0;
+  int possessionStatRuns = 0;
+  int scorerStatRuns = 0;
   int wins = 0;
   int draws = 0;
   int losses = 0;
   long long userGoals = 0;
   long long opponentGoals = 0;
+  long long userGoalsWithShotStats = 0;
+  long long opponentGoalsWithShotStats = 0;
   long long userShots = 0;
   long long opponentShots = 0;
   long long userPossession = 0;
   std::map<std::string, long long> userScorerGoals;
+
+  void RecordCompletedResult(const MatchResult& result,
+                             bool interactiveCompletion = false) {
+    if (!result.completed)
+      return;
+
+    ++completedRuns;
+    if (interactiveCompletion)
+      ++completedInteractiveRuns;
+
+    userGoals += result.userGoals;
+    opponentGoals += result.opponentGoals;
+
+    if (result.shotsAvailable) {
+      ++shotStatRuns;
+      userShots += result.userShots;
+      opponentShots += result.opponentShots;
+      userGoalsWithShotStats += result.userGoals;
+      opponentGoalsWithShotStats += result.opponentGoals;
+    }
+
+    if (result.possessionAvailable) {
+      ++possessionStatRuns;
+      userPossession += result.userPossession;
+    }
+
+    if (result.scorersAvailable) {
+      ++scorerStatRuns;
+      for (const auto& scorer : result.userScorers)
+        ++userScorerGoals[scorer];
+    }
+
+    if (result.userGoals > result.opponentGoals)
+      ++wins;
+    else if (result.userGoals == result.opponentGoals)
+      ++draws;
+    else
+      ++losses;
+  }
 
   void Record(const MatchEngineRun& run) {
     if (run.requiresInteractivePlay) {
       ++interactiveRuns;
       return;
     }
-
-    if (!run.result.completed)
-      return;
-
-    ++completedRuns;
-    userGoals += run.result.userGoals;
-    opponentGoals += run.result.opponentGoals;
-    userShots += run.result.userShots;
-    opponentShots += run.result.opponentShots;
-    userPossession += run.result.userPossession;
-
-    for (const auto& scorer : run.result.userScorers)
-      ++userScorerGoals[scorer];
-
-    if (run.result.userGoals > run.result.opponentGoals)
-      ++wins;
-    else if (run.result.userGoals == run.result.opponentGoals)
-      ++draws;
-    else
-      ++losses;
+    RecordCompletedResult(run.result);
   }
 
   double CompletionRate() const {
@@ -88,26 +114,77 @@ struct MatchSimulationTelemetry {
                : 0.0;
   }
 
+  bool HasShotStats() const { return shotStatRuns > 0; }
+  bool HasPossessionStats() const { return possessionStatRuns > 0; }
+  bool HasScorerStats() const { return scorerStatRuns > 0; }
+
   double AverageUserShots() const {
-    return completedRuns > 0 ? static_cast<double>(userShots) / completedRuns : 0.0;
+    return shotStatRuns > 0 ? static_cast<double>(userShots) / shotStatRuns : 0.0;
   }
 
   double AverageOpponentShots() const {
-    return completedRuns > 0 ? static_cast<double>(opponentShots) / completedRuns : 0.0;
+    return shotStatRuns > 0 ? static_cast<double>(opponentShots) / shotStatRuns : 0.0;
   }
 
   double UserShotConversion() const {
-    return userShots > 0 ? static_cast<double>(userGoals) / userShots : 0.0;
+    return userShots > 0 ? static_cast<double>(userGoalsWithShotStats) / userShots : 0.0;
   }
 
   double OpponentShotConversion() const {
-    return opponentShots > 0 ? static_cast<double>(opponentGoals) / opponentShots : 0.0;
+    return opponentShots > 0
+               ? static_cast<double>(opponentGoalsWithShotStats) / opponentShots
+               : 0.0;
   }
 
   double AverageUserPossession() const {
-    return completedRuns > 0 ? static_cast<double>(userPossession) / completedRuns : 0.0;
+    return possessionStatRuns > 0
+               ? static_cast<double>(userPossession) / possessionStatRuns
+               : 0.0;
   }
 };
+
+// Distribution comparison intentionally works only on metrics that both sides
+// actually expose. This allows Full3D score samples to be compared with fast
+// simulation today without treating placeholder shots/possession as real data.
+struct MatchSimulationComparison {
+  bool scoreComparable = false;
+  bool shotsComparable = false;
+  bool possessionComparable = false;
+  bool scorersComparable = false;
+  double userGoalsDelta = 0.0;
+  double opponentGoalsDelta = 0.0;
+  double goalDifferenceDelta = 0.0;
+  double winRateDelta = 0.0;
+  double userShotsDelta = 0.0;
+  double possessionDelta = 0.0;
+};
+
+inline MatchSimulationComparison CompareMatchSimulationTelemetry(
+    const MatchSimulationTelemetry& reference,
+    const MatchSimulationTelemetry& candidate) {
+  MatchSimulationComparison comparison;
+  comparison.scoreComparable = reference.completedRuns > 0 && candidate.completedRuns > 0;
+  comparison.shotsComparable = reference.HasShotStats() && candidate.HasShotStats();
+  comparison.possessionComparable =
+      reference.HasPossessionStats() && candidate.HasPossessionStats();
+  comparison.scorersComparable = reference.HasScorerStats() && candidate.HasScorerStats();
+
+  if (comparison.scoreComparable) {
+    comparison.userGoalsDelta = candidate.AverageUserGoals() - reference.AverageUserGoals();
+    comparison.opponentGoalsDelta =
+        candidate.AverageOpponentGoals() - reference.AverageOpponentGoals();
+    comparison.goalDifferenceDelta =
+        candidate.AverageGoalDifference() - reference.AverageGoalDifference();
+    comparison.winRateDelta = candidate.WinRate() - reference.WinRate();
+  }
+  if (comparison.shotsComparable)
+    comparison.userShotsDelta = candidate.AverageUserShots() - reference.AverageUserShots();
+  if (comparison.possessionComparable) {
+    comparison.possessionDelta =
+        candidate.AverageUserPossession() - reference.AverageUserPossession();
+  }
+  return comparison;
+}
 
 struct MatchSimulationScenario {
   const char* name = "unnamed";
