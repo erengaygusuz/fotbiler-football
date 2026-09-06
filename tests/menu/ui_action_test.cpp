@@ -28,7 +28,7 @@ TEST(ModernUiAction, SupportsEscapedSeparatorsAndWhitespace) {
       "rename-stadium", R"( value = Fotbiler\; Arena ; note = A\=B\\C )");
 
   EXPECT_EQ(action.Argument("value"), "Fotbiler; Arena");
-  EXPECT_EQ(action.Argument("note"), "A=B\C");
+  EXPECT_EQ(action.Argument("note"), R"(A=B\C)");
 }
 
 TEST(ModernUiAction, IgnoresMalformedArgumentsAndRejectsInvalidNumbers) {
