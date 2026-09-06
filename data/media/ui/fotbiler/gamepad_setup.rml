@@ -1,0 +1,12 @@
+<rml>
+<head><title>Fotbiler Gamepad Setup</title><link type="text/rcss" href="theme.rcss" /><link type="text/rcss" href="runtime_shell.rcss" /></head>
+<body><div class="runtime-screen"><div class="runtime-bg-blue"></div><div class="runtime-bg-light"></div><div class="runtime-bg-pink"></div><div class="runtime-shell">
+<div class="runtime-topbar"><div class="runtime-brand"><span class="runtime-brand-mark">F</span>OTBILER FOOTBALL</div><div class="runtime-meta">SETTINGS · GAMEPAD</div></div>
+<div class="runtime-heading"><div class="runtime-kicker">CONTROLLER PROFILE</div><div id="gamepad-setup-name" class="runtime-title">GAMEPAD</div><div id="gamepad-setup-type" class="runtime-subtitle">STANDARD GAMEPAD</div></div>
+<div class="runtime-content"><div class="runtime-column-main"><div class="runtime-card dark" style="height:100%;"><div class="runtime-card-kicker">SETUP</div><div class="runtime-card-title">CONTROLLER TOOLS</div>
+<div class="runtime-nav-item" tabindex="0" autofocus data-action="begin-gamepad-calibration">AXES CALIBRATION</div>
+<div class="runtime-nav-item" tabindex="0" data-route="gamepad-mapping">PHYSICAL BUTTON MAPPING</div>
+<div class="runtime-nav-item" tabindex="0" data-route="gamepad-functions">FOOTBALL FUNCTION MAPPING</div>
+</div></div><div class="runtime-column-side"><div class="runtime-card" style="height:100%;"><div class="runtime-card-kicker">PROFILE</div><div class="runtime-card-title">AUTO-DETECTED HARDWARE</div><div class="runtime-muted">Fotbiler keeps the existing Gameplay Football HIDGamepad profile format. Physical mappings and function assignments save immediately.</div></div></div></div>
+<div class="runtime-footer"><div><span class="runtime-hint"><span class="runtime-key">ENTER / A</span>Select</span><span class="runtime-hint"><span class="runtime-key">ESC / B</span>Back</span></div><div>M1B · GAMEPAD SETUP</div></div>
+</div></div></body></rml>
