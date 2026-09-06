@@ -103,6 +103,7 @@ add_executable(gameplayfootball_career_tests
   career/gameplay_simulation_guardrails_test.cpp
   career/gameplay_simulation_full3d_telemetry_test.cpp
   menu/slider_ux_test.cpp
+  menu/ui_action_test.cpp
   ${PROJECT_SOURCE_DIR}/src/data/careerdata.cpp
   ${PROJECT_SOURCE_DIR}/src/data/draftdata.cpp
   ${PROJECT_SOURCE_DIR}/src/data/scoutingdata.cpp
