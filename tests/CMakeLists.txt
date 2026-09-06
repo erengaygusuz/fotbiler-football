@@ -100,6 +100,7 @@ add_executable(gameplayfootball_career_tests
   career/career_fixture_test.cpp
   career/career_longrun_audit_test.cpp
   career/gameplay_simulation_lab_test.cpp
+  career/gameplay_simulation_guardrails_test.cpp
   menu/slider_ux_test.cpp
   ${PROJECT_SOURCE_DIR}/src/data/careerdata.cpp
   ${PROJECT_SOURCE_DIR}/src/data/draftdata.cpp
