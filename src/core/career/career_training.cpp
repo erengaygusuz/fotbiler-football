@@ -39,7 +39,7 @@ bool TrainFocus(CareerSave& save, CareerCommon::CareerEvents& events,
   for (auto& player : save.roster) {
     bool eligible = false;
     const std::string& pos = player.preferredPosition;
-    
+
     if (focusArea == "Individual") {
       if (player.databaseID == save.controlledEntityID) {
         player.ovr = std::min(99, player.ovr + 1);
