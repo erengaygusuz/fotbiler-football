@@ -10,13 +10,18 @@
 #include <utility>
 #include <vector>
 
+#include "gamedefines.hpp"
+#include "hid/keyboard.hpp"
+#include "main.hpp"
 #include "presentation/ui/rmlui/career_detail_binder.hpp"
 #include "presentation/ui/rmlui/career_detail_view_model.hpp"
 #include "presentation/ui/rmlui/career_ui_binder.hpp"
 #include "presentation/ui/rmlui/career_ui_preview_data.hpp"
 #include "presentation/ui/rmlui/career_ui_view_model.hpp"
+#include "presentation/ui/rmlui/input_settings.hpp"
 #include "presentation/ui/rmlui/rmlui_system.hpp"
 #include "presentation/ui/rmlui/runtime_settings.hpp"
+#include "utils/localization.hpp"
 
 namespace blunted::ui {
 namespace {
@@ -120,6 +125,28 @@ void SendNavigationKey(RmlUiSystem& ui, SDL_Keycode key) {
   ui.HandleEvent(event);
 }
 
+HIDKeyboard* FindKeyboardController() {
+  for (IHIDevice* controller : GetControllers()) {
+    if (controller && controller->GetDeviceType() == e_HIDeviceType_Keyboard) {
+      return static_cast<HIDKeyboard*>(controller);
+    }
+  }
+  return nullptr;
+}
+
+int ConnectedGamepadCount() {
+  int count = 0;
+  for (IHIDevice* controller : GetControllers()) {
+    if (controller && controller->GetDeviceType() == e_HIDeviceType_Gamepad) ++count;
+  }
+  return count;
+}
+
+std::string KeyName(SDL_Keycode key) {
+  const char* name = SDL_GetKeyName(key);
+  return name && name[0] != '\0' ? std::string(name) : "UNBOUND";
+}
+
 }  // namespace
 
 struct SingleProcessFrontend::Impl {
@@ -152,6 +179,30 @@ struct SingleProcessFrontend::Impl {
     ui.SetElementText("settings-difficulty", RuntimeDifficultyName(settings.difficultyStep));
     ui.SetElementText("settings-game-speed", RuntimeGameSpeedName(settings.gameSpeedStep));
     ui.SetElementText("settings-volume", std::to_string(settings.volume) + "%");
+    const std::string language = Localization::GetInstance().GetCurrentLanguage();
+    ui.SetElementText("settings-language", Localization::GetLanguageDisplayName(language));
+  }
+
+  void BindControlsSettings() {
+    HIDKeyboard* keyboard = FindKeyboardController();
+    for (std::size_t i = 0; i < kKeyboardBindingLabels.size(); ++i) {
+      const std::string elementId = "control-key-" + std::to_string(i);
+      ui.SetElementText(elementId,
+                        keyboard ? KeyName(keyboard->GetFunctionMapping(
+                                       static_cast<e_ButtonFunction>(i)))
+                                 : "NOT FOUND");
+    }
+
+    const int gamepads = ConnectedGamepadCount();
+    ui.SetElementText("controls-gamepad-status",
+                      gamepads == 0 ? "GAMEPADS · NONE DETECTED"
+                                    : "GAMEPADS · " + std::to_string(gamepads) + " DETECTED");
+
+    if (!capturingKeyIndex) {
+      ui.SetElementText("controls-capture-status",
+                        keyboard ? "Select an action, then press the new key. Changes are saved immediately."
+                                 : "No keyboard input device is available.");
+    }
   }
 
   void BindAll() {
@@ -159,6 +210,7 @@ struct SingleProcessFrontend::Impl {
     BindCareerDetailViewModel(ui, detailView);
     BindQuickMatch();
     BindRuntimeSettings();
+    BindControlsSettings();
   }
 
   void BindQuickMatch() {
@@ -227,6 +279,59 @@ struct SingleProcessFrontend::Impl {
                  request.vsync ? 1 : 0);
   }
 
+  void BeginKeyboardCapture(std::size_t index) {
+    if (!FindKeyboardController() || index >= kKeyboardBindingLabels.size()) return;
+    capturingKeyIndex = index;
+    ui.SetElementText("controls-capture-status",
+                      "PRESS A KEY FOR " + std::string(kKeyboardBindingLabels[index]) +
+                          " · ESC CANCELS");
+  }
+
+  void CancelKeyboardCapture() {
+    capturingKeyIndex.reset();
+    BindControlsSettings();
+  }
+
+  void CommitKeyboardCapture(SDL_Keycode key) {
+    if (!capturingKeyIndex) return;
+    HIDKeyboard* keyboard = FindKeyboardController();
+    if (!keyboard) {
+      CancelKeyboardCapture();
+      return;
+    }
+    keyboard->SetFunctionMapping(static_cast<int>(*capturingKeyIndex), key);
+    keyboard->SaveConfig();
+    capturingKeyIndex.reset();
+    BindControlsSettings();
+  }
+
+  void ResetKeyboardBindings() {
+    HIDKeyboard* keyboard = FindKeyboardController();
+    if (!keyboard) return;
+    for (std::size_t i = 0; i < kKeyboardBindingLabels.size(); ++i) {
+      keyboard->SetFunctionMapping(static_cast<int>(i), defaultKeyIDs[i]);
+    }
+    keyboard->SaveConfig();
+    capturingKeyIndex.reset();
+    BindControlsSettings();
+  }
+
+  void CycleLanguage() {
+    const std::vector<std::string> languages = Localization::GetAvailableLanguages();
+    if (languages.empty()) return;
+
+    const std::string current = Localization::GetInstance().GetCurrentLanguage();
+    auto it = std::find(languages.begin(), languages.end(), current);
+    const std::size_t currentIndex =
+        it == languages.end() ? 0 : static_cast<std::size_t>(std::distance(languages.begin(), it));
+    const std::string& next = languages[(currentIndex + 1) % languages.size()];
+    if (!Localization::GetInstance().Load(next)) return;
+
+    GetConfiguration()->Set("locale_language", next);
+    GetConfiguration()->SaveFile(GetConfigFilename());
+    BindRuntimeSettings();
+  }
+
   void ProcessUiRequests() {
     if (!quitConfirmOpen) {
       const std::string route = ui.ConsumeRouteRequest();
@@ -250,7 +355,16 @@ struct SingleProcessFrontend::Impl {
     }
     if (quitConfirmOpen) return;
 
-    if (action == "change-home-team") {
+    if (const auto keyIndex = ParseKeyboardBindingAction(action)) {
+      BeginKeyboardCapture(*keyIndex);
+      return;
+    }
+
+    if (action == "reset-keyboard-bindings") {
+      ResetKeyboardBindings();
+    } else if (action == "cycle-language") {
+      CycleLanguage();
+    } else if (action == "change-home-team") {
       AdvanceTeam(quickMatch, true);
       BindQuickMatch();
     } else if (action == "change-away-team") {
@@ -336,6 +450,21 @@ struct SingleProcessFrontend::Impl {
              event.type == SDL_MOUSEMOTION || event.type == SDL_MOUSEWHEEL;
     }
 
+    if (capturingKeyIndex) {
+      if (event.type == SDL_KEYDOWN && event.key.repeat == 0) {
+        if (event.key.keysym.sym == SDLK_ESCAPE)
+          CancelKeyboardCapture();
+        else
+          CommitKeyboardCapture(event.key.keysym.sym);
+        return true;
+      }
+      if (event.type == SDL_CONTROLLERBUTTONDOWN && event.cbutton.button == SDL_CONTROLLER_BUTTON_B) {
+        CancelKeyboardCapture();
+        return true;
+      }
+      if (event.type == SDL_KEYUP || event.type == SDL_CONTROLLERBUTTONUP) return true;
+    }
+
     bool consumed = false;
     bool activate = false;
 
@@ -403,6 +532,7 @@ struct SingleProcessFrontend::Impl {
   bool initialized = false;
   bool suspended = false;
   bool quitConfirmOpen = false;
+  std::optional<std::size_t> capturingKeyIndex;
 };
 
 SingleProcessFrontend::SingleProcessFrontend(RmlUiSystem& ui)
