@@ -3,6 +3,7 @@
 #include <gtest/gtest.h>
 
 #include "core/career/career_common.hpp"
+#include "core/career/career_simulation_scenarios.hpp"
 #include "core/career/fast_match_engine.hpp"
 #include "core/match/match_simulation_lab.hpp"
 #include "integration/league_soccer/full_3d_match_engine.hpp"
@@ -54,6 +55,26 @@ void ExpectSameTelemetry(const blunted::MatchSimulationTelemetry& a,
   EXPECT_EQ(a.userShots, b.userShots);
   EXPECT_EQ(a.opponentShots, b.opponentShots);
   EXPECT_EQ(a.userPossession, b.userPossession);
+}
+
+const blunted::CareerSimulationScenario* FindScenario(
+    const std::vector<blunted::CareerSimulationScenario>& scenarios,
+    const std::string& name) {
+  for (const auto& scenario : scenarios) {
+    if (scenario.name == name)
+      return &scenario;
+  }
+  return nullptr;
+}
+
+int CountScenarioPrefix(const std::vector<blunted::CareerSimulationScenario>& scenarios,
+                        const std::string& prefix) {
+  int count = 0;
+  for (const auto& scenario : scenarios) {
+    if (scenario.name.rfind(prefix, 0) == 0)
+      ++count;
+  }
+  return count;
 }
 
 TEST(GameplaySimulationLab, SeededFastBatchIsReproducible) {
@@ -114,6 +135,112 @@ TEST(GameplaySimulationLab, NonPositiveBatchSizeRunsNothing) {
   EXPECT_EQ(telemetry.requestedRuns, 0);
   EXPECT_EQ(telemetry.completedRuns, 0);
   EXPECT_EQ(telemetry.interactiveRuns, 0);
+}
+
+TEST(GameplaySimulationLab, DefaultScenarioCatalogueCoversMilestoneMatrix) {
+  const auto scenarios = blunted::BuildDefaultCareerSimulationScenarioCatalogue(40);
+
+  EXPECT_EQ(scenarios.size(), 22u);
+  EXPECT_EQ(CountScenarioPrefix(scenarios, "team_strength_"), 3);
+  EXPECT_EQ(CountScenarioPrefix(scenarios, "opposition_"), 3);
+  EXPECT_EQ(CountScenarioPrefix(scenarios, "venue_"), 2);
+  EXPECT_EQ(CountScenarioPrefix(scenarios, "strategy_"), 6);
+  EXPECT_EQ(CountScenarioPrefix(scenarios, "condition_"), 6);
+  EXPECT_EQ(CountScenarioPrefix(scenarios, "edge_"), 2);
+
+  for (const auto& scenario : scenarios)
+    EXPECT_EQ(scenario.runs, 40) << scenario.name;
+}
+
+TEST(GameplaySimulationLab, NumericOpponentRatingsUseStableExplicitIds) {
+  EXPECT_EQ(blunted::StableOpponentTeamIdForRating(45), "0");
+  EXPECT_EQ(blunted::StableOpponentTeamIdForRating(65), "20");
+  EXPECT_EQ(blunted::StableOpponentTeamIdForRating(88), "43");
+  EXPECT_EQ(blunted::StableOpponentTeamIdForRating(1), "0");
+  EXPECT_EQ(blunted::StableOpponentTeamIdForRating(999), "43");
+}
+
+TEST(GameplaySimulationLab, StrongerOppositionReducesBatchPerformance) {
+  const auto scenarios = blunted::BuildDefaultCareerSimulationScenarioCatalogue(1200);
+  const auto* weakOpponent = FindScenario(scenarios, "opposition_weak");
+  const auto* strongOpponent = FindScenario(scenarios, "opposition_strong");
+  ASSERT_NE(weakOpponent, nullptr);
+  ASSERT_NE(strongOpponent, nullptr);
+
+  const auto weakReport = blunted::RunCareerSimulationScenario(*weakOpponent);
+  const auto strongReport = blunted::RunCareerSimulationScenario(*strongOpponent);
+
+  ASSERT_EQ(weakReport.telemetry.completedRuns, 1200);
+  ASSERT_EQ(strongReport.telemetry.completedRuns, 1200);
+  EXPECT_GT(weakReport.telemetry.AverageGoalDifference(),
+            strongReport.telemetry.AverageGoalDifference());
+  EXPECT_GT(weakReport.telemetry.WinRate(), strongReport.telemetry.WinRate());
+}
+
+TEST(GameplaySimulationLab, HomeVenueOutperformsPairedAwayScenario) {
+  const auto scenarios = blunted::BuildDefaultCareerSimulationScenarioCatalogue(1200);
+  const auto* home = FindScenario(scenarios, "venue_home_equal");
+  const auto* away = FindScenario(scenarios, "venue_away_equal");
+  ASSERT_NE(home, nullptr);
+  ASSERT_NE(away, nullptr);
+
+  const auto homeReport = blunted::RunCareerSimulationScenario(*home);
+  const auto awayReport = blunted::RunCareerSimulationScenario(*away);
+
+  EXPECT_GT(homeReport.telemetry.AverageGoalDifference(),
+            awayReport.telemetry.AverageGoalDifference());
+  EXPECT_GT(homeReport.telemetry.AverageUserPossession(),
+            awayReport.telemetry.AverageUserPossession());
+}
+
+TEST(GameplaySimulationLab, PossessionStrategyControlsMoreBallThanCounterAttack) {
+  const auto scenarios = blunted::BuildDefaultCareerSimulationScenarioCatalogue(800);
+  const auto* possession = FindScenario(scenarios, "strategy_possession");
+  const auto* counter = FindScenario(scenarios, "strategy_counter_attack");
+  ASSERT_NE(possession, nullptr);
+  ASSERT_NE(counter, nullptr);
+
+  const auto possessionReport = blunted::RunCareerSimulationScenario(*possession);
+  const auto counterReport = blunted::RunCareerSimulationScenario(*counter);
+
+  EXPECT_GT(possessionReport.telemetry.AverageUserPossession(),
+            counterReport.telemetry.AverageUserPossession());
+}
+
+TEST(GameplaySimulationLab, BetterMoraleAndFormImproveLargeSampleGoalDifference) {
+  const auto scenarios = blunted::BuildDefaultCareerSimulationScenarioCatalogue(1600);
+  const auto* lowMorale = FindScenario(scenarios, "condition_low_morale");
+  const auto* highMorale = FindScenario(scenarios, "condition_high_morale");
+  const auto* lowForm = FindScenario(scenarios, "condition_low_form");
+  const auto* highForm = FindScenario(scenarios, "condition_high_form");
+  ASSERT_NE(lowMorale, nullptr);
+  ASSERT_NE(highMorale, nullptr);
+  ASSERT_NE(lowForm, nullptr);
+  ASSERT_NE(highForm, nullptr);
+
+  const auto lowMoraleReport = blunted::RunCareerSimulationScenario(*lowMorale);
+  const auto highMoraleReport = blunted::RunCareerSimulationScenario(*highMorale);
+  const auto lowFormReport = blunted::RunCareerSimulationScenario(*lowForm);
+  const auto highFormReport = blunted::RunCareerSimulationScenario(*highForm);
+
+  EXPECT_GT(highMoraleReport.telemetry.AverageGoalDifference(),
+            lowMoraleReport.telemetry.AverageGoalDifference());
+  EXPECT_GT(highFormReport.telemetry.AverageGoalDifference(),
+            lowFormReport.telemetry.AverageGoalDifference());
+}
+
+TEST(GameplaySimulationLab, FitnessAndRosterEdgeScenariosRemainRunnable) {
+  const auto scenarios = blunted::BuildDefaultCareerSimulationScenarioCatalogue(80);
+  const char* names[] = {"condition_low_fitness", "condition_high_fitness",
+                         "edge_empty_roster", "edge_minimal_roster"};
+
+  for (const char* name : names) {
+    const auto* scenario = FindScenario(scenarios, name);
+    ASSERT_NE(scenario, nullptr) << name;
+    const auto report = blunted::RunCareerSimulationScenario(*scenario);
+    EXPECT_EQ(report.telemetry.completedRuns, 80) << name;
+    EXPECT_EQ(report.telemetry.interactiveRuns, 0) << name;
+  }
 }
 
 }  // namespace
