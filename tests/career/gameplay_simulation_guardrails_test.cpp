@@ -151,4 +151,20 @@ TEST(GameplaySimulationGuardrails, ScorerDistributionFavorsForwardsAndNeverGoalk
                "CF/ST scorer share");
 }
 
+TEST(GameplaySimulationGuardrails, GoalkeeperStaysIneligibleWithHighFormAndGoalkeeperOnlyRoster) {
+  const auto scenarios = blunted::BuildDefaultCareerSimulationScenarioCatalogue(4000);
+  const auto* highForm = FindScenario(scenarios, "condition_high_form");
+  const auto* goalkeeperOnly = FindScenario(scenarios, "edge_minimal_roster");
+  ASSERT_NE(highForm, nullptr);
+  ASSERT_NE(goalkeeperOnly, nullptr);
+
+  const auto highFormReport = blunted::RunCareerSimulationScenario(*highForm);
+  const auto goalkeeperOnlyReport = blunted::RunCareerSimulationScenario(*goalkeeperOnly);
+
+  EXPECT_EQ(ScorerGoals(highFormReport.telemetry, "Scenario Player 0"), 0);
+  EXPECT_EQ(ScorerGoals(goalkeeperOnlyReport.telemetry, "Scenario Player 0"), 0);
+  EXPECT_GT(goalkeeperOnlyReport.telemetry.userGoals, 0);
+  EXPECT_TRUE(goalkeeperOnlyReport.telemetry.userScorerGoals.empty());
+}
+
 }  // namespace
