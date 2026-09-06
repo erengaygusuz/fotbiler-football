@@ -24,6 +24,7 @@ struct CareerSimulationGuardrails {
   SimulationMetricBand equalHomeDrawRate;
   SimulationMetricBand equalHomeLossRate;
   SimulationMetricBand equalHomeUserShotConversion;
+  SimulationMetricBand equalHomeOpponentShotConversion;
   SimulationMetricBand equalHomePossession;
 
   // Difference between paired home and away average goal difference.
@@ -52,6 +53,7 @@ inline CareerSimulationGuardrails DefaultCareerSimulationGuardrails() {
   guardrails.equalHomeDrawRate = {0.24, 0.36};
   guardrails.equalHomeLossRate = {0.24, 0.38};
   guardrails.equalHomeUserShotConversion = {0.13, 0.25};
+  guardrails.equalHomeOpponentShotConversion = {0.11, 0.23};
   guardrails.equalHomePossession = {51.5, 54.5};
 
   guardrails.homeGoalDifferenceAdvantage = {0.18, 0.50};
