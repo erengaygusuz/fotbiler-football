@@ -1,5 +1,7 @@
 #include "gamepage.hpp"
 
+#include <algorithm>
+#include <cmath>
 #include <cstdlib>
 #include <string>
 
@@ -9,6 +11,7 @@
 #include "../../presentation/ui/rmlui/runtime_ui_bridge.hpp"
 #include "../career/career_database.hpp"
 #include "../pagefactory.hpp"
+#include "framework/scheduler.hpp"
 #include "gameover.hpp"
 #include "main.hpp"
 #include "phasemenu.hpp"
@@ -43,6 +46,14 @@ bool ModernFrontendAppActive() {
 
 bool ModernUiActive() {
   return ModernUiSessionActive() || ModernFrontendAppActive();
+}
+
+float ReplaySpeedForStep(int step) {
+  switch (step) {
+    case 0: return 0.5f;
+    case 2: return 2.0f;
+    default: return 1.0f;
+  }
 }
 
 void PublishModernMatchSnapshot(Match* match) {
@@ -93,7 +104,20 @@ void OpenModernPause(Match* match) {
 }  // namespace
 
 GamePage::GamePage(Gui2WindowManager* windowManager, const Gui2PageData& pageData)
-    : Gui2Page(windowManager, pageData), match(0), matchReadyTime_ms(0), autoQuitTriggered(false) {
+    : Gui2Page(windowManager, pageData),
+      match(0),
+      matchReadyTime_ms(0),
+      autoQuitTriggered(false),
+      modernReplayActive(false),
+      modernReplayPlaying(false),
+      modernReplayAutoClose(false),
+      modernReplaySpeedStep(1),
+      modernReplayCam(0),
+      modernReplayRequestedOffset_ms(0),
+      modernReplayModifier(0.0f),
+      modernReplayMinTime_ms(10),
+      modernReplayMaxTime_ms(10),
+      modernReplayTime_ms(10) {
   if (!ModernUiActive()) {
     Gui2Caption* betaSign =
         new Gui2Caption(windowManager, "caption_betasign", 0, 0, 0, 2, "League-Soccer v0.4.0");
@@ -116,8 +140,183 @@ GamePage::~GamePage() {
     conn_ShortReplayMoment.disconnect();
     conn_ExtendedReplayMoment.disconnect();
     conn_GameOver.disconnect();
+    if (modernReplayActive) match->SetAutoUpdateIngameCamera(true);
   }
   if (ModernUiActive()) ui::runtime::Reset();
+}
+
+void GamePage::BeginModernReplay() {
+  if (!match || modernReplayActive) return;
+
+  match->Pause(true);
+  match->SetAutoUpdateIngameCamera(false);
+
+  const signed long replayStart =
+      static_cast<signed long>(match->GetActualTime_ms()) - match->GetReplaySize_ms();
+  modernReplayMinTime_ms = std::max<signed long>(10, replayStart);
+  modernReplayMaxTime_ms =
+      std::max<signed long>(10, static_cast<signed long>(match->GetActualTime_ms()) - 10);
+
+  const int requestedOffset = modernReplayRequestedOffset_ms > 0
+                                  ? modernReplayRequestedOffset_ms
+                                  : std::min(5000, match->GetReplaySize_ms());
+  modernReplayTime_ms = std::clamp<signed long>(modernReplayMaxTime_ms - requestedOffset,
+                                                 modernReplayMinTime_ms,
+                                                 modernReplayMaxTime_ms);
+  modernReplaySpeedStep = 1;
+  modernReplayCam = modernReplayAutoClose ? 1 : 0;
+  modernReplayModifier = 0.0f;
+  modernReplayPlaying = true;
+  modernReplayActive = true;
+
+  ApplyModernReplayState();
+  PublishModernReplaySnapshot();
+}
+
+void GamePage::EndModernReplay(bool resumeMatch) {
+  if (!match || !modernReplayActive) return;
+
+  modernReplayPlaying = false;
+  modernReplayTime_ms = modernReplayMaxTime_ms;
+  ApplyModernReplayState();
+  modernReplayActive = false;
+  modernReplayAutoClose = false;
+  modernReplayRequestedOffset_ms = 0;
+  ui::runtime::PublishReplaySnapshot(ui::runtime::ReplaySnapshot{});
+
+  GetScheduler()->ResetTaskSequenceTime("game");
+  match->SetAutoUpdateIngameCamera(true);
+
+  if (resumeMatch) {
+    match->Pause(false);
+    ui::runtime::SetScreen(ui::runtime::Screen::None);
+    GetMenuTask()->ReleaseAllButtons();
+  } else {
+    match->Pause(true);
+    PublishModernMatchSnapshot(match);
+    ui::runtime::SetScreen(ui::runtime::Screen::Pause);
+  }
+}
+
+void GamePage::ApplyModernReplayState() {
+  if (!match || !modernReplayActive) return;
+
+  match->replayState.Lock();
+  match->replayState->viewTime_ms = static_cast<unsigned long>(modernReplayTime_ms);
+  match->replayState->cam = modernReplayCam;
+  match->replayState->modifierValue = modernReplayModifier;
+  match->replayState->dirty = true;
+  match->replayState.Unlock();
+}
+
+void GamePage::PublishModernReplaySnapshot() {
+  if (!modernReplayActive) {
+    ui::runtime::PublishReplaySnapshot(ui::runtime::ReplaySnapshot{});
+    return;
+  }
+
+  const unsigned long duration = static_cast<unsigned long>(
+      std::max<signed long>(0, modernReplayMaxTime_ms - modernReplayMinTime_ms));
+  const unsigned long elapsed = static_cast<unsigned long>(
+      std::max<signed long>(0, modernReplayTime_ms - modernReplayMinTime_ms));
+
+  ui::runtime::ReplaySnapshot snapshot;
+  snapshot.active = true;
+  snapshot.playing = modernReplayPlaying;
+  snapshot.speed = ReplaySpeedForStep(modernReplaySpeedStep);
+  snapshot.camera = modernReplayCam + 1;
+  snapshot.cameraCount = match ? std::max(1, match->GetReplayCamCount()) : 1;
+  snapshot.elapsed_ms = elapsed;
+  snapshot.duration_ms = duration;
+  snapshot.secondsAgo = static_cast<unsigned long>(
+      std::max<signed long>(0, modernReplayMaxTime_ms - modernReplayTime_ms) / 1000);
+  snapshot.progressPercent = duration > 0
+                                 ? static_cast<int>(std::clamp<unsigned long>(elapsed * 100 / duration,
+                                                                              0, 100))
+                                 : 100;
+  ui::runtime::PublishReplaySnapshot(snapshot);
+}
+
+void GamePage::HandleModernReplayCommand(int commandValue) {
+  if (!modernReplayActive) return;
+
+  using ui::runtime::Command;
+  const Command command = static_cast<Command>(commandValue);
+  bool replayStateChanged = false;
+
+  switch (command) {
+    case Command::ReplayTogglePlayback:
+      if (!modernReplayPlaying && modernReplayTime_ms >= modernReplayMaxTime_ms)
+        modernReplayTime_ms = modernReplayMinTime_ms;
+      modernReplayPlaying = !modernReplayPlaying;
+      replayStateChanged = true;
+      break;
+    case Command::ReplayCycleSpeed:
+      modernReplaySpeedStep = (modernReplaySpeedStep + 1) % 3;
+      break;
+    case Command::ReplayCycleCamera:
+      modernReplayCam = (modernReplayCam + 1) % std::max(1, match->GetReplayCamCount());
+      modernReplayModifier = 0.0f;
+      replayStateChanged = true;
+      break;
+    case Command::ReplaySeekBackward:
+      modernReplayPlaying = false;
+      modernReplayTime_ms =
+          std::max<signed long>(modernReplayMinTime_ms, modernReplayTime_ms - 1000);
+      replayStateChanged = true;
+      break;
+    case Command::ReplaySeekForward:
+      modernReplayPlaying = false;
+      modernReplayTime_ms =
+          std::min<signed long>(modernReplayMaxTime_ms, modernReplayTime_ms + 1000);
+      replayStateChanged = true;
+      break;
+    case Command::ReplayCameraUp:
+      modernReplayModifier -= 0.15f;
+      replayStateChanged = true;
+      break;
+    case Command::ReplayCameraDown:
+      modernReplayModifier += 0.15f;
+      replayStateChanged = true;
+      break;
+    case Command::ReplayExit:
+      EndModernReplay(modernReplayAutoClose);
+      return;
+    default:
+      return;
+  }
+
+  if (modernReplayCam == 2) {
+    if (modernReplayModifier < -1.0f) modernReplayModifier += 2.0f;
+    if (modernReplayModifier > 1.0f) modernReplayModifier -= 2.0f;
+  } else {
+    modernReplayModifier = std::clamp(modernReplayModifier, -1.0f, 1.0f);
+  }
+
+  if (replayStateChanged) ApplyModernReplayState();
+  PublishModernReplaySnapshot();
+}
+
+void GamePage::UpdateModernReplay() {
+  if (!match || !modernReplayActive) return;
+
+  if (modernReplayPlaying) {
+    const float speed = ReplaySpeedForStep(modernReplaySpeedStep);
+    modernReplayTime_ms += static_cast<signed long>(std::lround(10.0f * speed));
+    if (modernReplayTime_ms >= modernReplayMaxTime_ms) {
+      modernReplayTime_ms = modernReplayMaxTime_ms;
+      modernReplayPlaying = false;
+      ApplyModernReplayState();
+      PublishModernReplaySnapshot();
+      if (modernReplayAutoClose) {
+        EndModernReplay(true);
+      }
+      return;
+    }
+    ApplyModernReplayState();
+  }
+
+  PublishModernReplaySnapshot();
 }
 
 void GamePage::Process() {
@@ -154,6 +353,13 @@ void GamePage::Process() {
   }
 
   if (ModernUiActive() && match) {
+    const ui::runtime::Screen screen = ui::runtime::GetScreen();
+    if (screen == ui::runtime::Screen::Replay && !modernReplayActive) {
+      BeginModernReplay();
+    } else if (screen != ui::runtime::Screen::Replay && modernReplayActive) {
+      EndModernReplay(false);
+    }
+
     const ui::runtime::Command command = ui::runtime::ConsumeCommand();
     if (command == ui::runtime::Command::ResumeMatch) {
       match->Pause(false);
@@ -176,8 +382,11 @@ void GamePage::Process() {
       }
 
       EnvironmentManager::GetInstance().SignalQuit();
+    } else if (command != ui::runtime::Command::None) {
+      HandleModernReplayCommand(static_cast<int>(command));
     }
 
+    if (modernReplayActive) UpdateModernReplay();
     if (match->GetPause()) PublishModernMatchSnapshot(match);
   }
 
@@ -192,10 +401,23 @@ void GamePage::Process() {
 }
 
 void GamePage::GoShortReplayPage() {
+  if (ModernUiActive() && match) {
+    modernReplayRequestedOffset_ms = std::min(3000, match->GetReplaySize_ms());
+    modernReplayAutoClose = true;
+    ui::runtime::SetScreen(ui::runtime::Screen::Replay);
+    return;
+  }
   CreatePage((int)e_PageID_Replay);
 }
 
 void GamePage::GoExtendedReplayPage() {
+  if (ModernUiActive() && match) {
+    modernReplayRequestedOffset_ms = match->GetReplaySize_ms();
+    modernReplayAutoClose = true;
+    ui::runtime::SetScreen(ui::runtime::Screen::Replay);
+    return;
+  }
+
   this->Exit();
 
   Properties properties;
@@ -214,7 +436,7 @@ void GamePage::GoMatchPhasePage() {
 
   Properties properties;
   properties.Set("nextphase", (int)nextPhase);
-  CreatePage((int)e_PageID_MatchPhase, properties);
+  CreatePage((int)e_PageID_MatchPhase, properties, 0);
 }
 
 void GamePage::GoGameOverPage() {
