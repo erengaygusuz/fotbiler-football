@@ -13,6 +13,7 @@ project(GameplayFootball VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PAT
 include(CTest)
 option(GAMEPLAYFOOTBALL_BUILD_GAME "Build the SDL/OpenGL game executable and runtime libraries." ON)
 option(GAMEPLAYFOOTBALL_BUILD_DOCS "Generate API documentation with Doxygen (requires doxygen)." OFF)
+option(GAMEPLAYFOOTBALL_BUILD_SIMULATION_TOOLS "Build headless gameplay simulation tools." ON)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -425,25 +426,28 @@ if(GAMEPLAYFOOTBALL_BUILD_GAME)
   endif()
 endif()
 
-if(BUILD_TESTING)
-  add_subdirectory(tests)
+if(GAMEPLAYFOOTBALL_BUILD_SIMULATION_TOOLS)
+  add_executable(fotbiler_sim
+    tools/simulation/fotbiler_sim.cpp
+    src/core/career/career_common.cpp
+    src/core/career/career_sim.cpp
+  )
+  target_include_directories(fotbiler_sim PRIVATE
+    ${PROJECT_SOURCE_DIR}/src
+  )
 endif()
 
-# ── Doxygen documentation target (task 5.1) ────────────────────────────────
-if(GAMEPLAYFOOTBALL_BUILD_DOCS)
-  find_package(Doxygen REQUIRED)
-  # Generate Doxyfile from template, substituting project version
-  configure_file(
-    ${PROJECT_SOURCE_DIR}/Doxyfile.in
-    ${PROJECT_SOURCE_DIR}/Doxyfile
-    @ONLY
-  )
-  set(DOXYGEN_IN  ${PROJECT_SOURCE_DIR}/Doxyfile)
-  set(DOXYGEN_OUT ${PROJECT_SOURCE_DIR}/docs)
-  add_custom_target(docs
-    COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYGEN_IN}
-    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-    COMMENT "Generating API documentation with Doxygen"
-    VERBATIM
-  )
+if(BUILD_TESTING)
+  add_subdirectory(tests)
+  if(TARGET fotbiler_sim)
+    add_test(
+      NAME GameplaySimulationRunner.Smoke
+      COMMAND $<TARGET_FILE:fotbiler_sim>
+        --scenario opposition_equal
+        --runs 25
+        --csv ${CMAKE_CURRENT_BINARY_DIR}/simulation-smoke/report.csv
+        --json ${CMAKE_CURRENT_BINARY_DIR}/simulation-smoke/report.json
+        --no-console
+    )
+  endif()
 endif()
