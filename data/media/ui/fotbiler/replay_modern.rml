@@ -8,17 +8,26 @@
   <div class="replay-overlay-screen">
     <div class="replay-status-badge">
       <span class="replay-status-live">REPLAY</span>
-      <span class="replay-status-speed">1.0×</span>
+      <span id="replay-state" class="replay-status-state">PLAYING</span>
+      <span id="replay-speed" class="replay-status-speed">1.0x</span>
     </div>
 
     <div class="replay-control-dock">
       <div class="replay-dock-heading">
         <span class="replay-dock-title">INSTANT REPLAY</span>
-        <span class="replay-dock-note">MATCH FOOTAGE REMAINS VISIBLE</span>
+        <span id="replay-seconds-ago" class="replay-dock-note">-5s</span>
+      </div>
+
+      <div class="replay-timeline-row">
+        <span id="replay-time" class="replay-time">0:05 / 0:10</span>
+        <div class="replay-timeline-track">
+          <div id="replay-progress-fill" class="replay-timeline-fill"></div>
+        </div>
+        <span id="replay-camera" class="replay-camera">CAM 1 / 4</span>
       </div>
 
       <div class="replay-controls">
-        <div class="replay-control" tabindex="0" autofocus data-action="replay-play-pause">
+        <div id="replay-play-pause" class="replay-control" tabindex="0" autofocus data-action="replay-play-pause">
           <span class="replay-control-key">A</span>
           <span>PLAY / PAUSE</span>
         </div>
@@ -32,14 +41,17 @@
         </div>
         <div class="replay-control replay-control-exit" tabindex="0" data-action="replay-exit">
           <span class="replay-control-key">B</span>
-          <span>RETURN TO MATCH</span>
+          <span>EXIT REPLAY</span>
         </div>
       </div>
 
       <div class="replay-keyboard-hints">
         <span><b>SPACE</b> PLAY / PAUSE</span>
-        <span><b>C</b> CAMERA</span>
-        <span><b>ESC</b> EXIT REPLAY</span>
+        <span><b>LEFT / RIGHT</b> SEEK</span>
+        <span><b>UP / DOWN</b> CAMERA</span>
+        <span><b>C</b> CHANGE CAMERA</span>
+        <span><b>X</b> SPEED</span>
+        <span><b>ESC</b> EXIT</span>
       </div>
     </div>
   </div>
