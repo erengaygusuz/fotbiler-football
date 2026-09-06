@@ -14,10 +14,16 @@
 
 namespace {
 
+using blunted::ui::DescribePhysicalGamepadBinding;
+using blunted::ui::EncodeGamepadAxisDirection;
+using blunted::ui::ParseGamepadFunctionAction;
+using blunted::ui::ParseGamepadPhysicalBindingAction;
+using blunted::ui::ParseGamepadSelectAction;
 using blunted::ui::ParseKeyboardBindingAction;
 using blunted::ui::RuntimeVolumeToLegacyAudio;
 using blunted::ui::ScreenId;
 using blunted::ui::ScreenRouter;
+using blunted::ui::kControllerButtonLabels;
 using blunted::ui::kKeyboardBindingLabels;
 namespace frontend = blunted::ui::frontend;
 
@@ -51,6 +57,91 @@ TEST(ModernSettingsParity, ControlsSettingsHasDedicatedModernRoute) {
   ASSERT_NE(route, nullptr);
   EXPECT_EQ(route->id, ScreenId::ControlsSettings);
   EXPECT_EQ(route->documentPath, "media/ui/fotbiler/controls_settings.rml");
+}
+
+TEST(ModernSettingsParity, GamepadModelMatchesLegacyControllerButtonCount) {
+  static_assert(e_ControllerButton_Size == 14, "legacy controller button count changed");
+  EXPECT_EQ(kControllerButtonLabels.size(), static_cast<std::size_t>(e_ControllerButton_Size));
+  EXPECT_EQ(kControllerButtonLabels[0], "DPAD UP");
+  EXPECT_EQ(kControllerButtonLabels[6], "A / CROSS");
+  EXPECT_EQ(kControllerButtonLabels[13], "START / OPTIONS");
+}
+
+TEST(ModernSettingsParity, GamepadActionsAreStrictlyParsed) {
+  EXPECT_EQ(ParseGamepadSelectAction("select-gamepad-0"), 0u);
+  EXPECT_EQ(ParseGamepadSelectAction("select-gamepad-7"), 7u);
+  EXPECT_FALSE(ParseGamepadSelectAction("select-gamepad-8"));
+
+  EXPECT_EQ(ParseGamepadPhysicalBindingAction("bind-gamepad-physical-0"), 0u);
+  EXPECT_EQ(ParseGamepadPhysicalBindingAction("bind-gamepad-physical-13"), 13u);
+  EXPECT_FALSE(ParseGamepadPhysicalBindingAction("bind-gamepad-physical-14"));
+
+  EXPECT_EQ(ParseGamepadFunctionAction("cycle-gamepad-function-0"), 0u);
+  EXPECT_EQ(ParseGamepadFunctionAction("cycle-gamepad-function-17"), 17u);
+  EXPECT_FALSE(ParseGamepadFunctionAction("cycle-gamepad-function-18"));
+}
+
+TEST(ModernSettingsParity, LegacyAxisBindingEncodingRoundTripsToReadableLabels) {
+  EXPECT_EQ(EncodeGamepadAxisDirection(0, false), -1);
+  EXPECT_EQ(EncodeGamepadAxisDirection(0, true), -2);
+  EXPECT_EQ(EncodeGamepadAxisDirection(1, false), -3);
+  EXPECT_EQ(EncodeGamepadAxisDirection(1, true), -4);
+  EXPECT_EQ(DescribePhysicalGamepadBinding(-1), "AXIS 0-");
+  EXPECT_EQ(DescribePhysicalGamepadBinding(-2), "AXIS 0+");
+  EXPECT_EQ(DescribePhysicalGamepadBinding(-3), "AXIS 1-");
+  EXPECT_EQ(DescribePhysicalGamepadBinding(5), "BUTTON 5");
+}
+
+TEST(ModernSettingsParity, GamepadWorkflowHasDedicatedModernRoutes) {
+  const struct {
+    const char* name;
+    ScreenId id;
+    const char* document;
+  } routes[] = {
+      {"gamepad-list", ScreenId::GamepadList, "media/ui/fotbiler/gamepad_list.rml"},
+      {"gamepad-setup", ScreenId::GamepadSetup, "media/ui/fotbiler/gamepad_setup.rml"},
+      {"gamepad-calibration", ScreenId::GamepadCalibration,
+       "media/ui/fotbiler/gamepad_calibration.rml"},
+      {"gamepad-mapping", ScreenId::GamepadMapping, "media/ui/fotbiler/gamepad_mapping.rml"},
+      {"gamepad-functions", ScreenId::GamepadFunctions,
+       "media/ui/fotbiler/gamepad_functions.rml"},
+  };
+
+  for (const auto& expected : routes) {
+    const auto* route = ScreenRouter::FindRoute(expected.name);
+    ASSERT_NE(route, nullptr) << expected.name;
+    EXPECT_EQ(route->id, expected.id);
+    EXPECT_EQ(route->documentPath, expected.document);
+  }
+}
+
+TEST(ModernSettingsParity, GamepadDocumentsExposeLegacyParityActions) {
+  const std::string controls = ReadTextFile("data/media/ui/fotbiler/controls_settings.rml");
+  const std::string list = ReadTextFile("data/media/ui/fotbiler/gamepad_list.rml");
+  const std::string setup = ReadTextFile("data/media/ui/fotbiler/gamepad_setup.rml");
+  const std::string mapping = ReadTextFile("data/media/ui/fotbiler/gamepad_mapping.rml");
+  const std::string functions = ReadTextFile("data/media/ui/fotbiler/gamepad_functions.rml");
+  const std::string calibration = ReadTextFile("data/media/ui/fotbiler/gamepad_calibration.rml");
+
+  EXPECT_NE(controls.find("data-route=\"gamepad-list\""), std::string::npos);
+  EXPECT_NE(setup.find("data-action=\"begin-gamepad-calibration\""), std::string::npos);
+  EXPECT_NE(setup.find("data-route=\"gamepad-mapping\""), std::string::npos);
+  EXPECT_NE(setup.find("data-route=\"gamepad-functions\""), std::string::npos);
+  EXPECT_NE(calibration.find("data-action=\"save-gamepad-calibration\""), std::string::npos);
+  EXPECT_NE(calibration.find("data-action=\"cancel-gamepad-calibration\""), std::string::npos);
+
+  for (std::size_t i = 0; i < 8; ++i) {
+    EXPECT_NE(list.find("data-action=\"select-gamepad-" + std::to_string(i) + "\""),
+              std::string::npos);
+  }
+  for (std::size_t i = 0; i < kControllerButtonLabels.size(); ++i) {
+    EXPECT_NE(mapping.find("data-action=\"bind-gamepad-physical-" + std::to_string(i) + "\""),
+              std::string::npos);
+  }
+  for (std::size_t i = 0; i < kKeyboardBindingLabels.size(); ++i) {
+    EXPECT_NE(functions.find("data-action=\"cycle-gamepad-function-" + std::to_string(i) + "\""),
+              std::string::npos);
+  }
 }
 
 TEST(ModernSettingsParity, RuntimeVolumeMapsToLegacyAudioRange) {
