@@ -3,6 +3,7 @@
   <title>Instant Replay</title>
   <link type="text/rcss" href="theme.rcss" />
   <link type="text/rcss" href="runtime_shell.rcss" />
+  <link type="text/rcss" href="replay_overlay.rcss" />
 </head>
 <body class="replay-overlay-body">
   <div class="replay-overlay-screen">
