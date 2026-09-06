@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <fstream>
 #include <sstream>
 #include <string>
@@ -130,6 +131,27 @@ TEST(ModernSettingsParity, ShippedLocalesProduceVisibleSettingsTranslations) {
   EXPECT_EQ(localization.Translate("settings_controller"), "Steuerung");
   EXPECT_NE(localization.Translate("settings_title"), englishSettings);
   EXPECT_NE(localization.Translate("settings_controller"), englishControls);
+
+  ASSERT_TRUE(localization.Load("en"));
+}
+
+TEST(ModernSettingsParity, TurkishLocaleIsShippedAndVisibleInModernUi) {
+  const auto languages = Localization::GetAvailableLanguages();
+  ASSERT_GE(languages.size(), 2u);
+  EXPECT_EQ(languages[0], "en");
+  EXPECT_EQ(languages[1], "tr");
+  EXPECT_NE(std::find(languages.begin(), languages.end(), "tr"), languages.end());
+  EXPECT_EQ(Localization::GetLanguageDisplayName("tr"), "Türkçe");
+
+  Localization& localization = Localization::GetInstance();
+  ASSERT_TRUE(localization.Load("tr"));
+  EXPECT_EQ(localization.GetCurrentLanguage(), "tr");
+  EXPECT_EQ(localization.Translate("settings_title"), "Ayarlar");
+  EXPECT_EQ(localization.Translate("menu_careermode"), "Kariyer Modu");
+  EXPECT_EQ(localization.Translate("menu_leaguemode"), "Lig Modu");
+  EXPECT_EQ(localization.Translate("graphics_resolution"), "Çözünürlük");
+  EXPECT_EQ(localization.Translate("settings_controller"), "Kontroller");
+  EXPECT_EQ(localization.Translate("league_return_main_menu"), "Ana Menüye Dön");
 
   ASSERT_TRUE(localization.Load("en"));
 }
