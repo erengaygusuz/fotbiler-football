@@ -43,7 +43,7 @@ bool LoadFotbilerFonts() {
 
 class InteractionEventListener final : public Rml::EventListener {
 public:
-  InteractionEventListener(std::string& pendingRoute, std::string& pendingAction)
+  InteractionEventListener(std::string& pendingRoute, UiAction& pendingAction)
       : pendingRoute(pendingRoute), pendingAction(pendingAction) {}
 
   void ProcessEvent(Rml::Event& event) override {
@@ -52,7 +52,9 @@ public:
       const Rml::String action =
           element->GetAttribute<Rml::String>("data-action", Rml::String());
       if (!action.empty()) {
-        pendingAction = action;
+        const Rml::String arguments =
+            element->GetAttribute<Rml::String>("data-action-args", Rml::String());
+        pendingAction = MakeUiAction(action, arguments);
         return;
       }
 
@@ -68,7 +70,7 @@ public:
 
 private:
   std::string& pendingRoute;
-  std::string& pendingAction;
+  UiAction& pendingAction;
 };
 
 }  // namespace
@@ -83,7 +85,7 @@ public:
   Rml::Context* context = nullptr;
   Rml::ElementDocument* document = nullptr;
   std::string pendingRoute;
-  std::string pendingAction;
+  UiAction pendingAction;
   std::string currentDocumentPath;
   std::unordered_map<std::string, std::string> focusByDocument;
   bool glInitialized = false;
@@ -180,7 +182,7 @@ void RmlUiSystem::Shutdown() {
   }
 
   impl->pendingRoute.clear();
-  impl->pendingAction.clear();
+  impl->pendingAction = {};
   impl->currentDocumentPath.clear();
   impl->focusByDocument.clear();
   impl->window = nullptr;
@@ -293,14 +295,18 @@ std::string RmlUiSystem::ConsumeRouteRequest() {
   return request;
 }
 
-std::string RmlUiSystem::ConsumeActionRequest() {
+UiAction RmlUiSystem::ConsumeAction() {
   if (!impl) {
     return {};
   }
 
-  std::string request = std::move(impl->pendingAction);
-  impl->pendingAction.clear();
+  UiAction request = std::move(impl->pendingAction);
+  impl->pendingAction = {};
   return request;
+}
+
+std::string RmlUiSystem::ConsumeActionRequest() {
+  return ConsumeAction().name;
 }
 
 bool RmlUiSystem::ActivateFocusedElement() {
