@@ -1,6 +1,8 @@
 #ifndef _HPP_HIDGAMEPAD
 #define _HPP_HIDGAMEPAD
 
+#include <SDL2/SDL.h>
+
 #include "base/math/vector3.hpp"
 #include "ihidevice.hpp"
 
@@ -59,6 +61,12 @@ public:
 
   int GetGamepadID() { return gamepadID; }
   void SetGamepadID(int id) { gamepadID = id; }
+
+  // Used by the modern physical-mapping UI to ignore joystick events emitted
+  // by a different connected controller while a binding capture is active.
+  SDL_JoystickID GetJoystickInstanceId() const {
+    return SDL_JoystickGetDeviceInstanceID(deviceIndex);
+  }
 
 protected:
   int deviceIndex;
