@@ -2,6 +2,7 @@
 #define LEAGUE_SOCCER_FULL_3D_MATCH_ENGINE_HPP
 
 #include "core/match/match_engine.hpp"
+#include "core/match/runtime_match_telemetry.hpp"
 
 namespace blunted {
 
@@ -21,7 +22,12 @@ public:
 
   MatchResult Complete(const MatchRequest& request, int engineHomeGoals,
                        int engineAwayGoals) const override {
-    return NormalizeHomeAwayResult(request, engineHomeGoals, engineAwayGoals);
+    MatchResult result = NormalizeHomeAwayResult(request, engineHomeGoals, engineAwayGoals);
+    // The playable engine currently exposes only the canonical final score at
+    // this boundary. Advanced-stat availability remains false until the 3D
+    // engine supplies trustworthy shots/possession/scorer data.
+    RuntimeMatchTelemetry::GetInstance().RecordFull3DCompletion(result);
+    return result;
   }
 };
 
