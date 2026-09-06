@@ -167,19 +167,34 @@ HumanoidBase::HumanoidBase(PlayerBase* player, Match* match,
   hairStyle->SetGeometryData(geometry);
   fullbodyTargetNode->AddObject(hairStyle);
 
+  const std::string hairStyleName =
+      player->GetPlayerData()->GetHairStyle();
+
+  // Legacy hairstyles use the generic runtime hair-color texture.
+  // New Fotbiler hairstyles keep the style-specific texture from
+  // their ASE material so strand/hairline detail is preserved.
+  const bool useStyleSpecificHairTexture =
+      hairStyleName.rfind("fotbiler_", 0) == 0;
+
   boost::intrusive_ptr<Resource<Surface>> hairTexture;
-  hairTexture = ResourceManagerPool::GetInstance()
-                    .GetManager<Surface>(e_ResourceType_Surface)
-                    ->Fetch("media/objects/players/textures/hair/" +
-                                player->GetPlayerData()->GetHairColor() + ".png",
-                            true, true);
+
+  if (!useStyleSpecificHairTexture) {
+    hairTexture = ResourceManagerPool::GetInstance()
+                      .GetManager<Surface>(e_ResourceType_Surface)
+                      ->Fetch("media/objects/players/textures/hair/" +
+                                  player->GetPlayerData()->GetHairColor() + ".png",
+                              true, true);
+  }
 
   std::vector<MaterializedTriangleMesh>& hairtmesh =
       hairStyle->GetGeometryData()->GetResource()->GetTriangleMeshesRef();
 
   for (unsigned int i = 0; i < hairtmesh.size(); i++) {
     if (hairtmesh.at(i).material.diffuseTexture != boost::intrusive_ptr<Resource<Surface>>()) {
-      hairtmesh.at(i).material.diffuseTexture = hairTexture;
+      if (!useStyleSpecificHairTexture) {
+        hairtmesh.at(i).material.diffuseTexture = hairTexture;
+      }
+
       hairtmesh.at(i).material.specular_amount = 0.01f;
       hairtmesh.at(i).material.shininess = 0.05f;
     }

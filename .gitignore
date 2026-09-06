@@ -16,3 +16,13 @@ tools/*_bin
 
 # Generated IDE compile database
 /compile_commands.json
+
+# Local-only external character reference assets
+# Used for compatibility/conversion testing; never distribute source assets.
+character_work/private_reference/
+
+# Local-only character asset packs
+character_work/asset_packs/
+
+# Local character research and generated assets
+character_work/
