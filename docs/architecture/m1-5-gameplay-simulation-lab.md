@@ -18,7 +18,7 @@ The M1 architecture already gives M1.5 a useful seam:
 
 The missing layer is reusable match-level batch telemetry that can be shared by focused scenarios and future tuning tools.
 
-## First foundation
+## M1.5A — Batch telemetry foundation
 
 `core/match/match_simulation_lab.hpp` introduces a small engine-agnostic harness:
 
@@ -35,11 +35,38 @@ The initial integration tests exercise the real `FastMatchEngine` with seeded RN
 3. `Full3DMatchEngine` is classified as interactive instead of being mistaken for a completed headless result;
 4. invalid/non-positive batch sizes are harmless.
 
-## Determinism note
+## M1.5B — Scenario catalogue
 
-`CareerSim::SimulateMatchResult` currently derives named-opponent strength from `std::hash<std::string>`. The seeded random sequence is reproducible inside the same runtime/toolchain, but the C++ standard does not require `std::hash` values to be identical across all standard-library implementations.
+`core/career/career_simulation_scenarios.hpp` adds a deterministic career-focused scenario layer on top of the generic match harness.
 
-For cross-platform golden scenarios, M1.5 should later replace that identity-strength derivation with an explicit stable hash or data-driven opponent rating.
+The default catalogue currently contains 22 scenarios covering:
+
+- controlled-team strength: weak / equal / strong;
+- opposition strength: weak / equal / strong;
+- paired home and away fixtures;
+- all six existing strategy strings: Balanced, Attacking, Defensive, High Pressing, Counter Attack, Possession;
+- low/high morale, form, and fitness perturbations;
+- empty-roster and one-player-roster edge cases.
+
+Comparative scenarios in the same family intentionally reuse the same RNG seed. This reduces noise when we compare aggregate behavior because only the scenario input changes.
+
+### Stable opponent ratings
+
+Named opponents currently derive strength from `std::hash<std::string>`. The C++ standard does not require those hash values to match across standard-library implementations.
+
+The scenario catalogue therefore leaves `opponentName` empty and uses the existing numeric opponent-id path. The current formula maps numeric id `N` to rating `45 + (N mod 44)`, so ids `0..43` give explicit ratings `45..88`. M1.5 scenarios can therefore target an exact opponent strength without introducing a second simulation formula or depending on implementation-defined hashing.
+
+### Current baseline observations
+
+The scenario matrix intentionally records behavior before tuning it:
+
+- home/away affects expected goals and possession in the current fast simulation;
+- strategy directly changes attack/defense and possession deltas;
+- morale and `matchForm` feed team attack/defense calculations;
+- `fitness` is represented in the catalogue but is not currently consumed by `SimulateMatchResult`;
+- an empty roster is still simulatable because the current fast simulation falls back to default team values, while scorer generation is skipped when no roster players exist.
+
+These are observations, not final gameplay-design decisions. M1.5C will turn the intended behaviors into explicit statistical guardrails and will make gaps such as fitness coupling visible instead of silently changing them.
 
 ## Planned M1.5 slices
 
@@ -52,11 +79,13 @@ For cross-platform golden scenarios, M1.5 should later replace that identity-str
 
 ### M1.5B — Scenario catalogue
 
-- [ ] Named deterministic scenarios (weak/equal/strong opposition)
-- [ ] Home/away pairs
-- [ ] Strategy matrix (Balanced, Attacking, Defensive, High Pressing, Counter Attack, Possession)
-- [ ] Morale/form/fitness perturbations
-- [ ] Empty/minimal roster edge cases
+- [x] Named deterministic scenarios (weak/equal/strong opposition)
+- [x] Controlled-team strength variants
+- [x] Home/away pairs
+- [x] Strategy matrix (Balanced, Attacking, Defensive, High Pressing, Counter Attack, Possession)
+- [x] Morale/form/fitness perturbations
+- [x] Empty/minimal roster edge cases
+- [x] Stable numeric opponent ratings for cross-toolchain scenario inputs
 
 ### M1.5C — Statistical guardrails
 
