@@ -18,7 +18,9 @@ inline constexpr std::array<std::string_view, 18> kKeyboardBindingLabels = {
 
 inline std::optional<std::size_t> ParseKeyboardBindingAction(std::string_view action) {
   constexpr std::string_view prefix = "bind-key-";
-  if (!action.starts_with(prefix) || action.size() == prefix.size()) return std::nullopt;
+  if (action.size() <= prefix.size() || action.substr(0, prefix.size()) != prefix) {
+    return std::nullopt;
+  }
 
   std::size_t index = 0;
   for (char ch : action.substr(prefix.size())) {
