@@ -451,3 +451,22 @@ if(BUILD_TESTING)
     )
   endif()
 endif()
+
+# ── Doxygen documentation target (task 5.1) ────────────────────────────────
+if(GAMEPLAYFOOTBALL_BUILD_DOCS)
+  find_package(Doxygen REQUIRED)
+  # Generate Doxyfile from template, substituting project version
+  configure_file(
+    ${PROJECT_SOURCE_DIR}/Doxyfile.in
+    ${PROJECT_SOURCE_DIR}/Doxyfile
+    @ONLY
+  )
+  set(DOXYGEN_IN  ${PROJECT_SOURCE_DIR}/Doxyfile)
+  set(DOXYGEN_OUT ${PROJECT_SOURCE_DIR}/docs)
+  add_custom_target(docs
+    COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYGEN_IN}
+    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+    COMMENT "Generating API documentation with Doxygen"
+    VERBATIM
+  )
+endif()
