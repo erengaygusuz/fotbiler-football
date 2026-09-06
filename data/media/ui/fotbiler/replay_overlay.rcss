@@ -1,0 +1,96 @@
+/* Modern instant replay intentionally overlays the rendered 3D replay frame. */
+body.replay-overlay-body,
+.replay-overlay-screen {
+  background-color: transparent;
+}
+
+.replay-status-badge {
+  min-width: 210px;
+}
+
+.replay-status-state {
+  display: block;
+  min-width: 62px;
+  padding: 9px 10px 7px 10px;
+  color: #c9d6df;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: .7px;
+  text-align: center;
+}
+
+.replay-control-dock {
+  left: 5%;
+  bottom: 3%;
+  width: 90%;
+  min-height: 148px;
+  padding: 12px 16px 10px 16px;
+}
+
+.replay-timeline-row {
+  display: flex;
+  width: 100%;
+  height: 30px;
+  margin-top: 2px;
+  align-items: center;
+}
+
+.replay-time,
+.replay-camera {
+  display: block;
+  width: 12%;
+  color: #d9e2e8;
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.replay-camera {
+  text-align: right;
+}
+
+.replay-timeline-track {
+  display: block;
+  position: relative;
+  width: 74%;
+  height: 6px;
+  margin-left: 1%;
+  margin-right: 1%;
+  background-color: rgba(215, 226, 233, 0.28);
+}
+
+.replay-timeline-fill {
+  display: block;
+  width: 50%;
+  height: 6px;
+  background-color: #20d0b5;
+}
+
+.replay-controls {
+  margin-top: 3px;
+}
+
+.replay-keyboard-hints {
+  justify-content: space-between;
+}
+
+.replay-keyboard-hints span {
+  margin-right: 8px;
+}
+
+@media (max-height: 760px) {
+  .replay-control-dock {
+    left: 4%;
+    bottom: 2%;
+    width: 92%;
+    min-height: 132px;
+    padding: 9px 12px 7px 12px;
+  }
+
+  .replay-timeline-row {
+    height: 26px;
+  }
+
+  .replay-keyboard-hints {
+    font-size: 8px;
+  }
+}
