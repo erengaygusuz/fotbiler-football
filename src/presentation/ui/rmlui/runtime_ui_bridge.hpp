@@ -24,6 +24,14 @@ enum class Command : int {
   None = 0,
   ResumeMatch,
   ExitMatch,
+  ReplayTogglePlayback,
+  ReplayCycleSpeed,
+  ReplayCycleCamera,
+  ReplaySeekBackward,
+  ReplaySeekForward,
+  ReplayCameraUp,
+  ReplayCameraDown,
+  ReplayExit,
 };
 
 struct MatchSnapshot {
@@ -46,10 +54,24 @@ struct MatchSnapshot {
   int awayFouls = 0;
 };
 
+struct ReplaySnapshot {
+  bool active = false;
+  bool playing = false;
+  float speed = 1.0f;
+  int camera = 1;
+  int cameraCount = 1;
+  unsigned long elapsed_ms = 0;
+  unsigned long duration_ms = 0;
+  unsigned long secondsAgo = 0;
+  int progressPercent = 0;
+};
+
 inline std::atomic<int> g_screen{static_cast<int>(Screen::None)};
 inline std::atomic<int> g_command{static_cast<int>(Command::None)};
 inline std::mutex g_snapshotMutex;
 inline MatchSnapshot g_snapshot;
+inline std::mutex g_replaySnapshotMutex;
+inline ReplaySnapshot g_replaySnapshot;
 
 inline void SetScreen(Screen screen) {
   g_screen.store(static_cast<int>(screen), std::memory_order_release);
@@ -78,11 +100,27 @@ inline MatchSnapshot ReadMatchSnapshot() {
   return g_snapshot;
 }
 
+inline void PublishReplaySnapshot(const ReplaySnapshot& snapshot) {
+  std::lock_guard<std::mutex> lock(g_replaySnapshotMutex);
+  g_replaySnapshot = snapshot;
+}
+
+inline ReplaySnapshot ReadReplaySnapshot() {
+  std::lock_guard<std::mutex> lock(g_replaySnapshotMutex);
+  return g_replaySnapshot;
+}
+
 inline void Reset() {
   SetScreen(Screen::None);
   g_command.store(static_cast<int>(Command::None), std::memory_order_release);
-  std::lock_guard<std::mutex> lock(g_snapshotMutex);
-  g_snapshot = MatchSnapshot{};
+  {
+    std::lock_guard<std::mutex> lock(g_snapshotMutex);
+    g_snapshot = MatchSnapshot{};
+  }
+  {
+    std::lock_guard<std::mutex> lock(g_replaySnapshotMutex);
+    g_replaySnapshot = ReplaySnapshot{};
+  }
 }
 
 }  // namespace blunted::ui::runtime
