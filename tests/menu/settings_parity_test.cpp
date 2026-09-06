@@ -9,6 +9,7 @@
 #include "presentation/ui/rmlui/input_settings.hpp"
 #include "presentation/ui/rmlui/runtime_settings.hpp"
 #include "presentation/ui/rmlui/screen_router.hpp"
+#include "utils/localization.hpp"
 
 namespace {
 
@@ -100,6 +101,49 @@ TEST(ModernSettingsParity, SettingsScreenDoesNotExposeDeadMatchOnlyLinks) {
               std::string::npos)
         << "missing keyboard binding action " << i;
   }
+}
+
+TEST(ModernSettingsParity, MigratedScreensExposeLocalizationTargets) {
+  const std::string settings = ReadTextFile("data/media/ui/fotbiler/runtime_settings.rml");
+  const std::string mainMenu = ReadTextFile("data/media/ui/fotbiler/main_menu.rml");
+  const std::string controls = ReadTextFile("data/media/ui/fotbiler/controls_settings.rml");
+  const std::string credits = ReadTextFile("data/media/ui/fotbiler/credits.rml");
+  const std::string league = ReadTextFile("data/media/ui/fotbiler/league_start.rml");
+
+  EXPECT_NE(settings.find("id=\"settings-title\""), std::string::npos);
+  EXPECT_NE(settings.find("id=\"settings-language-label\""), std::string::npos);
+  EXPECT_NE(mainMenu.find("id=\"main-career-title\""), std::string::npos);
+  EXPECT_NE(mainMenu.find("id=\"main-settings-title\""), std::string::npos);
+  EXPECT_NE(controls.find("id=\"controls-title\""), std::string::npos);
+  EXPECT_NE(credits.find("id=\"credits-back-title\""), std::string::npos);
+  EXPECT_NE(league.find("id=\"league-back-title\""), std::string::npos);
+}
+
+TEST(ModernSettingsParity, ShippedLocalesProduceVisibleSettingsTranslations) {
+  Localization& localization = Localization::GetInstance();
+  ASSERT_TRUE(localization.Load("en"));
+  const std::string englishSettings = localization.Translate("settings_title");
+  const std::string englishControls = localization.Translate("settings_controller");
+
+  ASSERT_TRUE(localization.Load("de"));
+  EXPECT_EQ(localization.Translate("settings_title"), "Einstellungen");
+  EXPECT_EQ(localization.Translate("settings_controller"), "Steuerung");
+  EXPECT_NE(localization.Translate("settings_title"), englishSettings);
+  EXPECT_NE(localization.Translate("settings_controller"), englishControls);
+
+  ASSERT_TRUE(localization.Load("en"));
+}
+
+TEST(ModernSettingsParity, SingleUtilityNavigationTilesStayInsideUtilityRows) {
+  const std::string credits = ReadTextFile("data/media/ui/fotbiler/credits.rml");
+  const std::string league = ReadTextFile("data/media/ui/fotbiler/league_start.rml");
+  ASSERT_FALSE(credits.empty());
+  ASSERT_FALSE(league.empty());
+
+  EXPECT_NE(credits.find("class=\"row utility-row\""), std::string::npos);
+  EXPECT_NE(league.find("class=\"row utility-row\""), std::string::npos);
+  EXPECT_NE(credits.find("id=\"credits-back-title\""), std::string::npos);
+  EXPECT_NE(league.find("id=\"league-back-title\""), std::string::npos);
 }
 
 }  // namespace
