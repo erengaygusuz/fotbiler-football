@@ -232,7 +232,9 @@ SimulatedMatch SimulateMatchResult(CareerSave& save, const std::string& opponent
   if (rosterSize <= 0)
     return result;
 
-  // Calculate weights for goalscorers based on position
+  // Calculate weights for goalscorers based on position.
+  // Goalkeepers stay ineligible even when they have elite OVR/form: those
+  // bonuses are only meaningful for outfield players.
   std::vector<int> weights(rosterSize, 1);
   int totalWeight = 0;
   for (int i = 0; i < rosterSize; i++) {
@@ -248,20 +250,23 @@ SimulatedMatch SimulateMatchResult(CareerSave& save, const std::string& opponent
     else if (pos == "GK")
       weights[i] = 0;
 
-    // Boost based on form/OVR relative to squad
-    if (save.roster[i].ovr >= teamOVR + 3)
-      weights[i] += 3;
-    if (save.roster[i].matchForm >= 80)
-      weights[i] += 2;
+    if (weights[i] > 0) {
+      // Boost based on form/OVR relative to squad.
+      if (save.roster[i].ovr >= teamOVR + 3)
+        weights[i] += 3;
+      if (save.roster[i].matchForm >= 80)
+        weights[i] += 2;
+    }
 
     totalWeight += weights[i];
   }
 
   for (int g = 0; g < result.homeGoals; g++) {
-    if (totalWeight <= 0) {
-      result.scorers.push_back(save.roster[0].name);  // fallback
-      continue;
-    }
+    // A malformed/edge roster may contain no eligible outfield scorer. Keep
+    // the team goal in the match result, but do not fabricate a goalkeeper
+    // scorer just to make the scorer list length equal the goal count.
+    if (totalWeight <= 0)
+      break;
 
     int r = RandomInt(0, totalWeight - 1);
     int currentWeight = 0;
