@@ -1,0 +1,71 @@
+<rml>
+<head>
+  <title>Fotbiler Football Credits</title>
+  <link type="text/rcss" href="theme.rcss" />
+</head>
+<body>
+  <div class="screen">
+    <div class="bg-deep"></div>
+    <div class="bg-blue"></div>
+    <div class="bg-pink"></div>
+
+    <div class="shell">
+      <div class="topbar">
+        <div class="brand"><span class="brand-mark">F</span>OTBILER FOOTBALL</div>
+        <div class="profile">CREDITS</div>
+      </div>
+
+      <div class="tabs">
+        <div class="tab" tabindex="0" data-route="main-menu">HOME</div>
+        <div class="tab active">CREDITS</div>
+      </div>
+
+      <div class="content">
+        <div class="primary-column">
+          <div class="tile hero" tabindex="0" autofocus>
+            <div class="hero-number">F</div>
+            <div class="tile-kicker">OPEN FOOTBALL PROJECT</div>
+            <div class="tile-title">FOTBILER FOOTBALL</div>
+            <div class="tile-copy">Built on the Gameplay Football / League Soccer codebase and the blunt3d engine, carried forward as Fotbiler Football.</div>
+          </div>
+
+          <div class="row small-row">
+            <div class="tile small first quick">
+              <div class="tile-kicker">ORIGINAL PROJECT</div>
+              <div class="tile-title">GAMEPLAY FOOTBALL</div>
+              <div class="tile-copy">Programming, graphics, modelling and player animation work by Bastiaan Schuiling, with contributions and support credited by the original project.</div>
+            </div>
+            <div class="tile small league">
+              <div class="tile-kicker">ENGINE</div>
+              <div class="tile-title">BLUNT3D</div>
+              <div class="tile-copy">Original engine architecture and programming by Bastiaan Schuiling, with the TaskSequence concept credited to Jurian Broertjes and Bastiaan Schuiling.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="secondary-column">
+          <div class="tile news">
+            <div class="tile-kicker">OPEN SOURCE FOUNDATIONS</div>
+            <div class="tile-title">TOOLS &amp; LIBRARIES</div>
+            <div class="tile-copy">The original credits acknowledge SDL, OpenGL, OpenAL, Boost, SQLite, libhungarian, Perlin noise work and other open-source projects and technical references.</div>
+            <div class="news-stripe"></div>
+          </div>
+          <div class="tile utility" tabindex="0" data-route="main-menu">
+            <div class="tile-kicker">NAVIGATION</div>
+            <div class="tile-title">BACK TO HOME</div>
+            <div class="tile-copy">Return to the Fotbiler Football main menu.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer">
+        <div class="footer-left">
+          <span class="hint"><span class="hint-key">ENTER</span> Select</span>
+          <span class="hint"><span class="hint-key">ESC</span> Back</span>
+        </div>
+        <div class="footer-right"><span class="version">M1B.1 · CREDITS</span></div>
+      </div>
+    </div>
+  </div>
+</body>
+</rml>
