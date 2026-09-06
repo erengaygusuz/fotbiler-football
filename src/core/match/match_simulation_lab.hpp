@@ -1,6 +1,9 @@
 #ifndef FOTBILER_MATCH_SIMULATION_LAB_HPP
 #define FOTBILER_MATCH_SIMULATION_LAB_HPP
 
+#include <map>
+#include <string>
+
 #include "match_engine.hpp"
 
 namespace blunted {
@@ -20,6 +23,7 @@ struct MatchSimulationTelemetry {
   long long userShots = 0;
   long long opponentShots = 0;
   long long userPossession = 0;
+  std::map<std::string, long long> userScorerGoals;
 
   void Record(const MatchEngineRun& run) {
     if (run.requiresInteractivePlay) {
@@ -37,6 +41,9 @@ struct MatchSimulationTelemetry {
     opponentShots += run.result.opponentShots;
     userPossession += run.result.userPossession;
 
+    for (const auto& scorer : run.result.userScorers)
+      ++userScorerGoals[scorer];
+
     if (run.result.userGoals > run.result.opponentGoals)
       ++wins;
     else if (run.result.userGoals == run.result.opponentGoals)
@@ -53,12 +60,26 @@ struct MatchSimulationTelemetry {
     return completedRuns > 0 ? static_cast<double>(wins) / completedRuns : 0.0;
   }
 
+  double DrawRate() const {
+    return completedRuns > 0 ? static_cast<double>(draws) / completedRuns : 0.0;
+  }
+
+  double LossRate() const {
+    return completedRuns > 0 ? static_cast<double>(losses) / completedRuns : 0.0;
+  }
+
   double AverageUserGoals() const {
     return completedRuns > 0 ? static_cast<double>(userGoals) / completedRuns : 0.0;
   }
 
   double AverageOpponentGoals() const {
     return completedRuns > 0 ? static_cast<double>(opponentGoals) / completedRuns : 0.0;
+  }
+
+  double AverageTotalGoals() const {
+    return completedRuns > 0
+               ? static_cast<double>(userGoals + opponentGoals) / completedRuns
+               : 0.0;
   }
 
   double AverageGoalDifference() const {
@@ -73,6 +94,14 @@ struct MatchSimulationTelemetry {
 
   double AverageOpponentShots() const {
     return completedRuns > 0 ? static_cast<double>(opponentShots) / completedRuns : 0.0;
+  }
+
+  double UserShotConversion() const {
+    return userShots > 0 ? static_cast<double>(userGoals) / userShots : 0.0;
+  }
+
+  double OpponentShotConversion() const {
+    return opponentShots > 0 ? static_cast<double>(opponentGoals) / opponentShots : 0.0;
   }
 
   double AverageUserPossession() const {
