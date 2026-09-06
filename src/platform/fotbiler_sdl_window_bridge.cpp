@@ -231,6 +231,14 @@ void HandleAction(const std::string& action) {
     blunted::ui::runtime::SendCommand(Command::ResumeMatch);
   } else if (action == "exit-match" || action == "forfeit-match") {
     ShowExitMatchConfirmation();
+  } else if (action == "replay-play-pause") {
+    blunted::ui::runtime::SendCommand(Command::ReplayTogglePlayback);
+  } else if (action == "replay-cycle-speed") {
+    blunted::ui::runtime::SendCommand(Command::ReplayCycleSpeed);
+  } else if (action == "replay-cycle-camera") {
+    blunted::ui::runtime::SendCommand(Command::ReplayCycleCamera);
+  } else if (action == "replay-exit") {
+    blunted::ui::runtime::SendCommand(Command::ReplayExit);
   }
 }
 
@@ -322,6 +330,30 @@ void BindMatchSnapshot() {
   g_runtimeUi->SetElementText("stats-away-fouls", std::to_string(snapshot.awayFouls));
 }
 
+void BindReplaySnapshot() {
+  if (!g_runtimeUi || g_loadedScreen != blunted::ui::runtime::Screen::Replay) return;
+
+  const blunted::ui::runtime::ReplaySnapshot snapshot =
+      blunted::ui::runtime::ReadReplaySnapshot();
+  if (!snapshot.active) return;
+
+  std::string speed = "1.0x";
+  if (snapshot.speed < 0.75f) speed = "0.5x";
+  else if (snapshot.speed > 1.5f) speed = "2.0x";
+
+  const unsigned long elapsedSeconds = snapshot.elapsed_ms / 1000;
+  const unsigned long durationSeconds = snapshot.duration_ms / 1000;
+  g_runtimeUi->SetElementText("replay-state", snapshot.playing ? "PLAYING" : "PAUSED");
+  g_runtimeUi->SetElementText("replay-speed", speed);
+  g_runtimeUi->SetElementText("replay-time", std::to_string(elapsedSeconds) + "s / " +
+                                                std::to_string(durationSeconds) + "s");
+  g_runtimeUi->SetElementText("replay-camera", "CAM " + std::to_string(snapshot.camera) + " / " +
+                                                  std::to_string(snapshot.cameraCount));
+  g_runtimeUi->SetElementText("replay-seconds-ago", "-" + std::to_string(snapshot.secondsAgo) + "s");
+  g_runtimeUi->SetElementProperty("replay-progress-fill", "width",
+                                  std::to_string(snapshot.progressPercent) + "%");
+}
+
 bool IsInputEvent(Uint32 type) {
   return type == SDL_KEYDOWN || type == SDL_KEYUP || type == SDL_TEXTINPUT ||
          type == SDL_MOUSEMOTION || type == SDL_MOUSEBUTTONDOWN || type == SDL_MOUSEBUTTONUP ||
@@ -347,7 +379,8 @@ bool HandleRuntimeInput(SDL_Event& event) {
 
   using blunted::ui::runtime::Command;
   using blunted::ui::runtime::Screen;
-  if (blunted::ui::runtime::GetScreen() == Screen::Loading) return IsInputEvent(event.type);
+  const Screen screen = blunted::ui::runtime::GetScreen();
+  if (screen == Screen::Loading) return IsInputEvent(event.type);
 
   if (event.type == SDL_KEYDOWN && event.key.repeat == 0) {
     if (g_exitMatchConfirmOpen) {
@@ -366,8 +399,27 @@ bool HandleRuntimeInput(SDL_Event& event) {
       }
     }
 
+    if (screen == Screen::Replay) {
+      switch (event.key.keysym.sym) {
+        case SDLK_ESCAPE: blunted::ui::runtime::SendCommand(Command::ReplayExit); return true;
+        case SDLK_SPACE: blunted::ui::runtime::SendCommand(Command::ReplayTogglePlayback); return true;
+        case SDLK_c: blunted::ui::runtime::SendCommand(Command::ReplayCycleCamera); return true;
+        case SDLK_x: blunted::ui::runtime::SendCommand(Command::ReplayCycleSpeed); return true;
+        case SDLK_LEFT: blunted::ui::runtime::SendCommand(Command::ReplaySeekBackward); return true;
+        case SDLK_RIGHT: blunted::ui::runtime::SendCommand(Command::ReplaySeekForward); return true;
+        case SDLK_UP: blunted::ui::runtime::SendCommand(Command::ReplayCameraUp); return true;
+        case SDLK_DOWN: blunted::ui::runtime::SendCommand(Command::ReplayCameraDown); return true;
+        case SDLK_RETURN:
+        case SDLK_KP_ENTER:
+          g_runtimeUi->ActivateFocusedElement();
+          ConsumeUiRequests();
+          return true;
+        default: break;
+      }
+    }
+
     if (event.key.keysym.sym == SDLK_ESCAPE) {
-      if (blunted::ui::runtime::GetScreen() == Screen::Pause)
+      if (screen == Screen::Pause)
         blunted::ui::runtime::SendCommand(Command::ResumeMatch);
       else
         blunted::ui::runtime::SetScreen(Screen::Pause);
@@ -396,6 +448,36 @@ bool HandleRuntimeInput(SDL_Event& event) {
       }
     }
 
+    if (screen == Screen::Replay) {
+      switch (event.cbutton.button) {
+        case SDL_CONTROLLER_BUTTON_A:
+          blunted::ui::runtime::SendCommand(Command::ReplayTogglePlayback);
+          return true;
+        case SDL_CONTROLLER_BUTTON_X:
+          blunted::ui::runtime::SendCommand(Command::ReplayCycleSpeed);
+          return true;
+        case SDL_CONTROLLER_BUTTON_Y:
+          blunted::ui::runtime::SendCommand(Command::ReplayCycleCamera);
+          return true;
+        case SDL_CONTROLLER_BUTTON_B:
+          blunted::ui::runtime::SendCommand(Command::ReplayExit);
+          return true;
+        case SDL_CONTROLLER_BUTTON_DPAD_LEFT:
+          blunted::ui::runtime::SendCommand(Command::ReplaySeekBackward);
+          return true;
+        case SDL_CONTROLLER_BUTTON_DPAD_RIGHT:
+          blunted::ui::runtime::SendCommand(Command::ReplaySeekForward);
+          return true;
+        case SDL_CONTROLLER_BUTTON_DPAD_UP:
+          blunted::ui::runtime::SendCommand(Command::ReplayCameraUp);
+          return true;
+        case SDL_CONTROLLER_BUTTON_DPAD_DOWN:
+          blunted::ui::runtime::SendCommand(Command::ReplayCameraDown);
+          return true;
+        default: return true;
+      }
+    }
+
     switch (event.cbutton.button) {
       case SDL_CONTROLLER_BUTTON_DPAD_UP: SendNavigationKey(SDLK_UP); return true;
       case SDL_CONTROLLER_BUTTON_DPAD_DOWN: SendNavigationKey(SDLK_DOWN); return true;
@@ -406,7 +488,7 @@ bool HandleRuntimeInput(SDL_Event& event) {
         ConsumeUiRequests();
         return true;
       case SDL_CONTROLLER_BUTTON_B:
-        if (blunted::ui::runtime::GetScreen() == Screen::Pause)
+        if (screen == Screen::Pause)
           blunted::ui::runtime::SendCommand(Command::ResumeMatch);
         else
           blunted::ui::runtime::SetScreen(Screen::Pause);
@@ -513,6 +595,7 @@ extern "C" void SDLCALL FotbilerSDLGLSwapWindow(SDL_Window* window) {
       if (g_runtimeUi && blunted::ui::runtime::GetScreen() != blunted::ui::runtime::Screen::None) {
         if (g_loadedScreen == blunted::ui::runtime::Screen::Loading) BindLoadingContext();
         BindMatchSnapshot();
+        BindReplaySnapshot();
         g_runtimeUi->Update();
         g_runtimeUi->Render();
         ConsumeUiRequests();
