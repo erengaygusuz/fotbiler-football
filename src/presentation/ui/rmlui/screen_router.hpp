@@ -35,6 +35,11 @@ enum class ScreenId {
   MatchDetails,
   RuntimeSettings,
   ControlsSettings,
+  GamepadList,
+  GamepadSetup,
+  GamepadCalibration,
+  GamepadMapping,
+  GamepadFunctions,
   PauseMenu,
   MatchStats,
   TeamManagement,
@@ -81,8 +86,6 @@ public:
     return route ? Navigate(route->id) : false;
   }
 
-  // Replace the current navigation stack with one canonical screen. Runtime
-  // round-trips use this so Back never returns to a stale loading document.
   bool Reset(ScreenId target) {
     const ScreenRoute* route = FindRoute(target);
     if (!route || !loader || !loader(std::string(route->documentPath))) {
@@ -115,25 +118,21 @@ public:
 
   static const ScreenRoute* FindRoute(ScreenId id) {
     for (const ScreenRoute& route : Routes()) {
-      if (route.id == id) {
-        return &route;
-      }
+      if (route.id == id) return &route;
     }
     return nullptr;
   }
 
   static const ScreenRoute* FindRoute(std::string_view name) {
     for (const ScreenRoute& route : Routes()) {
-      if (route.name == name) {
-        return &route;
-      }
+      if (route.name == name) return &route;
     }
     return nullptr;
   }
 
 private:
-  static const std::array<ScreenRoute, 34>& Routes() {
-    static constexpr std::array<ScreenRoute, 34> routes = {{
+  static const std::array<ScreenRoute, 39>& Routes() {
+    static constexpr std::array<ScreenRoute, 39> routes = {{
         {ScreenId::MainMenu, "main-menu", "media/ui/fotbiler/main_menu.rml"},
         {ScreenId::CareerModeSelect, "career-mode-select", "media/ui/fotbiler/mode_select.rml"},
         {ScreenId::MatchSetup, "match-setup", "media/ui/fotbiler/match_setup.rml"},
@@ -158,6 +157,11 @@ private:
         {ScreenId::MatchDetails, "match-details", "media/ui/fotbiler/match_details.rml"},
         {ScreenId::RuntimeSettings, "runtime-settings", "media/ui/fotbiler/runtime_settings.rml"},
         {ScreenId::ControlsSettings, "controls-settings", "media/ui/fotbiler/controls_settings.rml"},
+        {ScreenId::GamepadList, "gamepad-list", "media/ui/fotbiler/gamepad_list.rml"},
+        {ScreenId::GamepadSetup, "gamepad-setup", "media/ui/fotbiler/gamepad_setup.rml"},
+        {ScreenId::GamepadCalibration, "gamepad-calibration", "media/ui/fotbiler/gamepad_calibration.rml"},
+        {ScreenId::GamepadMapping, "gamepad-mapping", "media/ui/fotbiler/gamepad_mapping.rml"},
+        {ScreenId::GamepadFunctions, "gamepad-functions", "media/ui/fotbiler/gamepad_functions.rml"},
         {ScreenId::PauseMenu, "pause-menu", "media/ui/fotbiler/pause_menu.rml"},
         {ScreenId::MatchStats, "match-stats", "media/ui/fotbiler/match_stats.rml"},
         {ScreenId::TeamManagement, "team-management", "media/ui/fotbiler/team_management.rml"},
