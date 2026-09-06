@@ -1,0 +1,49 @@
+<rml>
+<head>
+  <title>Fotbiler Controls Settings</title>
+  <link type="text/rcss" href="theme.rcss" />
+  <link type="text/rcss" href="runtime_shell.rcss" />
+</head>
+<body>
+  <div class="runtime-screen">
+    <div class="runtime-bg-blue"></div><div class="runtime-bg-light"></div><div class="runtime-bg-pink"></div>
+    <div class="runtime-shell">
+      <div class="runtime-topbar"><div class="runtime-brand"><span class="runtime-brand-mark">F</span>OTBILER FOOTBALL</div><div class="runtime-meta">SETTINGS · CONTROLS</div></div>
+      <div class="runtime-heading"><div class="runtime-kicker">INPUT</div><div class="runtime-title">KEYBOARD SETTINGS</div><div class="runtime-subtitle" id="controls-capture-status">Select an action, then press the new key. Changes are saved immediately.</div></div>
+      <div class="runtime-content">
+        <div class="runtime-column-main">
+          <div class="runtime-card dark" style="height:100%;">
+            <div class="runtime-card-kicker">KEYBOARD · MOVEMENT &amp; ATTACK</div><div class="runtime-card-title">PRIMARY BINDINGS</div>
+            <div class="runtime-row" tabindex="0" autofocus data-action="bind-key-0"><div class="runtime-label">MOVE UP</div><div id="control-key-0" class="runtime-value">UP</div></div>
+            <div class="runtime-row" tabindex="0" data-action="bind-key-1"><div class="runtime-label">MOVE RIGHT</div><div id="control-key-1" class="runtime-value">RIGHT</div></div>
+            <div class="runtime-row" tabindex="0" data-action="bind-key-2"><div class="runtime-label">MOVE DOWN</div><div id="control-key-2" class="runtime-value">DOWN</div></div>
+            <div class="runtime-row" tabindex="0" data-action="bind-key-3"><div class="runtime-label">MOVE LEFT</div><div id="control-key-3" class="runtime-value">LEFT</div></div>
+            <div class="runtime-row" tabindex="0" data-action="bind-key-4"><div class="runtime-label">THROUGH PASS</div><div id="control-key-4" class="runtime-value">W</div></div>
+            <div class="runtime-row" tabindex="0" data-action="bind-key-5"><div class="runtime-label">HIGH PASS</div><div id="control-key-5" class="runtime-value">A</div></div>
+            <div class="runtime-row" tabindex="0" data-action="bind-key-6"><div class="runtime-label">SHORT PASS</div><div id="control-key-6" class="runtime-value">S</div></div>
+            <div class="runtime-row" tabindex="0" data-action="bind-key-7"><div class="runtime-label">SHOOT</div><div id="control-key-7" class="runtime-value">D</div></div>
+            <div class="runtime-row" tabindex="0" data-action="bind-key-8"><div class="runtime-label">KEEPER RUSH</div><div id="control-key-8" class="runtime-value">W</div></div>
+          </div>
+        </div>
+        <div class="runtime-column-side">
+          <div class="runtime-card" style="height:100%;">
+            <div class="runtime-card-kicker">DEFENCE &amp; MODIFIERS</div><div class="runtime-card-title">MORE BINDINGS</div>
+            <div class="runtime-row" tabindex="0" data-action="bind-key-9"><div class="runtime-label">SLIDING</div><div id="control-key-9" class="runtime-value">A</div></div>
+            <div class="runtime-row" tabindex="0" data-action="bind-key-10"><div class="runtime-label">PRESSURE</div><div id="control-key-10" class="runtime-value">S</div></div>
+            <div class="runtime-row" tabindex="0" data-action="bind-key-11"><div class="runtime-label">2ND MAN PRESS</div><div id="control-key-11" class="runtime-value">D</div></div>
+            <div class="runtime-row" tabindex="0" data-action="bind-key-12"><div class="runtime-label">SWITCH PLAYER</div><div id="control-key-12" class="runtime-value">Q</div></div>
+            <div class="runtime-row" tabindex="0" data-action="bind-key-13"><div class="runtime-label">SPECIAL</div><div id="control-key-13" class="runtime-value">Z</div></div>
+            <div class="runtime-row" tabindex="0" data-action="bind-key-14"><div class="runtime-label">SPRINT</div><div id="control-key-14" class="runtime-value">E</div></div>
+            <div class="runtime-row" tabindex="0" data-action="bind-key-15"><div class="runtime-label">DRIBBLE</div><div id="control-key-15" class="runtime-value">C</div></div>
+            <div class="runtime-row" tabindex="0" data-action="bind-key-16"><div class="runtime-label">SELECT</div><div id="control-key-16" class="runtime-value">F1</div></div>
+            <div class="runtime-row" tabindex="0" data-action="bind-key-17"><div class="runtime-label">START</div><div id="control-key-17" class="runtime-value">RETURN</div></div>
+            <div class="runtime-nav-item" tabindex="0" data-action="reset-keyboard-bindings" style="margin-top:10px;">RESET KEYBOARD DEFAULTS</div>
+            <div id="controls-gamepad-status" class="runtime-muted">GAMEPADS · DETECTING</div>
+          </div>
+        </div>
+      </div>
+      <div class="runtime-footer"><div><span class="runtime-hint"><span class="runtime-key">ENTER</span>Change Key</span><span class="runtime-hint"><span class="runtime-key">ESC</span>Back / Cancel Capture</span></div><div>M1B · INPUT PARITY</div></div>
+    </div>
+  </div>
+</body>
+</rml>
