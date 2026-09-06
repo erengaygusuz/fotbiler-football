@@ -28,9 +28,27 @@ public:
   void OnCreatedMatch();
 
 protected:
+  void BeginModernReplay();
+  void EndModernReplay(bool resumeMatch);
+  void UpdateModernReplay();
+  void HandleModernReplayCommand(int commandValue);
+  void ApplyModernReplayState();
+  void PublishModernReplaySnapshot();
+
   Match* match;
   unsigned long matchReadyTime_ms;
   bool autoQuitTriggered;
+
+  bool modernReplayActive;
+  bool modernReplayPlaying;
+  bool modernReplayAutoClose;
+  int modernReplaySpeedStep;
+  int modernReplayCam;
+  int modernReplayRequestedOffset_ms;
+  float modernReplayModifier;
+  signed long modernReplayMinTime_ms;
+  signed long modernReplayMaxTime_ms;
+  signed long modernReplayTime_ms;
 
   boost::signals2::connection conn_MatchPhaseChange;
   boost::signals2::connection conn_ShortReplayMoment;
