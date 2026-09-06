@@ -1,0 +1,17 @@
+<rml>
+<head><title>Fotbiler Gamepads</title><link type="text/rcss" href="theme.rcss" /><link type="text/rcss" href="runtime_shell.rcss" /></head>
+<body><div class="runtime-screen"><div class="runtime-bg-blue"></div><div class="runtime-bg-light"></div><div class="runtime-bg-pink"></div><div class="runtime-shell">
+<div class="runtime-topbar"><div class="runtime-brand"><span class="runtime-brand-mark">F</span>OTBILER FOOTBALL</div><div class="runtime-meta">SETTINGS · GAMEPADS</div></div>
+<div class="runtime-heading"><div class="runtime-kicker">INPUT DEVICES</div><div class="runtime-title">GAMEPADS</div><div id="gamepad-list-status" class="runtime-subtitle">Connected controllers are listed below.</div></div>
+<div class="runtime-content"><div class="runtime-column-main"><div class="runtime-card dark" style="height:100%;"><div class="runtime-card-kicker">CONNECTED</div><div class="runtime-card-title">SELECT A GAMEPAD</div>
+<div id="gamepad-list-0" class="runtime-nav-item" tabindex="0" autofocus data-action="select-gamepad-0">GAMEPAD 1</div>
+<div id="gamepad-list-1" class="runtime-nav-item" tabindex="0" data-action="select-gamepad-1">GAMEPAD 2</div>
+<div id="gamepad-list-2" class="runtime-nav-item" tabindex="0" data-action="select-gamepad-2">GAMEPAD 3</div>
+<div id="gamepad-list-3" class="runtime-nav-item" tabindex="0" data-action="select-gamepad-3">GAMEPAD 4</div>
+<div id="gamepad-list-4" class="runtime-nav-item" tabindex="0" data-action="select-gamepad-4">GAMEPAD 5</div>
+<div id="gamepad-list-5" class="runtime-nav-item" tabindex="0" data-action="select-gamepad-5">GAMEPAD 6</div>
+<div id="gamepad-list-6" class="runtime-nav-item" tabindex="0" data-action="select-gamepad-6">GAMEPAD 7</div>
+<div id="gamepad-list-7" class="runtime-nav-item" tabindex="0" data-action="select-gamepad-7">GAMEPAD 8</div>
+</div></div><div class="runtime-column-side"><div class="runtime-card" style="height:100%;"><div class="runtime-card-kicker">LEGACY PARITY</div><div class="runtime-card-title">FULL CONTROLLER SETUP</div><div class="runtime-muted">Choose a connected gamepad to calibrate axes, map physical inputs and assign football functions. Changes are written to football.config through HIDGamepad.</div></div></div></div>
+<div class="runtime-footer"><div><span class="runtime-hint"><span class="runtime-key">ENTER / A</span>Select</span><span class="runtime-hint"><span class="runtime-key">ESC / B</span>Back</span></div><div>M1B · GAMEPAD PARITY</div></div>
+</div></div></body></rml>
