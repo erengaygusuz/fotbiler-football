@@ -15,6 +15,10 @@ struct MatchRequest {
 // Canonical application-facing result. Scores are always from the controlled
 // club's perspective, independent of whether the underlying engine uses
 // home/away, team-0/team-1, or another representation.
+//
+// Advanced-stat availability is explicit because not every engine currently
+// exposes the same canonical data. In particular, Full3D currently supplies a
+// trustworthy final score while shots, possession and scorers remain unknown.
 struct MatchResult {
   int userGoals = 0;
   int opponentGoals = 0;
@@ -22,6 +26,9 @@ struct MatchResult {
   int opponentShots = 0;
   int userPossession = 50;
   std::vector<std::string> userScorers;
+  bool shotsAvailable = false;
+  bool possessionAvailable = false;
+  bool scorersAvailable = false;
   bool completed = false;
 };
 
