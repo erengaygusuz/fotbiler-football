@@ -12,12 +12,12 @@
     <div class="shell">
       <div class="topbar">
         <div class="brand"><span class="brand-mark">F</span>OTBILER FOOTBALL</div>
-        <div class="profile">CREDITS</div>
+        <div id="credits-profile" class="profile">CREDITS</div>
       </div>
 
       <div class="tabs">
         <div class="tab" tabindex="0" data-route="main-menu">HOME</div>
-        <div class="tab active">CREDITS</div>
+        <div id="credits-tab" class="tab active">CREDITS</div>
       </div>
 
       <div class="content">
@@ -50,10 +50,12 @@
             <div class="tile-copy">The original credits acknowledge SDL, OpenGL, OpenAL, Boost, SQLite, libhungarian, Perlin noise work and other open-source projects and technical references.</div>
             <div class="news-stripe"></div>
           </div>
-          <div class="tile utility" tabindex="0" data-route="main-menu">
-            <div class="tile-kicker">NAVIGATION</div>
-            <div class="tile-title">BACK TO HOME</div>
-            <div class="tile-copy">Return to the Fotbiler Football main menu.</div>
+          <div class="row utility-row">
+            <div class="tile utility" tabindex="0" data-route="main-menu">
+              <div class="tile-kicker">NAVIGATION</div>
+              <div id="credits-back-title" class="tile-title">BACK TO HOME</div>
+              <div class="tile-copy">Return to the Fotbiler Football main menu.</div>
+            </div>
           </div>
         </div>
       </div>
