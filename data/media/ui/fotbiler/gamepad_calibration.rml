@@ -1,0 +1,16 @@
+<rml>
+<head><title>Fotbiler Gamepad Calibration</title><link type="text/rcss" href="theme.rcss" /><link type="text/rcss" href="runtime_shell.rcss" /></head>
+<body><div class="runtime-screen"><div class="runtime-bg-blue"></div><div class="runtime-bg-light"></div><div class="runtime-bg-pink"></div><div class="runtime-shell">
+<div class="runtime-topbar"><div class="runtime-brand"><span class="runtime-brand-mark">F</span>OTBILER FOOTBALL</div><div class="runtime-meta">SETTINGS · CALIBRATION</div></div>
+<div class="runtime-heading"><div class="runtime-kicker">ANALOG INPUT</div><div class="runtime-title">AXES CALIBRATION</div><div id="gamepad-calibration-status" class="runtime-subtitle">Move every stick and analog trigger through its full range, then release them to rest.</div></div>
+<div class="runtime-content"><div class="runtime-column-main"><div class="runtime-card dark" style="height:100%;"><div class="runtime-card-kicker">LIVE CAPTURE</div><div class="runtime-card-title">CALIBRATION STEPS</div>
+<div class="runtime-row"><div class="runtime-label">1</div><div class="runtime-value">MOVE ALL AXES TO BOTH EXTREMES</div></div>
+<div class="runtime-row"><div class="runtime-label">2</div><div class="runtime-value">RELEASE STICKS &amp; TRIGGERS TO REST</div></div>
+<div class="runtime-row"><div class="runtime-label">3</div><div class="runtime-value">SAVE CALIBRATION</div></div>
+</div></div><div class="runtime-column-side"><div class="runtime-card" style="height:100%;"><div class="runtime-card-kicker">ACTIONS</div><div class="runtime-card-title">FINISH</div>
+<div class="runtime-nav-item" tabindex="0" autofocus data-action="save-gamepad-calibration">SAVE CALIBRATION</div>
+<div class="runtime-nav-item" tabindex="0" data-action="cancel-gamepad-calibration">CANCEL</div>
+<div class="runtime-card-kicker" style="margin-top:18px;">PERSISTENCE</div><div class="runtime-muted">Eight SDL joystick axes are sampled using the existing UserEventManager and saved with min, max and rest values in football.config.</div>
+</div></div></div>
+<div class="runtime-footer"><div><span class="runtime-hint"><span class="runtime-key">ENTER / A</span>Save</span><span class="runtime-hint"><span class="runtime-key">ESC / B</span>Cancel</span></div><div>M1B · CALIBRATION</div></div>
+</div></div></body></rml>
