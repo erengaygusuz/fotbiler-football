@@ -9,24 +9,24 @@
     <div class="runtime-bg-blue"></div><div class="runtime-bg-light"></div><div class="runtime-bg-pink"></div>
     <div class="runtime-shell">
       <div class="runtime-topbar"><div class="runtime-brand"><span class="runtime-brand-mark">F</span>OTBILER FOOTBALL</div><div class="runtime-meta">SETTINGS · PROFILE</div></div>
-      <div class="runtime-heading"><div class="runtime-kicker">CUSTOMISE</div><div class="runtime-title">SETTINGS</div><div class="runtime-subtitle">Display, audio, input and language settings backed by the live game configuration.</div></div>
+      <div class="runtime-heading"><div class="runtime-kicker">CUSTOMISE</div><div id="settings-title" class="runtime-title">SETTINGS</div><div class="runtime-subtitle">Display, audio, input and language settings backed by the live game configuration.</div></div>
       <div class="runtime-content">
         <div class="runtime-column-main">
           <div class="runtime-card dark" style="height:100%;">
             <div class="runtime-card-kicker">SYSTEM</div><div class="runtime-card-title">VIDEO, GAMEPLAY &amp; AUDIO</div>
             <div class="runtime-row" tabindex="0" autofocus data-action="toggle-fullscreen"><div class="runtime-label">WINDOW MODE</div><div id="settings-window-mode" class="runtime-value">FULLSCREEN</div></div>
-            <div class="runtime-row" tabindex="0" data-action="cycle-resolution"><div class="runtime-label">RESOLUTION</div><div id="settings-resolution" class="runtime-value">1920 × 1080</div></div>
+            <div class="runtime-row" tabindex="0" data-action="cycle-resolution"><div id="settings-resolution-label" class="runtime-label">RESOLUTION</div><div id="settings-resolution" class="runtime-value">1920 × 1080</div></div>
             <div class="runtime-row" tabindex="0" data-action="toggle-vsync"><div class="runtime-label">V-SYNC</div><div id="settings-vsync" class="runtime-value">ON</div></div>
-            <div class="runtime-row" tabindex="0" data-action="cycle-difficulty"><div class="runtime-label">DEFAULT DIFFICULTY</div><div id="settings-difficulty" class="runtime-value">PROFESSIONAL</div></div>
+            <div class="runtime-row" tabindex="0" data-action="cycle-difficulty"><div id="settings-difficulty-label" class="runtime-label">DEFAULT DIFFICULTY</div><div id="settings-difficulty" class="runtime-value">PROFESSIONAL</div></div>
             <div class="runtime-row" tabindex="0" data-action="cycle-game-speed"><div class="runtime-label">GAME SPEED</div><div id="settings-game-speed" class="runtime-value">NORMAL</div></div>
-            <div class="runtime-row" tabindex="0" data-action="cycle-audio-volume"><div class="runtime-label">MASTER VOLUME</div><div id="settings-volume" class="runtime-value">80%</div></div>
-            <div class="runtime-row" tabindex="0" data-action="cycle-language"><div class="runtime-label">LANGUAGE</div><div id="settings-language" class="runtime-value">ENGLISH</div></div>
+            <div class="runtime-row" tabindex="0" data-action="cycle-audio-volume"><div id="settings-volume-label" class="runtime-label">MASTER VOLUME</div><div id="settings-volume" class="runtime-value">80%</div></div>
+            <div class="runtime-row" tabindex="0" data-action="cycle-language"><div id="settings-language-label" class="runtime-label">LANGUAGE</div><div id="settings-language" class="runtime-value">ENGLISH</div></div>
           </div>
         </div>
         <div class="runtime-column-side">
           <div class="runtime-card" style="height:100%;">
-            <div class="runtime-card-kicker">INPUT</div><div class="runtime-card-title">CONTROLS</div>
-            <div class="runtime-nav-item" tabindex="0" data-route="controls-settings">KEYBOARD SETTINGS</div>
+            <div class="runtime-card-kicker">INPUT</div><div id="settings-controls-title" class="runtime-card-title">CONTROLS</div>
+            <div id="settings-keyboard-link" class="runtime-nav-item" tabindex="0" data-route="controls-settings">KEYBOARD SETTINGS</div>
             <div class="runtime-nav-item" tabindex="0" data-action="apply-settings">APPLY &amp; SAVE</div>
             <div class="runtime-card-kicker" style="margin-top:18px;">MATCH-ONLY OPTIONS</div>
             <div class="runtime-muted">Camera presets, kit selection and match presentation controls belong to the in-match pause flow. They are no longer exposed here as dead settings links.</div>
