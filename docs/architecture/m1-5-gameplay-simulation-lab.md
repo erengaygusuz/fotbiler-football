@@ -24,8 +24,8 @@ The missing layer is reusable match-level batch telemetry that can be shared by 
 
 - run one `MatchRequest` repeatedly through any `IMatchEngine`;
 - distinguish completed headless runs from interactive runs;
-- aggregate W/D/L, goals, shots, and user-possession;
-- expose completion rate, win rate, average goals, shots, possession, and goal difference;
+- aggregate W/D/L, goals, shots, user-possession, and scorer names;
+- expose completion, W/D/L rates, average goals/shots/possession, goal difference, total goals, and shot conversion;
 - keep seeding outside the generic match layer so the core match abstraction does not depend on career RNG internals.
 
 The initial integration tests exercise the real `FastMatchEngine` with seeded RNG and verify that:
@@ -66,7 +66,26 @@ The scenario matrix intentionally records behavior before tuning it:
 - `fitness` is represented in the catalogue but is not currently consumed by `SimulateMatchResult`;
 - an empty roster is still simulatable because the current fast simulation falls back to default team values, while scorer generation is skipped when no roster players exist.
 
-These are observations, not final gameplay-design decisions. M1.5C will turn the intended behaviors into explicit statistical guardrails and will make gaps such as fitness coupling visible instead of silently changing them.
+These are observations, not final gameplay-design decisions. Gaps such as fitness coupling remain visible instead of being silently changed inside the validation milestone.
+
+## M1.5C — Statistical guardrails
+
+`core/career/career_simulation_guardrails.hpp` defines explicit statistical envelopes for the current fast-simulation baseline. They are bands rather than golden values: the goal is to catch broken distributions while still allowing intentional tuning inside a plausible range.
+
+The guardrails currently cover:
+
+- average user goals for weak/equal/strong controlled-team strength scenarios;
+- equal-strength home opponent goals and total-goal rate;
+- equal-strength home win/draw/loss distribution;
+- both teams' shot-to-goal conversion sanity;
+- balanced home possession;
+- paired home-vs-away goal-difference advantage;
+- Possession and Counter Attack possession bands;
+- CF/ST share of user goals, plus a zero-goalkeeper-scoring invariant for the canonical roster.
+
+The scorer distribution is possible because `MatchSimulationTelemetry` now keeps aggregate scorer-name counts. This is intentionally generic enough for the M1.5D report writer to export the same data instead of rebuilding statistics in a separate tool.
+
+The initial bands are deliberately wider than seeded sample variance. If a future gameplay change intentionally moves outside one of them, the expected workflow is to inspect the report first and then change the guardrail with a documented tuning reason, not simply widen tests until they pass.
 
 ## Planned M1.5 slices
 
@@ -89,12 +108,12 @@ These are observations, not final gameplay-design decisions. M1.5C will turn the
 
 ### M1.5C — Statistical guardrails
 
-- [ ] Expected goal bands by strength gap
-- [ ] Home advantage band
-- [ ] Win/draw/loss distribution bands
-- [ ] Shot-to-goal sanity bands
-- [ ] Possession sanity and strategy deltas
-- [ ] Scorer-position distribution checks
+- [x] Expected goal bands by strength gap
+- [x] Home advantage band
+- [x] Win/draw/loss distribution bands
+- [x] Shot-to-goal sanity bands
+- [x] Possession sanity and strategy deltas
+- [x] Scorer-position distribution checks
 
 ### M1.5D — Headless runner
 
