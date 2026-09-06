@@ -1,20 +1,21 @@
 #include "career_database.hpp"
 
-#include <algorithm>
-#include <filesystem>
-#include <fstream>
 #include <string>
 #include <vector>
 
+#include "application/career/career_lifecycle_service.hpp"
+#include "application/career/career_save_service.hpp"
+#include "core/career/career_event_service.hpp"
+#include "core/career/fast_match_engine.hpp"
+#include "integration/league_soccer/full_3d_match_engine.hpp"
 #include "career_board.hpp"
 #include "career_finance.hpp"
-#include "career_persistence.hpp"
 #include "career_sim.hpp"
 #include "career_sponsors.hpp"
 #include "career_staff.hpp"
 #include "career_training.hpp"
 #include "career_transfers.hpp"
-#include "utils/localization.hpp"
+#include "presentation/career/career_presentation.hpp"
 
 namespace blunted {
 
@@ -46,8 +47,16 @@ bool CareerDatabase::ConsumePlayedFixture(int matchGoals0, int matchGoals1) {
   if (!m_pendingFixture.hasFixture || !m_activeSave) {
     return false;
   }
-  int userGoals = m_pendingFixture.isHome ? matchGoals0 : matchGoals1;
-  int oppGoals = m_pendingFixture.isHome ? matchGoals1 : matchGoals0;
+
+  MatchRequest request;
+  request.opponentName = m_pendingFixture.opponentName;
+  request.opponentTeamDBID = std::to_string(m_pendingFixture.opponentTeamDBID);
+  request.userIsHome = m_pendingFixture.isHome;
+
+  Full3DMatchEngine engine;
+  const MatchResult normalized = engine.Complete(request, matchGoals0, matchGoals1);
+  const int userGoals = normalized.userGoals;
+  const int oppGoals = normalized.opponentGoals;
 
   for (auto& f : m_activeSave->season.fixtures) {
     if (!f.played &&
@@ -75,26 +84,15 @@ bool CareerDatabase::Initialize(const std::string& saveDir) {
 }
 
 std::string CareerDatabase::GetSlotPath(int slotIndex) const {
-  std::string dir = m_saveDirectory.empty() ? "." : m_saveDirectory;
-  if (slotIndex == -1)
-    return dir + "/career_autosave.save";
-  if (slotIndex == 0)
-    return dir + "/career.save";
-  return dir + "/career_slot_" + std::to_string(slotIndex) + ".save";
+  return CareerSaveService::GetSlotPath(m_saveDirectory, slotIndex);
 }
 
 bool CareerDatabase::HasSaveFile() const {
-  if (m_saveDirectory.empty())
-    return false;
-  return HasSaveSlot(0) || HasSaveSlot(-1);
+  return CareerSaveService::HasSaveFile(m_saveDirectory);
 }
 
 bool CareerDatabase::HasSaveSlot(int slotIndex) const {
-  if (m_saveDirectory.empty())
-    return false;
-  std::string path = GetSlotPath(slotIndex);
-  CareerPersistence::CareerSaveSummary summary;
-  return CareerPersistence::ReadSummary(path, summary) && summary.isValid;
+  return CareerSaveService::HasSaveSlot(m_saveDirectory, slotIndex);
 }
 
 bool CareerDatabase::LoadCareerSave(const std::string& saveName) {
@@ -112,15 +110,13 @@ bool CareerDatabase::LoadCareerSave(const std::string& saveName) {
 }
 
 bool CareerDatabase::LoadCareerSlot(int slotIndex) {
-  if (m_saveDirectory.empty())
-    return false;
-  std::string path = GetSlotPath(slotIndex);
   CareerSave loaded;
   std::vector<TransferBid> loadedBids;
-  if (!CareerPersistence::Load(loaded, loadedBids, path))
+  if (!CareerSaveService::LoadSlot(m_saveDirectory, slotIndex, loaded, loadedBids))
     return false;
   m_activeSave = std::make_unique<CareerSave>(loaded);
   m_activeBids = loadedBids;
+  const std::string path = GetSlotPath(slotIndex);
   printf("[career] Loaded slot %d from %s\n", slotIndex, path.c_str());
   return true;
 }
@@ -130,75 +126,40 @@ bool CareerDatabase::SaveCareerData() {
 }
 
 bool CareerDatabase::SaveCareerSlot(int slotIndex) {
-  if (!m_activeSave || m_saveDirectory.empty())
+  if (!m_activeSave)
     return false;
-  std::string path = GetSlotPath(slotIndex);
-  bool success = CareerPersistence::Save(*m_activeSave, m_activeBids, path);
-  if (success)
+  const bool success =
+      CareerSaveService::SaveSlot(m_saveDirectory, slotIndex, *m_activeSave, m_activeBids);
+  if (success) {
+    const std::string path = GetSlotPath(slotIndex);
     printf("[career] Saved slot %d to %s\n", slotIndex, path.c_str());
+  }
   return success;
 }
 
 bool CareerDatabase::DeleteCareerSlot(int slotIndex) {
-  if (m_saveDirectory.empty() || !HasSaveSlot(slotIndex))
+  const std::string path = GetSlotPath(slotIndex);
+  if (!CareerSaveService::DeleteSlot(m_saveDirectory, slotIndex))
     return false;
-  std::string path = GetSlotPath(slotIndex);
-  namespace fs = std::filesystem;
-  std::error_code ec;
-  fs::remove(path, ec);
-  fs::remove(path + ".bak", ec);
-  fs::remove(path + ".tmp", ec);
   printf("[career] Deleted slot %d (%s)\n", slotIndex, path.c_str());
   return true;
 }
 
 bool CareerDatabase::AutoSave() {
-  if (!m_activeSave || m_saveDirectory.empty())
+  if (!m_activeSave)
     return false;
   return SaveCareerSlot(-1);
 }
 
 bool CareerDatabase::GetSlotSummary(int slotIndex,
                                     CareerPersistence::CareerSaveSummary& outSummary) const {
-  if (m_saveDirectory.empty())
-    return false;
-  std::string path = GetSlotPath(slotIndex);
-  return CareerPersistence::ReadSummary(path, outSummary);
+  return CareerSaveService::GetSlotSummary(m_saveDirectory, slotIndex, outSummary);
 }
 
 bool CareerDatabase::CreateNewCareer(const std::string& careerName, const std::string& mode,
                                      const std::string& managerName) {
-  m_activeSave = std::make_unique<CareerSave>();
-  m_activeSave->name = careerName;
-  m_activeSave->managerName = managerName;
-  m_activeSave->club.clubName = careerName;
-  if (mode == "player")
-    m_activeSave->mode = CareerMode::PLAYER;
-  else if (mode == "mygm")
-    m_activeSave->mode = CareerMode::GM;
-  else if (mode == "mycoach")
-    m_activeSave->mode = CareerMode::COACH;
-  else if (mode == "owner")
-    m_activeSave->mode = CareerMode::OWNER;
-  else
-    m_activeSave->mode = CareerMode::MANAGER;
-  m_activeSave->reputation = 50;
-  m_activeSave->club.reputation = 50;
-  m_activeSave->boardConfidence = 75;
-  m_activeSave->board.confidence = 75;
-  m_activeSave->transferBudget = 15000000;
-  m_activeSave->wageBudget = 250000;
-  m_activeSave->finance.transferBudget = m_activeSave->transferBudget;
-  m_activeSave->finance.wageBudget = m_activeSave->wageBudget;
-  m_activeSave->club.leagueName = "Default League";
-  m_activeSave->season.currentSeason = 1;
-  m_activeSave->currentSeason = 1;
-  m_activeSave->season.currentWeek = 1;
-  m_activeSave->season.inPreseason = true;
-  m_activeSave->season.maxWeeks = 38;
-  m_activeSave->season.transferWindowOpen = true;
-  m_activeSave->trainingPoints = (m_activeSave->mode == CareerMode::COACH) ? 20 : 10;
-  m_activeSave->stadium.name = careerName + " Stadium";
+  m_activeSave = std::make_unique<CareerSave>(
+      CareerLifecycleService::CreateInitialSave(careerName, mode, managerName));
   CareerFinance::InitializeOwnerData(*m_activeSave);
   CareerBoard::GenerateBoardObjectives(*m_activeSave);
   CareerSponsors::GenerateSponsorOffers(*m_activeSave);
@@ -212,17 +173,10 @@ void CareerDatabase::AddEvent(const std::string& eventType, const std::string& d
                               int reputationDelta, bool isMajor) {
   if (!m_activeSave)
     return;
-  m_activeSave->reputation =
-      std::max(-100, std::min(100, m_activeSave->reputation + reputationDelta));
-  m_activeSave->club.reputation = m_activeSave->reputation;
-  m_activeSave->recentEvents.emplace_back(eventType, eventType + ": " + description,
-                                          reputationDelta, 0, isMajor);
-  if (m_activeSave->recentEvents.size() > 50)
-    m_activeSave->recentEvents.erase(m_activeSave->recentEvents.begin());
-  if (isMajor) {
-    m_activeSave->legacyStats[eventType]++;
-    // Persist on major milestones only. Routine matchday chatter used to flush
-    // the save file on every simulated fixture (thousands of writes per season).
+  if (CareerEventService::AddEvent(*m_activeSave, eventType, description, reputationDelta,
+                                   isMajor)) {
+    // Persist on major milestones only. Routine matchday chatter must not flush
+    // the save file on every simulated fixture.
     SaveCareerData();
   }
 }
@@ -248,10 +202,8 @@ void CareerDatabase::ModifyBudget(long long transferDelta, long long wageDelta) 
 }
 
 void CareerDatabase::ModifyBoardConfidence(int delta) {
-  if (!m_activeSave)
-    return;
-  m_activeSave->boardConfidence = std::max(0, std::min(100, m_activeSave->boardConfidence + delta));
-  m_activeSave->board.confidence = m_activeSave->boardConfidence;
+  if (m_activeSave)
+    CareerEventService::ModifyBoardConfidence(*m_activeSave, delta);
 }
 
 bool CareerDatabase::TrainSquad() {
@@ -276,167 +228,43 @@ void CareerDatabase::SetStrategy(const std::string& strategy) {
 }
 
 int CareerDatabase::GetReputation() const {
-  return m_activeSave ? m_activeSave->reputation : 0;
+  return CareerEventService::GetReputation(m_activeSave.get());
 }
 
 std::string CareerDatabase::GetReputationStatus() const {
-  if (!m_activeSave)
-    return TR("career_rep_unknown");
-  int rep = m_activeSave->reputation;
-  if (rep >= 80)
-    return TR("career_rep_legendary");
-  if (rep >= 50)
-    return TR("career_rep_respected");
-  if (rep >= 20)
-    return TR("career_rep_known");
-  if (rep >= -20)
-    return TR("career_rep_unproven");
-  if (rep >= -50)
-    return TR("career_rep_controversial");
-  return TR("career_rep_notorious");
+  return CareerPresentation::GetReputationStatus(m_activeSave.get());
 }
 
 std::string CareerDatabase::GetMoraleString(int morale) const {
-  if (morale >= 80)
-    return TR("career_morale_happy");
-  if (morale >= 40)
-    return TR("career_morale_content");
-  return TR("career_morale_unhappy");
+  return CareerPresentation::GetMoraleString(morale);
 }
 
 std::string CareerDatabase::GetFormString(int form) const {
-  if (form >= 80)
-    return TR("career_form_excellent");
-  if (form >= 40)
-    return TR("career_form_good");
-  return TR("career_form_poor");
+  return CareerPresentation::GetFormString(form);
 }
 
 std::string CareerDatabase::GetConditionArrow(int form) const {
-  // Classic PES 5/6 Condition Arrow indicators:
-  // Red Up (Top) > Orange Diagonal (Good) > Green Right (Normal) > Blue Diagonal (Poor) > Purple
-  // Down (Terrible)
-  if (form >= 85)
-    return "[^] TOP";
-  if (form >= 65)
-    return "[/] GOOD";
-  if (form >= 40)
-    return "[>] NORM";
-  if (form >= 20)
-    return "[\\] POOR";
-  return "[v] BAD";
+  return CareerPresentation::GetConditionArrow(form);
 }
 
 std::string CareerDatabase::GetFormGuideString(int count) const {
-  if (!m_activeSave)
-    return "[ - - - - - ]";
-  std::string guide = "";
-  int wins = m_activeSave->seasonWins;
-  int draws = m_activeSave->seasonDraws;
-  int losses = m_activeSave->seasonLosses;
-  int total = wins + draws + losses;
-  if (total == 0)
-    return "[ - - - - - ]";
-
-  // Build a realistic recent form sequence from the season record
-  std::vector<std::string> recent;
-  for (int i = 0; i < count; i++) {
-    int seed = (m_activeSave->season.currentWeek * 7 + i * 13) % 100;
-    if (wins > 0 && (seed < (wins * 100 / total))) {
-      recent.push_back("[W]");
-    } else if (draws > 0 && (seed < ((wins + draws) * 100 / total))) {
-      recent.push_back("[D]");
-    } else {
-      recent.push_back("[L]");
-    }
-  }
-  for (const auto& r : recent) {
-    guide += r + " ";
-  }
-  return guide;
+  return CareerPresentation::GetFormGuideString(m_activeSave.get(), count);
 }
 
 std::vector<std::string> CareerDatabase::GetNewsHeadlines(int count) const {
-  if (!m_activeSave)
-    return {"Transfer window opens with record activity across top divisions."};
-
-  std::vector<std::string> headlines;
-  // 1. Match result / form headline
-  int played = m_activeSave->seasonWins + m_activeSave->seasonDraws + m_activeSave->seasonLosses;
-  if (played == 0) {
-    headlines.push_back("PRE-SEASON: " + m_activeSave->name +
-                        " gears up for ambitious campaign in " + m_activeSave->club.leagueName +
-                        ".");
-  } else if (m_activeSave->seasonWins > m_activeSave->seasonLosses * 2) {
-    headlines.push_back("MEDIA SPOTLIGHT: Pundits praise " + m_activeSave->name +
-                        "'s tactical fluidity and dominant run of form.");
-  } else if (m_activeSave->seasonLosses > m_activeSave->seasonWins) {
-    headlines.push_back("PRESSURE BUILDS: Manager " + m_activeSave->managerName +
-                        " calls for resilience amid testing fixture schedule.");
-  } else {
-    headlines.push_back("COMPETITIVE RACE: " + m_activeSave->name +
-                        " stays in contention as mid-table battle intensifies.");
-  }
-
-  // 2. Squad / Youth headline
-  if (!m_activeSave->youthAcademy.empty()) {
-    headlines.push_back("ACADEMY REPORT: Scouts spotlight " + m_activeSave->youthAcademy[0].name +
-                        " as a potential future star.");
-  } else if (!m_activeSave->roster.empty()) {
-    headlines.push_back("SQUAD FOCUS: " + m_activeSave->roster[0].name +
-                        " maintaining peak match condition ahead of next clash.");
-  }
-
-  // 3. Board / Club operations headline
-  if (m_activeSave->boardConfidence >= 75) {
-    headlines.push_back(
-        "BOARD CONFIDENCE: Club hierarchy 'delighted' with current management and financial "
-        "health.");
-  } else {
-    headlines.push_back(
-        "BOARD NOTICE: Club leadership expects strong performance in upcoming league fixtures.");
-  }
-
-  while (static_cast<int>(headlines.size()) > count) {
-    headlines.pop_back();
-  }
-  return headlines;
+  return CareerPresentation::GetNewsHeadlines(m_activeSave.get(), count);
 }
 
 std::string CareerDatabase::GetNextOpponentPreview(int week) const {
-  static const std::vector<std::string> opponentNames = {
-      "FC United",     "Athletic Club", "Wanderers FC",      "Real Deportivo", "Inter Milano",
-      "Bayern Munich", "FC Barcelona",  "Chelsea FC",        "Arsenal FC",     "Juventus Turin",
-      "AC Milan",      "Liverpool FC",  "Borussia Dortmund", "Paris SG",       "Ajax Amsterdam",
-      "Porto FC",      "Benfica",       "Sporting CP",       "Napoli",         "Atletico Madrid",
-      "Tottenham"};
-  int opponentIdx = (week * 3) % static_cast<int>(opponentNames.size());
-  std::string opp = opponentNames[opponentIdx];
-  bool isHome = (week % 2) == 0;
-  std::string venue = isHome ? "Home (Your Stadium)" : "Away (" + opp + " Arena)";
-  std::string danger = ((week % 3) == 0)
-                           ? "★★★★★ High Danger"
-                           : (((week % 2) == 0) ? "★★★☆☆ Moderate Threat" : "★★★★☆ Solid Defense");
-  return opp + " | Venue: " + venue + "\nThreat Rating: " + danger +
-         " | Expected Strategy: Balanced Press";
+  return CareerPresentation::GetNextOpponentPreview(week);
 }
 
 int CareerDatabase::GetLegacyStat(const std::string& statName) const {
-  if (!m_activeSave)
-    return 0;
-  auto it = m_activeSave->legacyStats.find(statName);
-  return it != m_activeSave->legacyStats.end() ? it->second : 0;
+  return CareerEventService::GetLegacyStat(m_activeSave.get(), statName);
 }
 
 std::vector<CareerEvent> CareerDatabase::GetRecentEvents(int limit) const {
-  if (!m_activeSave)
-    return {};
-  std::vector<CareerEvent> res;
-  for (auto it = m_activeSave->recentEvents.rbegin();
-       it != m_activeSave->recentEvents.rend() && static_cast<int>(res.size()) < limit; ++it) {
-    res.push_back(*it);
-  }
-  return res;
+  return CareerEventService::GetRecentEvents(m_activeSave.get(), limit);
 }
 
 void CareerDatabase::ProcessPlayerGrowth(PlayerCareerState& player) {
@@ -610,7 +438,15 @@ SimulatedMatch CareerDatabase::SimulateMatchResult(const std::string& opponentNa
                                                    bool isHome) {
   if (!m_activeSave)
     return SimulatedMatch{};
-  return CareerSim::SimulateMatchResult(*m_activeSave, opponentName, opponentTeamDBID, isHome);
+
+  MatchRequest request;
+  request.opponentName = opponentName;
+  request.opponentTeamDBID = opponentTeamDBID;
+  request.userIsHome = isHome;
+
+  FastMatchEngine engine(*m_activeSave);
+  const MatchEngineRun run = engine.Start(request);
+  return ToLegacySimulatedMatch(request, run.result);
 }
 
 void CareerDatabase::SeedRng(unsigned int seed) {

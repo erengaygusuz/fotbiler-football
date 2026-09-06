@@ -1,0 +1,36 @@
+<rml>
+<head>
+  <title>Controller Select</title>
+  <link type="text/rcss" href="theme.rcss" />
+  <link type="text/rcss" href="runtime_shell.rcss" />
+</head>
+<body>
+  <div class="runtime-screen">
+    <div class="runtime-bg-blue"></div><div class="runtime-bg-light"></div><div class="runtime-bg-pink"></div>
+    <div class="runtime-shell">
+      <div class="runtime-topbar"><div class="runtime-brand"><span class="runtime-brand-mark">F</span>OTBILER FOOTBALL</div><div class="runtime-meta">CONTROLS · SIDE SELECT</div></div>
+      <div class="runtime-heading"><div class="runtime-kicker">MATCH SETUP</div><div class="runtime-title">SELECT SIDES</div><div class="runtime-subtitle">Assign keyboard and connected gamepads before kick-off.</div></div>
+      <div class="runtime-content">
+        <div class="runtime-column-main">
+          <div class="runtime-card dark" style="height:100%;">
+            <div class="runtime-scoreline"><div class="runtime-team">HOME</div><div class="runtime-score">VS</div><div class="runtime-team">AWAY</div></div>
+            <div class="runtime-row" tabindex="0" autofocus data-action="controller-home"><div><div class="runtime-value">KEYBOARD</div><div class="runtime-label">PRIMARY CONTROLLER</div></div><div class="runtime-pill">HOME</div></div>
+            <div class="runtime-row" tabindex="0" data-action="controller-neutral"><div><div class="runtime-value">GAMEPAD 1</div><div class="runtime-label">CONNECTED</div></div><div class="runtime-value">NEUTRAL</div></div>
+            <div class="runtime-row" tabindex="0" data-action="controller-away"><div><div class="runtime-value">GAMEPAD 2</div><div class="runtime-label">NOT CONNECTED</div></div><div class="runtime-value">AWAY</div></div>
+          </div>
+        </div>
+        <div class="runtime-column-side">
+          <div class="runtime-card" style="height:100%;">
+            <div class="runtime-card-kicker">CONTROL SCHEME</div><div class="runtime-card-title">CLASSIC</div>
+            <div class="runtime-row"><div class="runtime-label">PASS</div><div class="runtime-value">A / ENTER</div></div>
+            <div class="runtime-row"><div class="runtime-label">SHOOT</div><div class="runtime-value">X / SPACE</div></div>
+            <div class="runtime-row"><div class="runtime-label">SPRINT</div><div class="runtime-value">RT / SHIFT</div></div>
+            <div class="runtime-nav-item" tabindex="0" data-action="open-controller-mapping" style="margin-top:18px;">CUSTOMISE CONTROLS</div>
+          </div>
+        </div>
+      </div>
+      <div class="runtime-footer"><div><span class="runtime-hint"><span class="runtime-key">LEFT/RIGHT</span>Assign</span><span class="runtime-hint"><span class="runtime-key">ENTER</span>Confirm</span></div><div>M1C · CONTROLLER SELECT</div></div>
+    </div>
+  </div>
+</body>
+</rml>

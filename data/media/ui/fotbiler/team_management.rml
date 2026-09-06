@@ -1,0 +1,41 @@
+<rml>
+<head>
+  <title>Team Management</title>
+  <link type="text/rcss" href="theme.rcss" />
+  <link type="text/rcss" href="runtime_shell.rcss" />
+</head>
+<body>
+  <div class="runtime-screen">
+    <div class="runtime-bg-blue"></div><div class="runtime-bg-light"></div><div class="runtime-bg-pink"></div>
+    <div class="runtime-shell">
+      <div class="runtime-topbar"><div class="runtime-brand"><span class="runtime-brand-mark">F</span>OTBILER FOOTBALL</div><div class="runtime-meta">MATCHDAY · TEAM MANAGEMENT</div></div>
+      <div class="runtime-heading"><div class="runtime-kicker">TACTICS</div><div class="runtime-title">TEAM MANAGEMENT</div><div class="runtime-subtitle">Adjust formation, roles and substitutions without leaving the match flow.</div></div>
+      <div class="runtime-tabs"><div class="runtime-tab active" tabindex="0" autofocus>TEAM SHEET</div><div class="runtime-tab" tabindex="0" data-route="tactics">TACTICS</div><div class="runtime-tab" tabindex="0">ROLES</div><div class="runtime-tab" tabindex="0">SET PIECES</div></div>
+      <div class="runtime-content" style="height:62%;">
+        <div class="runtime-column-main">
+          <div class="runtime-card dark" style="height:100%;">
+            <div class="runtime-card-kicker">FORMATION</div><div class="runtime-card-title">4-3-3 HOLDING</div>
+            <div class="runtime-row"><div class="runtime-value">9 BENZEMA</div><div class="runtime-label">ST</div></div>
+            <div class="runtime-row"><div class="runtime-value">7 RONALDO</div><div class="runtime-label">LW</div></div>
+            <div class="runtime-row"><div class="runtime-value">11 BALE</div><div class="runtime-label">RW</div></div>
+            <div class="runtime-row"><div class="runtime-value">10 MODRIC</div><div class="runtime-label">CM</div></div>
+            <div class="runtime-row"><div class="runtime-value">8 KROOS</div><div class="runtime-label">CM</div></div>
+            <div class="runtime-row"><div class="runtime-value">6 KHEDIRA</div><div class="runtime-label">CDM</div></div>
+          </div>
+        </div>
+        <div class="runtime-column-side">
+          <div class="runtime-card" style="height:100%;">
+            <div class="runtime-card-kicker">MATCHDAY</div><div class="runtime-card-title">SUBSTITUTIONS</div>
+            <div class="runtime-row" tabindex="0"><div><div class="runtime-value">ISCO</div><div class="runtime-label">CAM · 82</div></div><div class="runtime-pill">READY</div></div>
+            <div class="runtime-row" tabindex="0"><div><div class="runtime-value">JESÉ</div><div class="runtime-label">LW · 76</div></div><div class="runtime-pill">READY</div></div>
+            <div class="runtime-row" tabindex="0"><div><div class="runtime-value">PEPE</div><div class="runtime-label">CB · 83</div></div><div class="runtime-pill">READY</div></div>
+            <div class="runtime-card-kicker" style="margin-top:22px;">MATCH PLAN</div>
+            <div class="runtime-nav-item" tabindex="0" data-action="apply-team-management">APPLY CHANGES</div>
+          </div>
+        </div>
+      </div>
+      <div class="runtime-footer"><div><span class="runtime-hint"><span class="runtime-key">ENTER</span>Select</span><span class="runtime-hint"><span class="runtime-key">ESC</span>Back</span></div><div>M1C · TEAM MANAGEMENT</div></div>
+    </div>
+  </div>
+</body>
+</rml>

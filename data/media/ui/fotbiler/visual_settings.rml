@@ -1,0 +1,40 @@
+<rml>
+<head>
+  <title>Visual Settings</title>
+  <link type="text/rcss" href="theme.rcss" />
+  <link type="text/rcss" href="runtime_shell.rcss" />
+</head>
+<body>
+  <div class="runtime-screen">
+    <div class="runtime-bg-blue"></div><div class="runtime-bg-light"></div><div class="runtime-bg-pink"></div>
+    <div class="runtime-shell">
+      <div class="runtime-topbar"><div class="runtime-brand"><span class="runtime-brand-mark">F</span>OTBILER FOOTBALL</div><div class="runtime-meta">SETTINGS · VISUAL</div></div>
+      <div class="runtime-heading"><div class="runtime-kicker">PRESENTATION</div><div class="runtime-title">VISUAL &amp; SYSTEM</div><div class="runtime-subtitle">Match presentation, overlays and rendering preferences.</div></div>
+      <div class="runtime-content">
+        <div class="runtime-column-main">
+          <div class="runtime-card dark" style="height:100%;">
+            <div class="runtime-card-kicker">VISUAL</div><div class="runtime-card-title">MATCH PRESENTATION</div>
+            <div class="runtime-row" tabindex="0" autofocus data-action="toggle-radar"><div class="runtime-label">RADAR</div><div class="runtime-value">2D</div></div>
+            <div class="runtime-row" tabindex="0" data-action="toggle-player-names"><div class="runtime-label">PLAYER NAMES</div><div class="runtime-value">ON</div></div>
+            <div class="runtime-row" tabindex="0" data-action="cycle-scoreboard"><div class="runtime-label">SCOREBOARD STYLE</div><div class="runtime-value">COMPACT</div></div>
+            <div class="runtime-row" tabindex="0" data-action="toggle-performance-overlay"><div class="runtime-label">PERFORMANCE OVERLAY</div><div class="runtime-value">OFF</div></div>
+            <div class="runtime-row" tabindex="0" data-action="cycle-brightness"><div class="runtime-label">BRIGHTNESS</div><div class="runtime-value">50</div></div>
+            <div class="runtime-row" tabindex="0" data-action="cycle-ui-scale"><div class="runtime-label">UI SCALE</div><div class="runtime-value">100%</div></div>
+          </div>
+        </div>
+        <div class="runtime-column-side">
+          <div class="runtime-card" style="height:100%;">
+            <div class="runtime-card-kicker">SYSTEM</div><div class="runtime-card-title">RUNTIME</div>
+            <div class="runtime-row"><div class="runtime-label">RENDERER</div><div class="runtime-value">OPENGL 4.6</div></div>
+            <div class="runtime-row"><div class="runtime-label">TARGET FPS</div><div class="runtime-value">DISPLAY</div></div>
+            <div class="runtime-row"><div class="runtime-label">HIGH DPI</div><div class="runtime-value">AUTO</div></div>
+            <div class="runtime-row"><div class="runtime-label">LANGUAGE</div><div class="runtime-value">ENGLISH</div></div>
+            <div class="runtime-nav-item" tabindex="0" data-action="reset-visuals" style="margin-top:18px;">RESET VISUAL DEFAULTS</div>
+          </div>
+        </div>
+      </div>
+      <div class="runtime-footer"><div><span class="runtime-hint"><span class="runtime-key">ENTER</span>Change</span><span class="runtime-hint"><span class="runtime-key">ESC</span>Back</span></div><div>M1C · VISUAL</div></div>
+    </div>
+  </div>
+</body>
+</rml>

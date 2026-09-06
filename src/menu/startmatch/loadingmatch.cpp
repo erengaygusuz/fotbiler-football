@@ -1,6 +1,8 @@
 #include "loadingmatch.hpp"
 
+#include <cstdlib>
 #include <filesystem>
+#include <string>
 
 #include "../pagefactory.hpp"
 #include "main.hpp"
@@ -12,6 +14,16 @@ using namespace blunted;
 namespace {
 
 const char* kLoadingFallbackLogo = "media/menu/league.png";
+
+bool EnvironmentFlagEnabled(const char* name) {
+  const char* value = std::getenv(name);
+  return value && value[0] != '\0' && std::string(value) != "0";
+}
+
+bool ModernUiActive() {
+  return EnvironmentFlagEnabled("FOTBILER_UI_MODERN_SESSION") ||
+         EnvironmentFlagEnabled("FOTBILER_UI_MODERN_APP");
+}
 
 std::string ResolveTeamLogo(const TeamData* teamData) {
   const std::string& logoPath = teamData->GetLogoUrl();
@@ -25,9 +37,23 @@ std::string ResolveTeamLogo(const TeamData* teamData) {
 
 LoadingMatchPage::LoadingMatchPage(Gui2WindowManager* windowManager, const Gui2PageData& pageData)
     : Gui2Page(windowManager, pageData) {
-  // logos
+  // LoadingMatch still owns the legacy state transition that creates MatchData.
+  // Modern Fotbiler keeps that state-machine responsibility for now, but the
+  // Gui2 presentation must never be visible under either the old process handoff
+  // or the new single-process RmlUi frontend.
   MatchData* matchData = new MatchData(GetMenuTask()->GetTeamID(0), GetMenuTask()->GetTeamID(1));
   GetMenuTask()->SetMatchData(matchData);
+
+  GetMenuTask()->SetActiveJoystickID(0);
+  GetMenuTask()->EnableKeyboard();
+  windowManager->GetPagePath()->Clear();
+  sentStartGameSignal = false;
+
+  if (ModernUiActive()) {
+    GetMenuTask()->SetMenuBackgroundVisible(false);
+    return;
+  }
+
   TeamData* teamData1 = matchData->GetTeamData(0);
   TeamData* teamData2 = matchData->GetTeamData(1);
   constexpr float kTeamLogoHeight = 12.5f;
@@ -83,14 +109,7 @@ LoadingMatchPage::LoadingMatchPage(Gui2WindowManager* windowManager, const Gui2P
   logo2->Show();
 
   this->SetFocus();
-
   this->Show();
-
-  GetMenuTask()->SetActiveJoystickID(0);
-  GetMenuTask()->EnableKeyboard();
-  windowManager->GetPagePath()->Clear();
-
-  sentStartGameSignal = false;
 }
 
 LoadingMatchPage::~LoadingMatchPage() {}
@@ -100,8 +119,9 @@ void LoadingMatchPage::Process() {
 
   if (!sentStartGameSignal) {
     sentStartGameSignal = true;
-    // Allow one rendered loading frame before the heavier match setup begins.
-    EnvironmentManager::GetInstance().Pause_ms(100);
+    if (!ModernUiActive()) {
+      EnvironmentManager::GetInstance().Pause_ms(100);
+    }
     GetMenuTask()->SetMenuAction(e_MenuAction_Game);
   }
 }

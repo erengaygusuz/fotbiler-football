@@ -1,0 +1,32 @@
+<rml>
+<head>
+  <title>Fotbiler Transfers</title>
+  <link type="text/rcss" href="theme.rcss" />
+  <link type="text/rcss" href="career_shell.rcss" />
+  <link type="text/rcss" href="transfers.rcss" />
+</head>
+<body>
+  <div class="career-screen">
+    <div class="career-bg-deep"></div><div class="career-bg-blue"></div><div class="career-bg-accent"></div>
+    <div class="career-shell">
+      <div class="career-topbar">
+        <div class="club-identity"><div class="club-crest">F</div><div class="club-copy"><div id="career-club-name" class="club-name">FOTBILER FC</div><div id="career-club-meta" class="club-meta">MANAGER CAREER · SEASON 2026/27</div></div></div>
+        <div class="career-status"><div class="status-block"><div class="status-label">TRANSFER BUDGET</div><div id="career-transfer-budget" class="status-value">€24.5M</div></div><div class="status-block date-block"><div class="status-label">WINDOW CLOSES</div><div class="status-value">14 DAYS</div></div></div>
+      </div>
+      <div class="career-tabs"><div class="career-tab" tabindex="0" data-route="career-central">CENTRAL</div><div class="career-tab" tabindex="0" data-route="squad">SQUAD</div><div class="career-tab active" tabindex="0" data-route="transfers">TRANSFERS</div><div class="career-tab" tabindex="0" data-route="office">OFFICE</div><div class="career-tab" tabindex="0" data-route="season">SEASON</div></div>
+
+      <div class="transfer-content">
+        <div class="transfer-main">
+          <div id="featured-target" class="transfer-card featured-target" tabindex="0"><div class="target-left"><div class="card-kicker">FEATURED TARGET</div><div class="target-avatar">JS</div><div id="transfer-scout-region" class="target-club">PORTUGAL</div></div><div class="target-middle"><div id="transfer-target-name" class="target-name">JOAO SILVA</div><div id="transfer-target-meta" class="target-meta">ST · 22 · PORTUGAL</div><div class="target-badges"><span class="transfer-pill accent">SHORTLISTED</span><span class="transfer-pill">SCOUTED 100%</span></div><div class="target-summary">Explosive striker with strong movement behind the defensive line.</div><div class="transfer-attributes"><div class="transfer-stat"><span>PAC</span><strong>86</strong></div><div class="transfer-stat"><span>SHO</span><strong>81</strong></div><div class="transfer-stat"><span>PAS</span><strong>70</strong></div><div class="transfer-stat"><span>DRI</span><strong>82</strong></div><div class="transfer-stat"><span>DEF</span><strong>34</strong></div><div class="transfer-stat"><span>PHY</span><strong>77</strong></div></div></div><div class="target-right"><div id="transfer-target-overall" class="target-overall">82</div><div class="target-overall-label">OVR</div><div class="target-value-label">MARKET VALUE</div><div id="transfer-target-value" class="target-value">€28.0M</div><div id="transfer-target-potential" class="target-potential">POTENTIAL 87</div></div></div>
+          <div id="shortlist" class="transfer-card shortlist" tabindex="0"><div class="shortlist-header"><span class="card-kicker">SHORTLIST</span><span class="shortlist-count">12 PLAYERS</span></div><div class="shortlist-head"><span>PLAYER</span><span>POS</span><span>AGE</span><span>OVR</span><span>VALUE</span></div><div class="shortlist-row active"><span>JOAO SILVA</span><span>ST</span><span>22</span><span>82</span><span>€28M</span></div><div class="shortlist-row"><span>MATEO RUIZ</span><span>CM</span><span>24</span><span>80</span><span>€22M</span></div><div class="shortlist-row"><span>LEON VOGEL</span><span>CB</span><span>21</span><span>79</span><span>€19M</span></div><div class="shortlist-row"><span>OMAR HADDAD</span><span>RW</span><span>23</span><span>78</span><span>€17M</span></div><div class="shortlist-row"><span>EMIL BORG</span><span>GK</span><span>25</span><span>77</span><span>€12M</span></div></div>
+        </div>
+        <div class="transfer-side">
+          <div id="active-negotiation" class="transfer-card negotiation-card" tabindex="0"><div class="negotiation-accent"></div><div class="card-kicker">ACTIVE NEGOTIATION</div><div class="negotiation-title">JOAO SILVA</div><div class="negotiation-clubs"><div class="mini-club"><span class="mini-crest ours">F</span><span>FOTBILER FC</span></div><div class="negotiation-arrow">→</div><div class="mini-club"><span class="mini-crest theirs">N</span><span>NORTH CITY</span></div></div><div class="offer-row"><span>ASKING PRICE</span><strong>€31.0M</strong></div><div class="offer-row"><span>OUR OFFER</span><strong class="offer-highlight">€26.5M</strong></div><div class="offer-row"><span>SELL-ON CLAUSE</span><strong>10%</strong></div><div class="negotiation-status">PENDING RESPONSE</div></div>
+          <div class="transfer-side-row"><div id="scout-network" class="transfer-card scout-card" tabindex="0" data-route="scouting"><div class="card-kicker">SCOUT NETWORK</div><div class="scout-title">3 ACTIVE</div><div class="scout-line"><span id="transfer-active-region">PORTUGAL</span><strong><span id="transfer-scout-months">1</span> MONTHS</strong></div><div class="scout-line"><span>GERMANY</span><strong>12 DAYS</strong></div><div class="scout-line"><span>TURKEY</span><strong>ONGOING</strong></div></div><div id="window-status" class="transfer-card window-card" tabindex="0"><div class="card-kicker">TRANSFER WINDOW</div><div class="window-days">14</div><div class="window-label">DAYS LEFT</div><div class="window-spend">SPENT €8.0M</div><div class="window-income">RECEIVED €3.5M</div></div></div>
+        </div>
+      </div>
+      <div class="career-control-strip"><div class="control-left"><span class="hint"><span class="hint-key">ENTER</span>Select</span><span class="hint"><span class="hint-key">ARROWS</span>Navigate</span><span class="hint"><span class="hint-key">F2</span>Central</span><span class="hint"><span class="hint-key">F3</span>Squad</span><span class="hint"><span class="hint-key">F4</span>Transfers</span></div><div class="control-right">TRANSFERS · SUMMER WINDOW</div></div>
+    </div>
+  </div>
+</body>
+</rml>

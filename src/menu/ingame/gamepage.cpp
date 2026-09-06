@@ -1,6 +1,13 @@
 #include "gamepage.hpp"
 
+#include <cstdlib>
+#include <string>
+
+#include "../../league/leaguecode.hpp"
 #include "../../onthepitch/match.hpp"
+#include "../../presentation/ui/rmlui/frontend_runtime_bridge.hpp"
+#include "../../presentation/ui/rmlui/runtime_ui_bridge.hpp"
+#include "../career/career_database.hpp"
 #include "../pagefactory.hpp"
 #include "gameover.hpp"
 #include "main.hpp"
@@ -21,37 +28,96 @@ bool MenuSmokeFullMatchEnabled() {
   return GetConfiguration()->GetBool("menu_smoke_test_full_match", false);
 }
 
+bool EnvironmentFlagEnabled(const char* name) {
+  const char* value = std::getenv(name);
+  return value && value[0] != '\0' && std::string(value) != "0";
+}
+
+bool ModernUiSessionActive() {
+  return EnvironmentFlagEnabled("FOTBILER_UI_MODERN_SESSION");
+}
+
+bool ModernFrontendAppActive() {
+  return EnvironmentFlagEnabled("FOTBILER_UI_MODERN_APP");
+}
+
+bool ModernUiActive() {
+  return ModernUiSessionActive() || ModernFrontendAppActive();
+}
+
+void PublishModernMatchSnapshot(Match* match) {
+  if (!match) return;
+
+  ui::runtime::MatchSnapshot snapshot;
+  snapshot.homeName = match->GetTeam(0)->GetTeamData()->GetName();
+  snapshot.awayName = match->GetTeam(1)->GetTeamData()->GetName();
+  snapshot.homeShortName = match->GetTeam(0)->GetTeamData()->GetShortName();
+  snapshot.awayShortName = match->GetTeam(1)->GetTeamData()->GetShortName();
+  snapshot.homeScore = match->GetScore(0);
+  snapshot.awayScore = match->GetScore(1);
+  snapshot.minute = std::min(90, static_cast<int>(match->GetMatchTime_ms() / 60000));
+
+  MatchData* data = match->GetMatchData();
+  if (data) {
+    const unsigned long homePossession = data->GetPossessionTime_ms(0);
+    const unsigned long awayPossession = data->GetPossessionTime_ms(1);
+    const unsigned long possessionTotal = homePossession + awayPossession;
+    snapshot.homePossession = possessionTotal > 0
+                                  ? static_cast<int>((homePossession * 100) / possessionTotal)
+                                  : 50;
+    snapshot.awayPossession = 100 - snapshot.homePossession;
+    snapshot.homeShots = data->GetShots(0);
+    snapshot.awayShots = data->GetShots(1);
+    snapshot.homeShotsOnTarget = data->GetShotsOnTarget(0);
+    snapshot.awayShotsOnTarget = data->GetShotsOnTarget(1);
+    const int homeAttempts = data->GetPassAttempts(0);
+    const int awayAttempts = data->GetPassAttempts(1);
+    snapshot.homePassAccuracy =
+        homeAttempts > 0 ? data->GetPassesCompleted(0) * 100 / homeAttempts : 0;
+    snapshot.awayPassAccuracy =
+        awayAttempts > 0 ? data->GetPassesCompleted(1) * 100 / awayAttempts : 0;
+    snapshot.homeFouls = data->GetFouls(0);
+    snapshot.awayFouls = data->GetFouls(1);
+  }
+
+  ui::runtime::PublishMatchSnapshot(snapshot);
+}
+
+void OpenModernPause(Match* match) {
+  if (!match) return;
+  PublishModernMatchSnapshot(match);
+  match->Pause(true);
+  ui::runtime::SetScreen(ui::runtime::Screen::Pause);
+}
+
 }  // namespace
 
 GamePage::GamePage(Gui2WindowManager* windowManager, const Gui2PageData& pageData)
     : Gui2Page(windowManager, pageData), match(0), matchReadyTime_ms(0), autoQuitTriggered(false) {
-  Gui2Caption* betaSign =
-      new Gui2Caption(windowManager, "caption_betasign", 0, 0, 0, 2, "League-Soccer v0.4.0");
-  betaSign->SetColor(Vector3(180, 180, 180));
-  betaSign->SetTransparency(0.3f);
-  this->AddView(betaSign);
-  float w = betaSign->GetTextWidthPercent();
-  betaSign->SetPosition(50 - w * 0.5f, 97.0f);
-  betaSign->Show();
+  if (!ModernUiActive()) {
+    Gui2Caption* betaSign =
+        new Gui2Caption(windowManager, "caption_betasign", 0, 0, 0, 2, "League-Soccer v0.4.0");
+    betaSign->SetColor(Vector3(180, 180, 180));
+    betaSign->SetTransparency(0.3f);
+    this->AddView(betaSign);
+    float w = betaSign->GetTextWidthPercent();
+    betaSign->SetPosition(50 - w * 0.5f, 97.0f);
+    betaSign->Show();
+  }
 
   this->Show();
-
   this->SetFocus();
 }
 
 GamePage::~GamePage() {
-  // todonow: only when connected in the first place?
-  // problem is, this function may be called outside of gametask's or match's lifetime.
-
   if (match) {
-    if (Verbose())
-      printf("disconnecting signals\n");
-
+    if (Verbose()) printf("disconnecting signals\n");
     conn_MatchPhaseChange.disconnect();
     conn_ShortReplayMoment.disconnect();
     conn_ExtendedReplayMoment.disconnect();
     conn_GameOver.disconnect();
   }
+  if (ModernUiActive()) ui::runtime::Reset();
 }
 
 void GamePage::Process() {
@@ -62,8 +128,7 @@ void GamePage::Process() {
     if (GetGameTask()->GetMatch() != 0) {
       match = GetGameTask()->GetMatch();
 
-      if (Verbose())
-        printf("connecting signals\n");
+      if (Verbose()) printf("connecting signals\n");
 
       conn_MatchPhaseChange =
           match->sig_OnMatchPhaseChange.connect([this](...) { GoMatchPhasePage(); });
@@ -73,12 +138,47 @@ void GamePage::Process() {
           match->sig_OnExtendedReplayMoment.connect([this](...) { GoExtendedReplayPage(); });
       conn_GameOver = match->sig_OnGameOver.connect([this](...) { GoGameOverPage(); });
 
+      if (ModernUiActive()) {
+        GetMenuTask()->SetMenuBackgroundVisible(false);
+        PublishModernMatchSnapshot(match);
+        ui::runtime::SetScreen(ui::runtime::Screen::None);
+        if (ModernFrontendAppActive()) ui::frontend::BeginMatch();
+      }
+
       if (MenuSmokeQuickMatchEnabled() || MenuSmokeFullMatchEnabled()) {
         matchReadyTime_ms = EnvironmentManager::GetInstance().GetTime_ms();
         printf("[menu-smoke] Gameplay page reached and live match is active\n");
       }
     }
     GetGameTask()->matchLifetimeMutex.unlock();
+  }
+
+  if (ModernUiActive() && match) {
+    const ui::runtime::Command command = ui::runtime::ConsumeCommand();
+    if (command == ui::runtime::Command::ResumeMatch) {
+      match->Pause(false);
+      ui::runtime::SetScreen(ui::runtime::Screen::None);
+      GetMenuTask()->ReleaseAllButtons();
+    } else if (command == ui::runtime::Command::ExitMatch) {
+      LeagueClearPendingFixture();
+      CareerDatabase::GetInstance().ClearPendingFixture();
+      ui::runtime::SetScreen(ui::runtime::Screen::None);
+
+      if (ModernFrontendAppActive()) {
+        const ui::frontend::ReturnTarget target =
+            ui::frontend::GetSessionKind() == ui::frontend::SessionKind::Career
+                ? ui::frontend::ReturnTarget::CareerCentral
+                : ui::frontend::ReturnTarget::MatchSetup;
+        this->Exit();
+        GetMenuTask()->ReturnToFotbilerFrontend(target);
+        delete this;
+        return;
+      }
+
+      EnvironmentManager::GetInstance().SignalQuit();
+    }
+
+    if (match->GetPause()) PublishModernMatchSnapshot(match);
   }
 
   if (match && !autoQuitTriggered && MenuSmokeQuickMatchEnabled() && !MenuSmokeFullMatchEnabled() &&
@@ -102,7 +202,6 @@ void GamePage::GoExtendedReplayPage() {
   ReplayPage* replayPage = static_cast<ReplayPage*>(
       windowManager->GetPageFactory()->CreatePage((int)e_PageID_Replay, properties, 0));
 
-  // todo: use properties instead?
   int replayHistoryOffset_ms = match->GetReplaySize_ms();
   bool stayInReplay = true;
   replayPage->Autorun(replayHistoryOffset_ms, stayInReplay);
@@ -133,13 +232,16 @@ void GamePage::ProcessWindowingEvent(WindowingEvent* event) {
 
 void GamePage::ProcessKeyboardEvent(KeyboardEvent* event) {
   if (event->GetKeyOnce(SDLK_TAB)) {
-    if (match)
-      match->ToggleStatsOverlay();
+    if (match) match->ToggleStatsOverlay();
     return;
   }
 
   if (event->GetKeyOnce(SDLK_ESCAPE)) {
-    // check which team the keyboard belongs to
+    if (ModernUiActive()) {
+      OpenModernPause(match);
+      return;
+    }
+
     int controllerID = 0;
     const std::vector<IHIDevice*>& controllers = GetControllers();
     for (unsigned int c = 0; c < controllers.size(); c++) {
@@ -149,8 +251,7 @@ void GamePage::ProcessKeyboardEvent(KeyboardEvent* event) {
       }
     }
 
-    if (Verbose())
-      printf("controller index %i (keyboard) pressed start\n", controllerID);
+    if (Verbose()) printf("controller index %i (keyboard) pressed start\n", controllerID);
 
     int teamID = 0;
     const std::vector<SideSelection> sides = GetMenuTask()->GetControllerSetup();
@@ -160,9 +261,6 @@ void GamePage::ProcessKeyboardEvent(KeyboardEvent* event) {
         break;
       }
     }
-
-    if (Verbose())
-      printf("team belonging to this controller seems to be %i\n", teamID);
 
     Properties properties;
     properties.Set("teamID", teamID);
@@ -174,23 +272,22 @@ void GamePage::ProcessKeyboardEvent(KeyboardEvent* event) {
 }
 
 void GamePage::ProcessJoystickEvent(JoystickEvent* event) {
-  // oof, the problem is that we are using a GUI joystick event to find out what ingame HID
-  // controller pressed <start>. I think we need a new system in which the game doesn't use its own
-  // input system, but uses the GUI one. for now, this hax will have to do
-
   const std::vector<IHIDevice*>& controllers = GetControllers();
   for (unsigned int c = 0; c < controllers.size(); c++) {
     if (controllers.at(c)->GetDeviceType() == e_HIDeviceType_Gamepad) {
       HIDGamepad* gamepad = static_cast<HIDGamepad*>(controllers.at(c));
-      int joyID =
-          gamepad->GetGamepadID();  // these should be the same IDs the GUI system uses as joyID
+      int joyID = gamepad->GetGamepadID();
 
       if (event->GetButton(joyID, gamepad->GetControllerMapping(
                                       gamepad->GetFunctionMapping(e_ButtonFunction_Start)))) {
+        if (ModernUiActive()) {
+          OpenModernPause(match);
+          return;
+        }
+
         if (Verbose())
           printf("controller index %i, gamepad/joy ID %i pressed start\n", c, joyID);
 
-        // check which team this controller belongs to
         int teamID = 0;
         const std::vector<SideSelection> sides = GetMenuTask()->GetControllerSetup();
         for (unsigned int s = 0; s < sides.size(); s++) {
@@ -199,9 +296,6 @@ void GamePage::ProcessJoystickEvent(JoystickEvent* event) {
             break;
           }
         }
-
-        if (Verbose())
-          printf("team belonging to this controller seems to be %i\n", teamID);
 
         Properties properties;
         properties.Set("teamID", teamID);

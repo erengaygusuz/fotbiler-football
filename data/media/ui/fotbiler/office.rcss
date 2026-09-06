@@ -1,0 +1,66 @@
+body { font-family: "Fotbiler Sans"; }
+
+.office-content { display: flex; width: 100%; height: 70%; padding-top: 18px; }
+.office-primary { width: 61%; height: 100%; margin-right: 2%; }
+.office-secondary { width: 37%; height: 100%; }
+.office-panel { position: relative; box-sizing: border-box; overflow: hidden; background-color: #f7f8f9; border-width: 2px; border-color: #f7f8f9; color: #10202d; nav: auto; transition: transform border-color background-color 0.15s sine-out; }
+.office-panel:hover, .office-panel:focus { transform: translateY(-2px); border-color: #ffffff; }
+.office-card-header { display: flex; width: 100%; justify-content: space-between; align-items: flex-start; }
+.office-title, .mini-title, .confidence-number, .finance-balance, .staff-count { display: block; font-family: "Fotbiler Display"; }
+.office-title { margin-top: 5px; font-size: 34px; line-height: 36px; }
+.mini-title { margin-top: 5px; font-size: 24px; line-height: 26px; }
+
+.board-objectives { width: 100%; height: 57%; padding: 25px 28px; background-color: #19d3b1; border-color: #ffffff; }
+.board-objectives .card-kicker { color: #245d54; }
+.confidence-block { width: 84px; text-align: center; }
+.confidence-number { font-size: 48px; line-height: 46px; color: #10202d; }
+.confidence-copy { margin-top: 3px; color: #245d54; font-size: 10px; letter-spacing: 1px; }
+.objective-row { display: flex; width: 100%; margin-top: 13px; padding-top: 10px; border-top-width: 1px; border-top-color: #5be1ca; align-items: center; }
+.objective-priority { width: 9%; color: #245d54; font-family: "Fotbiler Display"; font-size: 12px; letter-spacing: 0.8px; }
+.priority-high .objective-priority { color: #a11f69; }
+.objective-copy { width: 61%; }
+.objective-name { display: block; font-family: "Fotbiler Display"; font-size: 16px; }
+.objective-meta { display: block; margin-top: 2px; color: #326b62; font-size: 10px; }
+.objective-progress { display: flex; width: 30%; align-items: center; }
+.progress-track { width: 77%; height: 7px; background-color: #78e9d6; }
+.progress-fill { height: 100%; background-color: #10202d; }
+.progress-72 { width: 72%; } .progress-81 { width: 81%; } .progress-45 { width: 45%; }
+.progress-label { width: 23%; text-align: right; font-family: "Fotbiler Display"; font-size: 13px; }
+
+.office-lower-row { display: flex; width: 100%; height: 40%; margin-top: 2%; }
+.finance-card { width: 51%; height: 100%; margin-right: 2%; padding: 22px 24px; background-color: #17334a; border-color: #17334a; color: #ffffff; }
+.finance-card .card-kicker { color: #a8bac5; }
+.finance-balance { margin-top: 6px; font-size: 39px; line-height: 40px; color: #19d3b1; }
+.finance-label { color: #9fb2bd; font-size: 10px; letter-spacing: 1px; }
+.finance-stats { display: flex; width: 100%; margin-top: 18px; }
+.finance-stats div { width: 33%; }
+.finance-stats span, .finance-stats strong { display: block; }
+.finance-stats span { color: #8fa5b1; font-size: 9px; }
+.finance-stats strong { margin-top: 3px; font-family: "Fotbiler Display"; font-size: 15px; }
+.finance-stats .positive { color: #19d3b1; }
+.contracts-card { width: 47%; height: 100%; padding: 22px 24px; background-color: #dfe5e9; border-color: #dfe5e9; }
+.contract-row { display: flex; width: 100%; margin-top: 10px; padding-top: 8px; border-top-width: 1px; border-top-color: #c8d1d6; justify-content: space-between; font-size: 11px; }
+.contract-row strong { color: #a11f69; font-family: "Fotbiler Display"; }
+
+.inbox-card { width: 100%; height: 57%; padding: 24px 26px; background-color: #214d8f; border-color: #214d8f; color: #ffffff; }
+.inbox-card .card-kicker { color: #bfd0dd; }
+.light-title { color: #ffffff; }
+.simple-header { align-items: center; }
+.inbox-badge { width: 42px; height: 42px; line-height: 42px; border-radius: 21px; text-align: center; background-color: #19d3b1; color: #10202d; font-family: "Fotbiler Display"; font-size: 21px; }
+.message-row { display: flex; width: 100%; margin-top: 8px; padding-top: 8px; border-top-width: 1px; border-top-color: #3b639e; align-items: center; }
+.message-type { width: 16%; color: #98b2d2; font-size: 9px; letter-spacing: 0.8px; }
+.message-copy { width: 69%; }
+.message-copy strong, .message-copy span { display: block; }
+.message-copy strong { font-family: "Fotbiler Display"; font-size: 13px; }
+.message-copy span { margin-top: 1px; color: #b9c9dc; font-size: 10px; }
+.message-time { width: 15%; text-align: right; color: #9db4d0; font-size: 9px; }
+.message-row.unread .message-type { color: #19d3b1; }
+
+.office-secondary-row { display: flex; width: 100%; height: 40%; margin-top: 2%; }
+.staff-card { width: 48%; height: 100%; margin-right: 2%; padding: 21px 23px; }
+.club-card { width: 50%; height: 100%; padding: 21px 23px; background-color: #dfe5e9; border-color: #dfe5e9; }
+.staff-count { margin-top: 5px; font-size: 38px; line-height: 39px; }
+.staff-label { color: #71828d; font-size: 10px; letter-spacing: 1px; }
+.staff-line, .club-stat { display: flex; width: 100%; margin-top: 9px; padding-top: 7px; border-top-width: 1px; border-top-color: #d7dde1; justify-content: space-between; font-size: 10px; }
+.staff-line strong, .club-stat strong { font-family: "Fotbiler Display"; font-size: 13px; }
+.club-stat strong { color: #214d70; }

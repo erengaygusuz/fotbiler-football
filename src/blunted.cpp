@@ -1,5 +1,7 @@
 #include "blunted.hpp"
 
+#include <cstdlib>
+
 #include "SDL2/SDL_ttf.h"
 #include "base/log.hpp"
 #include "base/properties.hpp"
@@ -28,6 +30,20 @@
 #include "scene/resources/surface.hpp"
 #include "systems/isystem.hpp"
 #include "utils/console.hpp"
+
+namespace {
+
+bool EnvironmentFlagEnabled(const char* name) {
+  const char* value = std::getenv(name);
+  return value && value[0] != '\0' && value[0] != '0';
+}
+
+bool ModernUiActive() {
+  return EnvironmentFlagEnabled("FOTBILER_UI_MODERN_SESSION") ||
+         EnvironmentFlagEnabled("FOTBILER_UI_MODERN_APP");
+}
+
+}  // namespace
 
 namespace boost {
 void assertion_failed(char const* expr, char const* function, char const* file, long line) {
@@ -177,7 +193,12 @@ void Exit() {
 
   printf("READY\n");
 
-  EnvironmentManager::GetInstance().Pause_ms(1000);
+  // Preserve the upstream one-second shutdown pause only for the legacy app.
+  // Modern Fotbiler sessions and the new single-process frontend should close
+  // as soon as teardown is complete.
+  if (!ModernUiActive()) {
+    EnvironmentManager::GetInstance().Pause_ms(1000);
+  }
   EnvironmentManager::GetInstance().Destroy();
 
   TTF_Quit();

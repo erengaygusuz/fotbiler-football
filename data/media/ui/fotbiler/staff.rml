@@ -1,0 +1,44 @@
+<rml>
+<head>
+  <title>Fotbiler Staff</title>
+  <link type="text/rcss" href="theme.rcss" />
+  <link type="text/rcss" href="career_shell.rcss" />
+  <link type="text/rcss" href="career_detail.rcss" />
+</head>
+<body>
+  <div class="career-screen">
+    <div class="career-bg-deep"></div><div class="career-bg-blue"></div><div class="career-bg-accent"></div>
+    <div class="career-shell">
+      <div class="career-topbar">
+        <div class="club-identity"><div class="club-crest">F</div><div class="club-copy"><div id="career-club-name" class="club-name">FOTBILER FC</div><div id="career-club-meta" class="club-meta">MANAGER CAREER · SEASON 2026/27</div></div></div>
+        <div class="career-status"><div class="status-block"><div class="status-label">STAFF</div><div id="staff-count" class="status-value">8</div></div><div class="status-block date-block"><div class="status-label">PAYROLL</div><div id="staff-payroll" class="status-value">€730K</div></div></div>
+      </div>
+      <div class="career-tabs"><div class="career-tab" tabindex="0" data-route="career-central">CENTRAL</div><div class="career-tab" tabindex="0" data-route="squad">SQUAD</div><div class="career-tab" tabindex="0" data-route="transfers">TRANSFERS</div><div class="career-tab active" tabindex="0" data-route="office">OFFICE</div><div class="career-tab" tabindex="0" data-route="season">SEASON</div></div>
+      <div class="career-detail-nav"><div class="career-detail-nav-item" tabindex="0" data-route="inbox">INBOX</div><div class="career-detail-nav-item" tabindex="0" data-route="finances">FINANCES</div><div class="career-detail-nav-item" tabindex="0" data-route="contracts">CONTRACTS</div><div class="career-detail-nav-item active" tabindex="0" data-route="staff">STAFF</div></div>
+
+      <div class="career-detail-content">
+        <div class="career-detail-main">
+          <div class="ui-card career-detail-card full" tabindex="0">
+            <div class="card-kicker">CLUB PERSONNEL</div><div class="career-detail-title">STAFF MANAGEMENT</div><div class="career-detail-subtitle">Coaching, scouting and medical personnel attached to the club.</div>
+            <div class="detail-list-head"><span style="width:35%">NAME</span><span style="width:18%">ROLE</span><span style="width:12%">SKILL</span><span style="width:12%">MORALE</span><span class="right" style="width:23%">SALARY</span></div>
+            <div class="detail-list-row active"><strong id="staff-name-0" style="width:35%">COACH 1</strong><span id="staff-role-0" style="width:18%">COACH</span><span id="staff-skill-0" style="width:12%">75</span><span id="staff-morale-0" style="width:12%">70</span><span id="staff-salary-0" class="right" style="width:23%">€100K</span></div>
+            <div class="detail-list-row"><strong id="staff-name-1" style="width:35%">COACH 2</strong><span id="staff-role-1" style="width:18%">COACH</span><span id="staff-skill-1" style="width:12%">72</span><span id="staff-morale-1" style="width:12%">70</span><span id="staff-salary-1" class="right" style="width:23%">€95K</span></div>
+            <div class="detail-list-row"><strong id="staff-name-2" style="width:35%">COACH 3</strong><span id="staff-role-2" style="width:18%">COACH</span><span id="staff-skill-2" style="width:12%">70</span><span id="staff-morale-2" style="width:12%">70</span><span id="staff-salary-2" class="right" style="width:23%">€90K</span></div>
+            <div class="detail-list-row"><strong id="staff-name-3" style="width:35%">COACH 4</strong><span id="staff-role-3" style="width:18%">COACH</span><span id="staff-skill-3" style="width:12%">68</span><span id="staff-morale-3" style="width:12%">70</span><span id="staff-salary-3" class="right" style="width:23%">€85K</span></div>
+            <div class="detail-list-row"><strong id="staff-name-4" style="width:35%">SCOUT 1</strong><span id="staff-role-4" style="width:18%">SCOUT</span><span id="staff-skill-4" style="width:12%">73</span><span id="staff-morale-4" style="width:12%">70</span><span id="staff-salary-4" class="right" style="width:23%">€90K</span></div>
+            <div class="detail-list-row"><strong id="staff-name-5" style="width:35%">SCOUT 2</strong><span id="staff-role-5" style="width:18%">SCOUT</span><span id="staff-skill-5" style="width:12%">69</span><span id="staff-morale-5" style="width:12%">70</span><span id="staff-salary-5" class="right" style="width:23%">€80K</span></div>
+            <div class="detail-list-row"><strong id="staff-name-6" style="width:35%">DOCTOR 1</strong><span id="staff-role-6" style="width:18%">MEDICAL</span><span id="staff-skill-6" style="width:12%">77</span><span id="staff-morale-6" style="width:12%">70</span><span id="staff-salary-6" class="right" style="width:23%">€100K</span></div>
+            <div class="detail-list-row"><strong id="staff-name-7" style="width:35%">DOCTOR 2</strong><span id="staff-role-7" style="width:18%">MEDICAL</span><span id="staff-skill-7" style="width:12%">71</span><span id="staff-morale-7" style="width:12%">70</span><span id="staff-salary-7" class="right" style="width:23%">€90K</span></div>
+          </div>
+        </div>
+        <div class="career-detail-side">
+          <div class="ui-card career-detail-card top dark" tabindex="0"><div class="card-kicker">DEPARTMENT STATUS</div><div class="career-detail-title light">STAFFING LEVELS</div><div class="detail-stat-grid"><div class="detail-stat accent"><span>COACHING</span><strong>4 / 5</strong></div><div class="detail-stat"><span>SCOUTING</span><strong>2 / 3</strong></div><div class="detail-stat"><span>MEDICAL</span><strong>2 / 2</strong></div></div><span class="detail-action primary">HIRE STAFF</span><span class="detail-action">MANAGE CONTRACT</span></div>
+          <div class="ui-card career-detail-card bottom muted" tabindex="0"><div class="card-kicker">COST CONTROL</div><div class="career-detail-title">STAFF PAYROLL</div><div id="staff-payroll-copy" class="detail-hero-number">€730K</div><div class="detail-note">Staff salaries are mapped directly from CareerSave staff records.</div></div>
+        </div>
+      </div>
+
+      <div class="career-control-strip"><div class="control-left"><span class="hint"><span class="hint-key">ENTER</span>Select</span><span class="hint"><span class="hint-key">ARROWS</span>Navigate</span><span class="hint"><span class="hint-key">ESC</span>Back</span></div><div class="control-right">OFFICE · STAFF</div></div>
+    </div>
+  </div>
+</body>
+</rml>

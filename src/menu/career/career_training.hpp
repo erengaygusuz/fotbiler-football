@@ -1,37 +1,8 @@
-#ifndef CAREER_TRAINING_HPP
-#define CAREER_TRAINING_HPP
+#ifndef CAREER_TRAINING_COMPAT_HPP
+#define CAREER_TRAINING_COMPAT_HPP
 
-#include <string>
+// Transitional compatibility include for legacy menu/career consumers.
+// New code should include "core/career/career_training.hpp" directly.
+#include "core/career/career_training.hpp"
 
-#include "../../data/careerdata.hpp"
-#include "career_common.hpp"
-
-namespace blunted {
-namespace CareerTraining {
-
-// Runs a squad training session (spends a point, lifts match form).
-bool TrainSquad(CareerSave& save, CareerCommon::CareerEvents& events);
-
-// Runs a position-specific focus session (spends a point, may raise OVR).
-bool TrainFocus(CareerSave& save, CareerCommon::CareerEvents& events, const std::string& focusArea);
-
-// Sets the active match strategy.
-void SetStrategy(CareerSave& save, CareerCommon::CareerEvents& events, const std::string& strategy);
-
-// Conducts a 1-on-1 motivational talk with a specific player (+morale, +form).
-bool MotivatePlayer(CareerSave& save, CareerCommon::CareerEvents& events, const std::string& playerName);
-
-// Conducts an intensive individual tactical drill with a specific player (spends 1 TP, +1 OVR).
-bool DrillPlayer(CareerSave& save, CareerCommon::CareerEvents& events, const std::string& playerName);
-
-// Spends transfer budget to scout a random youth prospect.
-void ScoutYouthPlayer(CareerSave& save, CareerCommon::CareerEvents& events);
-
-// Promotes a named academy prospect into the senior roster.
-void PromoteYouthPlayer(CareerSave& save, CareerCommon::CareerEvents& events,
-                        const std::string& playerName);
-
-}  // namespace CareerTraining
-}  // namespace blunted
-
-#endif  // CAREER_TRAINING_HPP
+#endif  // CAREER_TRAINING_COMPAT_HPP

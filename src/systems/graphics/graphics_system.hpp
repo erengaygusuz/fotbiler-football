@@ -35,6 +35,11 @@ public:
 
   MessageQueue<Overlay2DQueueEntry>& GetOverlay2DQueue();
 
+  // Applies Fotbiler's display settings on the renderer thread and refreshes
+  // the cached effective drawable size after SDL/compositor negotiation.
+  bool ApplyDisplaySettings(int requestedWidth, int requestedHeight, bool requestedFullscreen,
+                            bool vsync);
+
   void GetContextSize(int& width, int& height, int& bpp) {
     width = this->width;
     height = this->height;
@@ -43,6 +48,7 @@ public:
   Vector3 GetContextSize() {
     return Vector3(static_cast<real>(width), static_cast<real>(height), static_cast<real>(bpp));
   }
+  bool IsFullscreen() const { return fullscreen; }
 
   int GetAverageFrameTime_ms(unsigned int frameCount) const {
     assert(task);
@@ -74,6 +80,7 @@ protected:
   MessageQueue<Overlay2DQueueEntry> overlay2DQueue;
 
   int width, height, bpp;
+  bool fullscreen;
 };
 
 }  // namespace blunted

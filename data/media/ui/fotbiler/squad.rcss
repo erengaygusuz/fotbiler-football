@@ -1,0 +1,76 @@
+body { font-family: "Fotbiler Sans"; }
+
+.squad-subtabs { width: 100%; height: 6%; }
+.squad-subtabs .ui-subtab { padding: 9px 20px 7px; font-size: 11px; }
+.squad-content { display: flex; width: 100%; height: 64%; padding-top: 12px; }
+.squad-main { width: 62%; height: 100%; margin-right: 2%; }
+.squad-side { width: 36%; height: 100%; }
+.squad-toolbar { display: flex; width: 100%; height: 11%; padding: 13px 20px; box-sizing: border-box; align-items: center; justify-content: space-between; background-color: #f7f8f9; }
+.squad-title { display: block; margin-top: 2px; font-family: "Fotbiler Display"; font-size: 25px; line-height: 27px; }
+.squad-toolbar-right { color: #4f6979; font-size: 12px; letter-spacing: 1px; }
+
+.formation-pitch { position: relative; width: 100%; height: 86%; margin-top: 2%; box-sizing: border-box; overflow: hidden; background-color: #173e52; border-width: 2px; border-color: #ffffff; nav: auto; transition: transform border-color 0.15s sine-out; }
+.formation-pitch:hover, .formation-pitch:focus { transform: translateY(-2px); border-color: #19d3b1; }
+.pitch-outline { position: absolute; left: 7%; top: 4%; width: 86%; height: 92%; border-width: 2px; border-color: #6c8d9c; }
+.pitch-half-line { position: absolute; left: 7%; top: 50%; width: 86%; height: 2px; background-color: #6c8d9c; }
+.pitch-circle { position: absolute; left: 43%; top: 41%; width: 14%; height: 18%; border-width: 2px; border-color: #6c8d9c; border-radius: 999px; }
+.pitch-center-dot { position: absolute; left: 49.5%; top: 49%; width: 8px; height: 8px; border-radius: 4px; background-color: #6c8d9c; }
+.pitch-box { position: absolute; left: 31%; width: 38%; height: 14%; border-width: 2px; border-color: #6c8d9c; }
+.pitch-six { position: absolute; left: 40%; width: 20%; height: 7%; border-width: 2px; border-color: #6c8d9c; }
+.top-box { top: 4%; border-top-width: 0; }
+.top-six { top: 4%; border-top-width: 0; }
+.bottom-box { bottom: 4%; border-bottom-width: 0; }
+.bottom-six { bottom: 4%; border-bottom-width: 0; }
+
+.player-node { position: absolute; width: 92px; text-align: center; color: #ffffff; }
+.player-disc { width: 50px; height: 50px; margin-left: auto; margin-right: auto; line-height: 50px; border-radius: 25px; background-color: #f7f8f9; color: #10202d; font-family: "Fotbiler Display"; font-size: 19px; border-width: 3px; border-color: #dfe5e9; }
+.player-name { display: block; margin-top: 4px; font-family: "Fotbiler Display"; font-size: 13px; letter-spacing: 0.6px; }
+.player-pos { display: block; margin-top: 1px; color: #b4c7d0; font-size: 9px; letter-spacing: 0.9px; }
+.player-node.selected .player-disc { background-color: #19d3b1; border-color: #ffffff; color: #07121f; }
+.player-node.selected .player-name { color: #19d3b1; }
+.player-node.selected .player-pos { color: #d7fff7; }
+
+.pos-st { left: 44%; top: 7%; }
+.pos-lw { left: 17%; top: 21%; }
+.pos-cam { left: 44%; top: 23%; }
+.pos-rw { right: 17%; top: 21%; }
+.pos-lcm { left: 31%; top: 42%; }
+.pos-rcm { right: 31%; top: 42%; }
+.pos-lb { left: 11%; top: 63%; }
+.pos-lcb { left: 33%; top: 63%; }
+.pos-rcb { right: 33%; top: 63%; }
+.pos-rb { right: 11%; top: 63%; }
+.pos-gk { left: 44%; top: 79%; }
+
+.squad-card { position: relative; box-sizing: border-box; overflow: hidden; background-color: #f7f8f9; border-width: 2px; border-color: #f7f8f9; color: #10202d; nav: auto; transition: transform border-color 0.15s sine-out; }
+.squad-card:hover, .squad-card:focus { transform: translateY(-2px); border-color: #ffffff; }
+.selected-player-card { width: 100%; height: 47%; padding: 20px 23px; background-color: #17334a; border-color: #17334a; color: #ffffff; }
+.selected-accent { position: absolute; left: 0; bottom: 0; width: 100%; height: 7px; background-color: #dd3c91; }
+.selected-top { display: flex; width: 100%; justify-content: space-between; }
+.selected-player-card .card-kicker { color: #a9bbc6; }
+.selected-name { display: block; margin-top: 4px; font-family: "Fotbiler Display"; font-size: 29px; line-height: 31px; }
+.selected-meta { display: block; margin-top: 2px; color: #a9bbc6; font-size: 11px; letter-spacing: 0.9px; }
+.overall-block { width: 74px; text-align: center; }
+.overall-number { display: block; font-family: "Fotbiler Display"; font-size: 47px; line-height: 45px; color: #19d3b1; }
+.overall-label { display: block; margin-top: 2px; color: #a9bbc6; font-size: 10px; letter-spacing: 1px; }
+.selected-status-row { margin-top: 11px; }
+.status-pill { display: inline-block; margin-right: 5px; padding: 4px 7px; background-color: #244961; color: #d4dde2; font-size: 9px; letter-spacing: 0.5px; }
+.status-pill.good { background-color: #19d3b1; color: #10202d; }
+.attribute-grid { display: flex; flex-wrap: wrap; width: 100%; margin-top: 10px; }
+.attribute-cell { width: 31%; margin-right: 2%; margin-bottom: 6px; padding: 5px 8px; box-sizing: border-box; background-color: #203f55; }
+.attribute-cell span { display: block; color: #9fb2bd; font-size: 9px; letter-spacing: 0.7px; }
+.attribute-cell strong { display: block; margin-top: 1px; color: #ffffff; font-family: "Fotbiler Display"; font-size: 16px; }
+.attribute-cell.accent strong { color: #19d3b1; }
+.selected-footer { display: flex; width: 100%; margin-top: 3px; padding-top: 7px; border-top-width: 1px; border-top-color: #34546a; color: #b4c3cb; font-size: 10px; justify-content: space-between; }
+
+.squad-list-card { width: 100%; height: 51%; margin-top: 2%; padding: 15px 19px; }
+.squad-list-header { display: flex; width: 100%; justify-content: space-between; }
+.list-count { color: #66808f; font-size: 10px; letter-spacing: 0.8px; }
+.list-head, .list-row { display: flex; width: 100%; box-sizing: border-box; }
+.list-head { margin-top: 8px; padding-bottom: 4px; border-bottom-width: 1px; border-bottom-color: #d4dbdf; color: #81919b; font-size: 9px; }
+.list-row { padding-top: 5px; padding-bottom: 5px; border-bottom-width: 1px; border-bottom-color: #e1e6e8; font-size: 10px; }
+.list-head span:nth-child(1), .list-row span:nth-child(1) { width: 58%; }
+.list-head span:nth-child(2), .list-row span:nth-child(2) { width: 14%; }
+.list-head span:nth-child(3), .list-row span:nth-child(3) { width: 14%; text-align: right; }
+.list-head span:nth-child(4), .list-row span:nth-child(4) { width: 14%; text-align: right; }
+.list-row.active { padding-left: 8px; background-color: #19d3b1; color: #10202d; }

@@ -1,0 +1,48 @@
+<rml>
+<head>
+  <title>Fotbiler Inbox</title>
+  <link type="text/rcss" href="theme.rcss" />
+  <link type="text/rcss" href="career_shell.rcss" />
+  <link type="text/rcss" href="career_detail.rcss" />
+  <link type="text/rcss" href="inbox.rcss" />
+</head>
+<body>
+  <div class="career-screen">
+    <div class="career-bg-deep"></div><div class="career-bg-blue"></div><div class="career-bg-accent"></div>
+    <div class="career-shell">
+      <div class="career-topbar">
+        <div class="club-identity"><div class="club-crest">F</div><div class="club-copy"><div id="career-club-name" class="club-name">FOTBILER FC</div><div id="career-club-meta" class="club-meta">MANAGER CAREER · SEASON 2026/27</div></div></div>
+        <div class="career-status"><div class="status-block"><div class="status-label">UNREAD</div><div id="inbox-unread-count" class="status-value">3</div></div><div class="status-block date-block"><div class="status-label">TOTAL</div><div id="inbox-total-count" class="status-value">4</div></div></div>
+      </div>
+      <div class="career-tabs"><div class="career-tab" tabindex="0" data-route="career-central">CENTRAL</div><div class="career-tab" tabindex="0" data-route="squad">SQUAD</div><div class="career-tab" tabindex="0" data-route="transfers">TRANSFERS</div><div class="career-tab active" tabindex="0" data-route="office">OFFICE</div><div class="career-tab" tabindex="0" data-route="season">SEASON</div></div>
+      <div class="career-detail-nav"><div class="career-detail-nav-item active" tabindex="0" data-route="inbox">INBOX</div><div class="career-detail-nav-item" tabindex="0" data-route="finances">FINANCES</div><div class="career-detail-nav-item" tabindex="0" data-route="contracts">CONTRACTS</div><div class="career-detail-nav-item" tabindex="0" data-route="staff">STAFF</div></div>
+
+      <div class="inbox-content">
+        <div class="inbox-list-column">
+          <div class="ui-card inbox-list-card" tabindex="0">
+            <div class="ui-card-header ui-card-header--center"><div><div class="card-kicker">COMMUNICATIONS</div><div class="inbox-list-title">INBOX</div></div><div class="inbox-count"><span id="inbox-unread-count-copy">3</span> UNREAD</div></div>
+            <div class="inbox-list-head"><span class="inbox-row-type">TYPE</span><span class="inbox-row-subject">SUBJECT</span><span class="inbox-row-state">STATE</span></div>
+            <div class="inbox-list-row active" tabindex="0"><span id="inbox-row-type-0" class="inbox-row-type">SCOUT</span><span id="inbox-row-subject-0" class="inbox-row-subject">Scout report ready</span><span id="inbox-row-state-0" class="inbox-row-state">NEW</span></div>
+            <div class="inbox-list-row" tabindex="0"><span id="inbox-row-type-1" class="inbox-row-type">PLAYER</span><span id="inbox-row-subject-1" class="inbox-row-subject">Development update</span><span id="inbox-row-state-1" class="inbox-row-state">NEW</span></div>
+            <div class="inbox-list-row" tabindex="0"><span id="inbox-row-type-2" class="inbox-row-type">BOARD</span><span id="inbox-row-subject-2" class="inbox-row-subject">Monthly review</span><span id="inbox-row-state-2" class="inbox-row-state">NEW</span></div>
+            <div class="inbox-list-row" tabindex="0"><span id="inbox-row-type-3" class="inbox-row-type">MEDIA</span><span id="inbox-row-subject-3" class="inbox-row-subject">Press conference</span><span id="inbox-row-state-3" class="inbox-row-state">READ</span></div>
+            <div class="inbox-list-row" tabindex="0"><span id="inbox-row-type-4" class="inbox-row-type">CLUB</span><span id="inbox-row-subject-4" class="inbox-row-subject">No additional message</span><span id="inbox-row-state-4" class="inbox-row-state">—</span></div>
+            <div class="inbox-list-row" tabindex="0"><span id="inbox-row-type-5" class="inbox-row-type">CLUB</span><span id="inbox-row-subject-5" class="inbox-row-subject">No additional message</span><span id="inbox-row-state-5" class="inbox-row-state">—</span></div>
+          </div>
+        </div>
+        <div class="inbox-detail-column">
+          <div class="ui-card ui-card-dark inbox-detail-card" tabindex="0">
+            <div class="inbox-accent"></div>
+            <div class="inbox-detail-top"><div><div class="card-kicker">SELECTED MESSAGE</div><div id="inbox-selected-type" class="inbox-detail-type">SCOUT</div><div id="inbox-selected-subject" class="inbox-detail-title">Scout report ready</div></div><div id="inbox-selected-week" class="inbox-detail-week">WEEK 3</div></div>
+            <div class="inbox-detail-divider"></div>
+            <div id="inbox-selected-body" class="inbox-detail-body">The Portugal assignment has been completed. A new striker report is ready for review.</div>
+            <div class="inbox-detail-actions"><span class="inbox-action primary">OPEN RELATED ITEM</span><span class="inbox-action">MARK READ</span><span class="inbox-action">DELETE</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="career-control-strip"><div class="control-left"><span class="hint"><span class="hint-key">ENTER</span>Select</span><span class="hint"><span class="hint-key">ARROWS</span>Navigate</span><span class="hint"><span class="hint-key">ESC</span>Back</span><span class="hint"><span class="hint-key">F5</span>Office</span></div><div class="control-right">OFFICE · INBOX</div></div>
+    </div>
+  </div>
+</body>
+</rml>

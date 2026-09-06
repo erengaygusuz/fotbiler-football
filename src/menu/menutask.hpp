@@ -2,6 +2,7 @@
 #define _HPP_GUI2_MENUTASK
 
 #include "../gamedefines.hpp"
+#include "../presentation/ui/rmlui/frontend_runtime_bridge.hpp"
 #include "ingame/gamepage.hpp"
 #include "scene/scene3d/scene3d.hpp"
 #include "utils/gui2/guitask.hpp"
@@ -15,27 +16,25 @@ using namespace blunted;
 constexpr float kMenuAspectRatio = 16.0f / 9.0f;
 
 enum e_MenuAction {
-  e_MenuAction_Menu,  // start main menu
-  e_MenuAction_Game,  // start game
+  e_MenuAction_Menu,
+  e_MenuAction_Game,
   e_MenuAction_None
 };
 
 struct SideSelection {
   int controllerID = -1;
   Gui2Image* controllerImage = nullptr;
-  int side = 0;  // -1, 0, 1
+  int side = 0;
 };
 
-// todo: just load match-, team-, and playerdata before starting match
-// this requires some bigger changes, so stick with this imperfect system for the time being
 struct QueuedFixture {
   QueuedFixture() {
     team1KitNum = 1;
     team2KitNum = 2;
     matchData = 0;
   }
-  std::vector<SideSelection> sides;  // queued match fixture
-  std::string teamID1, teamID2;      // queued match fixture
+  std::vector<SideSelection> sides;
+  std::string teamID1, teamID2;
   int team1KitNum, team2KitNum;
   MatchData* matchData;
 };
@@ -53,6 +52,11 @@ public:
   void QuitGame();
 
   void ReleaseAllButtons();
+
+  // Single-process Fotbiler lifecycle. Match pages request a return here;
+  // MenuTask stops the live match, drains graphics/audio teardown commands,
+  // then reveals the frontend in the same process/window.
+  void ReturnToFotbilerFrontend(blunted::ui::frontend::ReturnTarget target);
 
   void SetControllerSetup(const std::vector<SideSelection>& sides) {
     queuedFixture.Lock();
@@ -85,15 +89,34 @@ public:
   }
   MatchData* GetMatchData() {
     return queuedFixture.GetData().matchData;
-  }  // hint: this lock is useless, since we are returning the pointer and not a copy
+  }
 
   void SetMenuAction(e_MenuAction menuAction) { this->menuAction = menuAction; }
 
+  void SetMenuBackgroundVisible(bool visible) {
+    if (!menuBackground) return;
+    if (visible)
+      menuBackground->Show();
+    else
+      menuBackground->Hide();
+  }
+
 protected:
+  bool PrepareFotbilerUiDirectMatch();
+  bool PrepareFotbilerUiQuickMatch();
+  bool PrepareFotbilerUiQuickMatch(const blunted::ui::frontend::LaunchRequest& request);
+  bool PrepareFotbilerUiCareerMatch();
+  void SetSingleControlledSide(int side);
+  void ApplyFotbilerDisplaySettings(const blunted::ui::frontend::DisplaySettingsRequest& request);
+  void DrainFotbilerRuntimePipelines();
+
   e_MenuAction menuAction;
+  bool uiDirectMatchReady;
+  bool frontendReturnPending;
+  blunted::ui::frontend::ReturnTarget frontendReturnTarget;
 
   Gui2Image* menuBackground;
-  Lockable<QueuedFixture> queuedFixture;  // todo: we can probably unlock this stuff
+  Lockable<QueuedFixture> queuedFixture;
 };
 
 #endif

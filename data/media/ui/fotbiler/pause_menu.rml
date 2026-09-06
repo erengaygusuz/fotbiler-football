@@ -1,0 +1,52 @@
+<rml>
+<head>
+  <title>Pause</title>
+  <link type="text/rcss" href="theme.rcss" />
+  <link type="text/rcss" href="runtime_shell.rcss" />
+  <link type="text/rcss" href="confirmation_modal.rcss" />
+</head>
+<body>
+  <div class="runtime-screen">
+    <div class="runtime-bg-blue"></div><div class="runtime-bg-light"></div><div class="runtime-bg-pink"></div>
+    <div class="runtime-shell">
+      <div class="runtime-topbar"><div class="runtime-brand"><span class="runtime-brand-mark">F</span>OTBILER FOOTBALL</div><div id="runtime-match-minute" class="runtime-meta">MATCH PAUSED</div></div>
+      <div class="runtime-heading"><div class="runtime-kicker">MATCH</div><div class="runtime-title">PAUSE</div><div id="runtime-matchup" class="runtime-subtitle">HOME 0 - 0 AWAY</div></div>
+      <div class="runtime-content">
+        <div class="runtime-column-main">
+          <div class="runtime-card dark" style="height:100%;">
+            <div class="runtime-card-kicker">MATCH MENU</div><div class="runtime-card-title">OPTIONS</div>
+            <div class="runtime-nav-item" tabindex="0" autofocus data-action="resume-match">RESUME MATCH</div>
+            <div class="runtime-nav-item" tabindex="0" data-route="team-management">TEAM MANAGEMENT</div>
+            <div class="runtime-nav-item" tabindex="0" data-route="match-stats">MATCH FACTS</div>
+            <div class="runtime-nav-item" tabindex="0" data-route="replay-modern">INSTANT REPLAY</div>
+            <div class="runtime-nav-item" tabindex="0" data-route="runtime-settings">SETTINGS</div>
+            <div id="pause-exit-match" class="runtime-nav-item danger" tabindex="0" data-action="exit-match">EXIT MATCH</div>
+          </div>
+        </div>
+        <div class="runtime-column-side">
+          <div class="runtime-card dark" style="height:100%;">
+            <div class="runtime-card-kicker">LIVE</div><div class="runtime-card-title">MATCH SNAPSHOT</div>
+            <div class="runtime-scoreline"><div id="runtime-home-team" class="runtime-team">HOME</div><div id="runtime-score" class="runtime-score">0 - 0</div><div id="runtime-away-team" class="runtime-team">AWAY</div></div>
+            <div class="runtime-stat"><div id="runtime-home-possession" class="runtime-stat-value">50%</div><div class="runtime-stat-name">POSSESSION</div><div id="runtime-away-possession" class="runtime-stat-value away">50%</div></div>
+            <div class="runtime-stat"><div id="runtime-home-shots" class="runtime-stat-value">0</div><div class="runtime-stat-name">SHOTS</div><div id="runtime-away-shots" class="runtime-stat-value away">0</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="runtime-footer"><div><span class="runtime-hint"><span class="runtime-key">ESC</span>Resume</span><span class="runtime-hint"><span class="runtime-key">ENTER</span>Select</span></div><div>FOTBILER · MATCH</div></div>
+    </div>
+
+    <div id="exit-match-confirm-overlay" class="confirm-overlay">
+      <div class="confirm-panel">
+        <div class="confirm-kicker">MATCH IN PROGRESS</div>
+        <div class="confirm-title">EXIT MATCH?</div>
+        <div class="confirm-copy">Are you sure you want to leave this match? The current match will not be completed.</div>
+        <div class="confirm-actions">
+          <div id="exit-match-cancel" class="confirm-button" tabindex="0" data-action="cancel-exit-match">CANCEL</div>
+          <div id="exit-match-accept" class="confirm-button danger" tabindex="0" data-action="confirm-exit-match">YES, EXIT MATCH</div>
+        </div>
+        <div class="confirm-hint">ESC / B &nbsp; Cancel &nbsp;&nbsp;·&nbsp;&nbsp; ENTER / A &nbsp; Select</div>
+      </div>
+    </div>
+  </div>
+</body>
+</rml>

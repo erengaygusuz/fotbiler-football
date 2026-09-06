@@ -1,0 +1,107 @@
+body { font-family: "Fotbiler Sans"; }
+
+/* Shared career chrome used by Central, Squad, Transfers, Office, Season and Tactics. */
+.career-screen { position: relative; width: 100%; height: 100%; overflow: hidden; background-color: #eef2f4; color: #10202d; }
+.career-bg-deep { position: absolute; left: -18%; top: -32%; width: 58%; height: 160%; background-color: #07121f; transform: rotate(-10deg); }
+.career-bg-blue { position: absolute; right: -12%; top: -26%; width: 45%; height: 92%; background-color: #1b4363; transform: rotate(13deg); }
+.career-bg-accent { position: absolute; right: -18%; bottom: -40%; width: 43%; height: 65%; background-color: #dd3c91; transform: rotate(-15deg); }
+.career-shell { position: absolute; left: 5%; top: 4.5%; width: 90%; height: 91%; }
+.career-topbar { display: flex; width: 100%; height: 11%; color: #ffffff; align-items: center; }
+.club-identity { display: flex; width: 60%; align-items: center; }
+.club-crest { width: 52px; height: 52px; line-height: 52px; text-align: center; border-radius: 26px; background-color: #19d3b1; color: #07121f; font-family: "Fotbiler Display"; font-size: 28px; }
+.club-copy { margin-left: 14px; }
+.club-name, .club-meta, .status-label, .status-value, .career-tab, .card-kicker, .control-right { display: block; }
+.club-name { font-family: "Fotbiler Display"; font-size: 30px; letter-spacing: 1.5px; }
+.club-meta { margin-top: 3px; color: #aebdc7; font-size: 13px; letter-spacing: 1.2px; }
+.career-status { display: flex; width: 40%; justify-content: flex-end; }
+.status-block { min-width: 145px; text-align: right; }
+.date-block { min-width: 86px; margin-left: 28px; }
+.status-label { color: #aebdc7; font-size: 12px; letter-spacing: 1.4px; }
+.status-value { margin-top: 2px; font-family: "Fotbiler Display"; font-size: 24px; color: #ffffff; }
+.career-tabs { display: flex; width: 100%; height: 6.5%; border-bottom-width: 1px; border-bottom-color: #496375; color: #b9c5cc; }
+.career-tab { height: 100%; margin-right: 36px; padding-top: 10px; font-size: 17px; letter-spacing: 1px; }
+.career-tab.active { color: #ffffff; border-bottom-width: 4px; border-bottom-color: #19d3b1; }
+/* Keyboard/controller focus is intentionally distinct from the active-page indicator. */
+.career-tab[data-route]:focus { color: #19d3b1; border-bottom-width: 0; }
+.career-tab.active[data-route]:focus { color: #ffffff; border-bottom-width: 4px; border-bottom-color: #19d3b1; }
+.card-kicker { color: #667681; font-size: 13px; letter-spacing: 1.5px; }
+.career-control-strip { display: flex; width: 100%; height: 8.5%; margin-top: 1.5%; padding-left: 12px; padding-right: 24px; box-sizing: border-box; align-items: center; background-color: #07121f; color: #c7d1d7; font-size: 13px; }
+.control-left { width: 72%; }
+.control-right { width: 28%; text-align: right; color: #7f929d; font-size: 11px; letter-spacing: 0.9px; }
+
+/* M1A.3: reusable card primitive. Existing screen classes are compatibility aliases. */
+.ui-card, .career-card, .squad-card, .transfer-card, .office-panel, .season-card, .tactic-card { position: relative; box-sizing: border-box; overflow: hidden; background-color: #f7f8f9; border-width: 2px; border-color: #f7f8f9; color: #10202d; nav: auto; transition: transform border-color background-color 0.15s sine-out; }
+.ui-card:hover, .ui-card:focus, .career-card:hover, .career-card:focus, .squad-card:hover, .squad-card:focus, .transfer-card:hover, .transfer-card:focus, .office-panel:hover, .office-panel:focus, .season-card:hover, .season-card:focus, .tactic-card:hover, .tactic-card:focus { transform: translateY(-2px); border-color: #ffffff; }
+
+/* M1A.3: dark card modifier used for high-emphasis information surfaces. */
+.ui-card-dark, .career-news, .selected-player-card, .negotiation-card, .finance-card, .competitions-card, .stats-card, .identity-card { background-color: #17334a; border-color: #17334a; color: #ffffff; }
+.ui-card-dark .card-kicker, .career-news .card-kicker, .selected-player-card .card-kicker, .negotiation-card .card-kicker, .finance-card .card-kicker, .competitions-card .card-kicker, .stats-card .card-kicker, .identity-card .card-kicker { color: #a9bbc6; }
+
+/* M1A.3: muted card modifier for secondary information surfaces. */
+.ui-card-muted, .form-card, .window-card, .contracts-card, .club-card, .results-card { background-color: #dfe5e9; border-color: #dfe5e9; color: #10202d; }
+
+/* M1A.3: reusable card header layout. */
+.ui-card-header, .card-header-row, .squad-list-header, .shortlist-header, .office-card-header, .season-header, .instructions-head { display: flex; width: 100%; justify-content: space-between; }
+.ui-card-header--center, .season-header { align-items: center; }
+.ui-card-header__link, .card-link, .small-link { color: #467084; font-size: 11px; letter-spacing: 1px; }
+
+/* M1A.3: reusable table container and header structure. */
+.ui-table { width: 100%; }
+.ui-table-head, .table-head, .list-head, .shortlist-head, .season-table-head { display: flex; width: 100%; box-sizing: border-box; color: #81919b; border-bottom-width: 1px; border-bottom-color: #d4dbdf; }
+
+/* M1A.3: reusable table row structure. */
+.ui-table-row, .table-row, .list-row, .shortlist-row, .season-table-row, .instruction-row { display: flex; width: 100%; box-sizing: border-box; border-bottom-width: 1px; border-bottom-color: #e1e6e8; }
+.ui-table-row { padding: 7px 5px; font-size: 11px; }
+
+/* M1A.3: reusable active/selected table row state. */
+.ui-row-active, .table-row.current, .list-row.active, .shortlist-row.active, .season-table-row.current-team, .instruction-row.active { background-color: #19d3b1; color: #10202d; }
+
+/* M1A.3: reusable badge and pill family. */
+.ui-pill, .status-pill, .transfer-pill { display: inline-block; margin-right: 6px; padding: 5px 8px; background-color: #244961; color: #d4dde2; font-size: 10px; letter-spacing: 0.6px; }
+.ui-pill--accent, .status-pill.good { background-color: #19d3b1; color: #10202d; }
+.ui-pill--dark, .transfer-pill.accent { background-color: #10283a; color: #ffffff; }
+.ui-badge { display: inline-block; min-width: 24px; height: 24px; line-height: 24px; padding-left: 6px; padding-right: 6px; box-sizing: border-box; border-radius: 12px; text-align: center; background-color: #19d3b1; color: #10202d; font-family: "Fotbiler Display"; font-size: 11px; }
+
+/* M1A.3: reusable progress bar. */
+.ui-progress-track, .progress-track { width: 100%; overflow: hidden; background-color: #d4dde1; }
+.ui-progress-fill, .progress-fill { height: 100%; background-color: #19d3b1; }
+.ui-progress-track--dark { background-color: #27495f; }
+.ui-progress-fill--ink { background-color: #10202d; }
+
+/* M1A.3: reusable player chip used by Squad and Tactics boards. */
+.ui-player-chip, .player-node { position: absolute; text-align: center; color: #ffffff; }
+.ui-player-chip__disc, .player-disc { margin-left: auto; margin-right: auto; text-align: center; background-color: #f7f8f9; color: #10202d; font-family: "Fotbiler Display"; border-width: 3px; border-color: #dfe5e9; }
+.ui-player-chip__name, .player-name { display: block; font-family: "Fotbiler Display"; letter-spacing: 0.6px; }
+.ui-player-chip__position, .player-pos { display: block; color: #b4c7d0; letter-spacing: 0.9px; }
+.ui-player-chip--selected .ui-player-chip__disc, .player-node.selected .player-disc { background-color: #19d3b1; border-color: #ffffff; color: #07121f; }
+.ui-player-chip--selected .ui-player-chip__name, .player-node.selected .player-name { color: #19d3b1; }
+
+/* M1A.3: reusable formation pitch and standard football markings. */
+.ui-formation-pitch, .formation-pitch { position: relative; box-sizing: border-box; overflow: hidden; background-color: #173e52; border-width: 2px; border-color: #ffffff; nav: auto; transition: transform border-color 0.15s sine-out; }
+.ui-formation-pitch:hover, .ui-formation-pitch:focus, .formation-pitch:hover, .formation-pitch:focus { transform: translateY(-2px); border-color: #19d3b1; }
+.ui-pitch-outline, .pitch-outline { position: absolute; left: 7%; top: 4%; width: 86%; height: 92%; border-width: 2px; border-color: #6c8d9c; }
+.ui-pitch-half-line, .pitch-half-line { position: absolute; left: 7%; top: 50%; width: 86%; height: 2px; background-color: #6c8d9c; }
+.ui-pitch-circle, .pitch-circle { position: absolute; left: 43%; top: 41%; width: 14%; height: 18%; border-width: 2px; border-color: #6c8d9c; border-radius: 999px; }
+.ui-pitch-center-dot, .pitch-center-dot { position: absolute; left: 49.5%; top: 49%; width: 8px; height: 8px; border-radius: 4px; background-color: #6c8d9c; }
+
+/* M1A.3: reusable secondary tab strip. */
+.ui-subtabs, .tactics-subtabs { display: flex; width: 100%; background-color: #e7ecef; border-bottom-width: 1px; border-bottom-color: #cbd4d9; }
+.ui-subtab, .tactics-subtab { position: relative; box-sizing: border-box; color: #657a87; letter-spacing: 1px; }
+.ui-subtab.active, .tactics-subtab.active { color: #10202d; font-family: "Fotbiler Display"; border-bottom-width: 4px; border-bottom-color: #19d3b1; }
+.tactics-subtab[data-route]:focus { color: #19d3b1; border-bottom-width: 0; background-color: #dce5e8; }
+.tactics-subtab.active[data-route]:focus { color: #10202d; border-bottom-width: 4px; border-bottom-color: #19d3b1; background-color: #e7ecef; }
+
+/* M1A.3: reusable metric bar for tactical and analytical values. */
+.ui-metric-row, .metric-row { display: flex; width: 100%; justify-content: space-between; }
+.ui-metric-track, .metric-track { width: 100%; overflow: hidden; background-color: #27495f; }
+.ui-metric-fill, .metric-fill { height: 100%; background-color: #19d3b1; }
+.ui-metric-value { color: #ffffff; font-family: "Fotbiler Display"; }
+
+/* M1A.3: reusable empty and loading states for data-backed screens. */
+.ui-state { display: block; width: 100%; padding: 28px 24px; box-sizing: border-box; text-align: center; color: #667681; }
+.ui-state__icon { display: block; width: 44px; height: 44px; margin-left: auto; margin-right: auto; line-height: 44px; border-radius: 22px; background-color: #dfe5e9; color: #214d70; font-family: "Fotbiler Display"; font-size: 18px; }
+.ui-state__title { display: block; margin-top: 10px; color: #10202d; font-family: "Fotbiler Display"; font-size: 20px; }
+.ui-state__copy { display: block; width: 70%; margin: 6px auto 0 auto; font-size: 11px; line-height: 15px; }
+.ui-state--dark { color: #a9bbc6; }
+.ui-state--dark .ui-state__title { color: #ffffff; }
+.ui-loading-dot { display: inline-block; width: 8px; height: 8px; margin: 10px 3px 0 3px; border-radius: 4px; background-color: #19d3b1; }

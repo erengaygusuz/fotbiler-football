@@ -1,0 +1,37 @@
+<rml>
+<head>
+  <title>Match Facts</title>
+  <link type="text/rcss" href="theme.rcss" />
+  <link type="text/rcss" href="runtime_shell.rcss" />
+</head>
+<body>
+  <div class="runtime-screen">
+    <div class="runtime-bg-blue"></div><div class="runtime-bg-light"></div><div class="runtime-bg-pink"></div>
+    <div class="runtime-shell">
+      <div class="runtime-topbar"><div class="runtime-brand"><span class="runtime-brand-mark">F</span>OTBILER FOOTBALL</div><div class="runtime-meta">MATCH FACTS · LIVE</div></div>
+      <div class="runtime-heading"><div class="runtime-kicker">PAUSE · MATCH</div><div class="runtime-title">MATCH FACTS</div><div class="runtime-subtitle">Live team comparison from the current 3D match.</div></div>
+      <div class="runtime-tabs"><div class="runtime-tab active" tabindex="0" autofocus>MATCH STATS</div><div class="runtime-tab" tabindex="0">SHOOTING</div><div class="runtime-tab" tabindex="0">PASSING</div><div class="runtime-tab" tabindex="0">DEFENDING</div></div>
+      <div class="runtime-content" style="height:62%;">
+        <div class="runtime-column-main">
+          <div class="runtime-card dark" style="height:100%;">
+            <div id="stats-matchup" class="runtime-scoreline">HOME 0 - 0 AWAY</div>
+            <div class="runtime-stat"><div id="stats-home-possession" class="runtime-stat-value">50%</div><div class="runtime-stat-name">POSSESSION</div><div id="stats-away-possession" class="runtime-stat-value away">50%</div></div>
+            <div class="runtime-stat"><div id="stats-home-shots" class="runtime-stat-value">0</div><div class="runtime-stat-name">SHOTS</div><div id="stats-away-shots" class="runtime-stat-value away">0</div></div>
+            <div class="runtime-stat"><div id="stats-home-on-target" class="runtime-stat-value">0</div><div class="runtime-stat-name">SHOTS ON TARGET</div><div id="stats-away-on-target" class="runtime-stat-value away">0</div></div>
+            <div class="runtime-stat"><div id="stats-home-pass-accuracy" class="runtime-stat-value">0%</div><div class="runtime-stat-name">PASS ACCURACY</div><div id="stats-away-pass-accuracy" class="runtime-stat-value away">0%</div></div>
+            <div class="runtime-stat"><div id="stats-home-fouls" class="runtime-stat-value">0</div><div class="runtime-stat-name">FOULS</div><div id="stats-away-fouls" class="runtime-stat-value away">0</div></div>
+          </div>
+        </div>
+        <div class="runtime-column-side">
+          <div class="runtime-card" style="height:100%;">
+            <div class="runtime-card-kicker">LIVE DATA</div><div class="runtime-card-title">MATCH CONTEXT</div>
+            <div class="runtime-muted">These values are read from the active match runtime, not preview data.</div>
+            <div class="runtime-nav-item" tabindex="0" data-route="pause-menu">BACK TO PAUSE</div>
+          </div>
+        </div>
+      </div>
+      <div class="runtime-footer"><div><span class="runtime-hint"><span class="runtime-key">ESC</span>Back</span></div><div>FOTBILER · MATCH FACTS</div></div>
+    </div>
+  </div>
+</body>
+</rml>

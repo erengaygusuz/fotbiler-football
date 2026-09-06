@@ -1,0 +1,28 @@
+<rml>
+<head>
+  <title>Fotbiler Career Mode Select</title>
+  <link type="text/rcss" href="theme.rcss" />
+  <link type="text/rcss" href="mode_select.rcss" />
+</head>
+<body>
+  <div class="screen">
+    <div class="bg-deep"></div><div class="bg-blue"></div><div class="bg-pink"></div>
+    <div class="mode-shell">
+      <div class="mode-topbar"><div class="mode-brand"><span class="brand-mark">F</span>OTBILER FOOTBALL</div><div class="mode-profile">CAREER HUB · SEASON 2026/27</div></div>
+      <div class="mode-heading"><span class="mode-kicker">CAREER MODE</span><span class="mode-title">CHOOSE YOUR ROLE</span><span class="mode-copy">Select how you want to experience the football world.</span></div>
+      <div class="mode-grid">
+        <div class="mode-row mode-row-top">
+          <div class="mode-card" tabindex="0"><span class="mode-number">01</span><span class="mode-card-kicker">ON THE PITCH</span><span class="mode-card-title">PLAYER</span><span class="mode-card-copy">Build one career from prospect to veteran and shape your own story.</span><span class="mode-state">PLANNED</span></div>
+          <div class="mode-card manager" tabindex="0" autofocus data-route="career-central"><span class="mode-number">02</span><span class="mode-card-kicker">FULL CLUB CONTROL</span><span class="mode-card-title">MANAGER</span><span class="mode-card-copy">Manage squad, tactics, transfers, staff, finances and every matchday decision.</span><span class="mode-state">AVAILABLE</span></div>
+          <div class="mode-card third" tabindex="0"><span class="mode-number">03</span><span class="mode-card-kicker">FRONT OFFICE</span><span class="mode-card-title">GENERAL MANAGER</span><span class="mode-card-copy">Build the sporting structure while coaches handle the touchline.</span><span class="mode-state">PLANNED</span></div>
+        </div>
+        <div class="mode-row mode-row-bottom">
+          <div class="mode-card bottom" tabindex="0"><span class="mode-number">04</span><span class="mode-card-kicker">TRAINING GROUND</span><span class="mode-card-title">COACH</span><span class="mode-card-copy">Focus on tactics, development, match preparation and player performance.</span><span class="mode-state">PLANNED</span></div>
+          <div class="mode-card bottom last" tabindex="0"><span class="mode-number">05</span><span class="mode-card-kicker">CLUB OWNERSHIP</span><span class="mode-card-title">OWNER</span><span class="mode-card-copy">Shape long-term finances, facilities, staff structure and club identity.</span><span class="mode-state">PLANNED</span></div>
+        </div>
+      </div>
+      <div class="mode-footer"><div class="mode-footer-left"><span class="hint"><span class="hint-key">ENTER</span>Select</span><span class="hint"><span class="hint-key">ARROWS</span>Navigate</span><span class="hint"><span class="hint-key">ESC</span>Back</span></div><div class="mode-footer-right">CAREER · MODE SELECT</div></div>
+    </div>
+  </div>
+</body>
+</rml>

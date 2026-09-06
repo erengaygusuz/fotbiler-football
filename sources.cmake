@@ -490,13 +490,13 @@ set(HID_SOURCES
 
 set(MENU_HEADERS
    src/menu/career/career_board.hpp
-   src/menu/career/career_common.hpp
+   src/core/career/career_common.hpp
    src/menu/career/career_database.hpp
    src/menu/career/career_finance.hpp
    src/menu/career/career_persistence.hpp
    src/menu/career/career_save_page.hpp
    src/menu/career/career_standings_page.hpp
-   src/menu/career/career_sim.hpp
+   src/core/career/career_sim.hpp
    src/menu/career/career_sponsors.hpp
    src/menu/career/career_staff.hpp
    src/menu/career/career_training.hpp
@@ -544,13 +544,13 @@ set(MENU_HEADERS
 
 set(MENU_SOURCES
    src/menu/career/career_board.cpp
-   src/menu/career/career_common.cpp
+   src/core/career/career_common.cpp
    src/menu/career/career_database.cpp
    src/menu/career/career_finance.cpp
    src/menu/career/career_persistence.cpp
    src/menu/career/career_save_page.cpp
    src/menu/career/career_standings_page.cpp
-   src/menu/career/career_sim.cpp
+   src/core/career/career_sim.cpp
    src/menu/career/career_sponsors.cpp
    src/menu/career/career_staff.cpp
    src/menu/career/career_training.cpp

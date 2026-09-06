@@ -1,0 +1,33 @@
+body { font-family: "Fotbiler Sans"; }
+
+.inbox-content { display: flex; width: 100%; height: 63%; padding-top: 12px; box-sizing: border-box; }
+.inbox-list-column { width: 39%; height: 100%; margin-right: 2%; }
+.inbox-detail-column { width: 59%; height: 100%; }
+
+.inbox-list-card { width: 100%; height: 100%; padding: 18px 20px; }
+.inbox-list-title { display: block; margin-top: 4px; font-family: "Fotbiler Display"; font-size: 27px; line-height: 29px; }
+.inbox-count { color: #607988; font-size: 10px; letter-spacing: 0.8px; }
+.inbox-list-head, .inbox-list-row { display: flex; width: 100%; box-sizing: border-box; }
+.inbox-list-head { margin-top: 12px; padding: 0 9px 6px 9px; border-bottom-width: 1px; border-bottom-color: #d3dadd; color: #80909a; font-size: 9px; letter-spacing: 0.7px; }
+.inbox-list-row { padding: 9px 9px; border-bottom-width: 1px; border-bottom-color: #e1e6e8; align-items: center; font-size: 11px; }
+.inbox-list-row.active { background-color: #19d3b1; color: #10202d; }
+.inbox-list-row:focus { background-color: #d7e0e5; color: #10202d; }
+.inbox-list-row.active:focus { background-color: #19d3b1; }
+.inbox-row-type { width: 20%; color: #66808f; font-size: 9px; letter-spacing: 0.8px; }
+.inbox-list-row.active .inbox-row-type { color: #17463e; }
+.inbox-row-subject { width: 62%; font-family: "Fotbiler Display"; font-size: 12px; }
+.inbox-row-state { width: 18%; text-align: right; color: #81919b; font-size: 9px; }
+.inbox-list-row.active .inbox-row-state { color: #17463e; }
+
+.inbox-detail-card { width: 100%; height: 100%; padding: 23px 27px; background-color: #17334a; border-color: #17334a; color: #ffffff; }
+.inbox-detail-card .card-kicker { color: #a9bbc6; }
+.inbox-detail-top { display: flex; width: 100%; justify-content: space-between; align-items: flex-start; }
+.inbox-detail-title { display: block; width: 82%; margin-top: 7px; font-family: "Fotbiler Display"; font-size: 32px; line-height: 34px; }
+.inbox-detail-type { display: inline-block; margin-top: 4px; padding: 5px 8px; background-color: #19d3b1; color: #10202d; font-size: 9px; letter-spacing: 0.9px; }
+.inbox-detail-week { color: #9eb1bc; font-size: 10px; letter-spacing: 1px; text-align: right; }
+.inbox-detail-divider { width: 100%; height: 1px; margin-top: 18px; background-color: #34546a; }
+.inbox-detail-body { display: block; width: 88%; margin-top: 18px; color: #c0ccd3; font-size: 14px; line-height: 20px; }
+.inbox-detail-actions { position: absolute; left: 27px; bottom: 23px; }
+.inbox-action { display: inline-block; margin-right: 8px; padding: 8px 12px; background-color: #244961; color: #d8e1e6; font-size: 10px; letter-spacing: 0.8px; }
+.inbox-action.primary { background-color: #19d3b1; color: #10202d; }
+.inbox-accent { position: absolute; left: 0; bottom: 0; width: 100%; height: 7px; background-color: #dd3c91; }

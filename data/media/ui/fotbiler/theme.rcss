@@ -1,0 +1,405 @@
+body {
+  --bg-deep: #07121f;
+  --bg-mid: #10283a;
+  --surface: #f2f4f5;
+  --surface-muted: #dfe4e7;
+  --ink: #10202d;
+  --ink-soft: #667681;
+  --white: #ffffff;
+  --accent: #19d3b1;
+  --accent-strong: #00b895;
+  --accent-pink: #dd3c91;
+  --accent-blue: #2e71ff;
+  --line: #cbd3d8;
+
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  color: var(--ink);
+  font-family: "Fotbiler Sans";
+  background-color: var(--bg-deep);
+}
+
+.screen {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: var(--surface);
+}
+
+/* FIFA 17-22-inspired geometry, expressed with original Fotbiler colours. */
+.bg-deep {
+  position: absolute;
+  left: -12%;
+  top: -34%;
+  width: 59%;
+  height: 164%;
+  background-color: var(--bg-deep);
+  transform: rotate(-11deg);
+}
+
+.bg-blue {
+  position: absolute;
+  right: -13%;
+  top: -24%;
+  width: 43%;
+  height: 86%;
+  background-color: #183b58;
+  transform: rotate(14deg);
+}
+
+.bg-pink {
+  position: absolute;
+  right: -17%;
+  bottom: -35%;
+  width: 48%;
+  height: 68%;
+  background-color: var(--accent-pink);
+  transform: rotate(-17deg);
+}
+
+.shell {
+  position: absolute;
+  left: 5%;
+  top: 4.5%;
+  width: 90%;
+  height: 91%;
+}
+
+.topbar {
+  display: flex;
+  width: 100%;
+  height: 8.5%;
+  color: var(--white);
+  align-items: center;
+}
+
+.brand {
+  width: 54%;
+  font-family: "Fotbiler Display";
+  font-size: 30px;
+  letter-spacing: 2px;
+}
+
+.brand-mark {
+  color: var(--accent);
+}
+
+.profile {
+  width: 46%;
+  text-align: right;
+  color: #c9d3da;
+  font-size: 15px;
+  letter-spacing: 1px;
+}
+
+.tabs {
+  display: flex;
+  width: 100%;
+  height: 7.5%;
+  color: #b8c4cb;
+  border-bottom-width: 1px;
+  border-bottom-color: #426074;
+}
+
+.tab {
+  height: 100%;
+  margin-right: 36px;
+  padding-top: 11px;
+  font-size: 17px;
+  letter-spacing: 1.1px;
+}
+
+.tab.active {
+  color: var(--white);
+  border-bottom-width: 4px;
+  border-bottom-color: var(--accent);
+}
+
+/* data-route is the common navigation contract used by mouse, keyboard and controller input. */
+[data-route] {
+  nav: auto;
+}
+
+/* Focus and active state must stay visually distinct. The green underline belongs
+   only to the active route; focus uses text colour so automatic first-focus cannot
+   make two tabs look selected at the same time. */
+.tab[data-route]:focus {
+  color: var(--white);
+}
+
+.career-tab[data-route]:focus,
+.tactics-subtab[data-route]:focus {
+  color: #ffffff;
+  border-bottom-width: 0px;
+}
+
+.career-tab.active[data-route]:focus {
+  border-bottom-width: 4px;
+  border-bottom-color: #19d3b1;
+}
+
+.content {
+  display: flex;
+  width: 100%;
+  height: 69%;
+  padding-top: 18px;
+}
+
+.primary-column {
+  width: 59.5%;
+  height: 100%;
+  margin-right: 2%;
+}
+
+.secondary-column {
+  width: 38.5%;
+  height: 100%;
+}
+
+.row {
+  display: flex;
+  width: 100%;
+}
+
+.tile {
+  position: relative;
+  box-sizing: border-box;
+  overflow: hidden;
+  background-color: #f7f8f9;
+  border-width: 1px;
+  border-color: #eef2f4;
+  color: var(--ink);
+  transition: background-color color transform border-color 0.13s sine-out;
+  nav: auto;
+}
+
+.tile:hover,
+.tile:focus {
+  background-color: var(--accent);
+  border-color: var(--white);
+  transform: translateY(-2px);
+}
+
+.tile-kicker,
+.tile-title,
+.tile-copy {
+  display: block;
+}
+
+.tile-kicker {
+  width: 100%;
+  margin-bottom: 5px;
+  font-size: 13px;
+  letter-spacing: 1.6px;
+  color: var(--ink-soft);
+}
+
+.tile:hover .tile-kicker,
+.tile:focus .tile-kicker {
+  color: #17463e;
+}
+
+.tile-title {
+  width: 100%;
+  margin-top: 0;
+  font-family: "Fotbiler Display";
+  font-size: 30px;
+  line-height: 33px;
+}
+
+.tile-copy {
+  width: 100%;
+  margin-top: 9px;
+  color: var(--ink-soft);
+  font-size: 14px;
+  line-height: 18px;
+}
+
+.tile:hover .tile-copy,
+.tile:focus .tile-copy {
+  color: #20483f;
+}
+
+.hero {
+  width: 100%;
+  height: 56%;
+  padding: 31px 36px;
+  background-color: var(--accent);
+  border-width: 3px;
+  border-color: var(--white);
+}
+
+.hero .tile-title {
+  width: 72%;
+  font-size: 46px;
+  line-height: 48px;
+}
+
+.hero .tile-copy {
+  width: 66%;
+  margin-top: 13px;
+}
+
+.hero .tile-kicker,
+.hero .tile-copy {
+  color: #17463e;
+}
+
+.hero-number {
+  position: absolute;
+  right: 26px;
+  top: 8px;
+  color: rgba(7, 18, 31, 0.09);
+  font-family: "Fotbiler Display";
+  font-size: 136px;
+}
+
+.small-row {
+  height: 40%;
+  margin-top: 18px;
+}
+
+.small {
+  width: 49%;
+  height: 100%;
+  padding: 22px 25px;
+}
+
+.small.first {
+  margin-right: 2%;
+}
+
+.small .tile-title {
+  font-size: 27px;
+  line-height: 30px;
+}
+
+.quick {
+  background-color: #f7f8f9;
+  border-color: #eef2f4;
+}
+
+.league {
+  background-color: #dfe5e9;
+  border-color: #d4dce1;
+}
+
+.news {
+  width: 100%;
+  height: 56%;
+  padding: 28px;
+  background-color: #10283a;
+  border-color: #17384d;
+  color: var(--white);
+}
+
+.news .tile-title {
+  width: 92%;
+  font-size: 32px;
+  line-height: 34px;
+}
+
+.news .tile-copy {
+  width: 88%;
+  margin-top: 11px;
+}
+
+.news:hover,
+.news:focus {
+  background-color: var(--accent-blue);
+}
+
+.news .tile-kicker,
+.news .tile-copy {
+  color: #a8bac5;
+}
+
+.news:hover .tile-kicker,
+.news:hover .tile-copy,
+.news:focus .tile-kicker,
+.news:focus .tile-copy {
+  color: var(--white);
+}
+
+.news-stripe {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 7px;
+  background-color: var(--accent-pink);
+}
+
+.utility-row {
+  height: 40%;
+  margin-top: 18px;
+}
+
+.utility {
+  width: 49%;
+  height: 100%;
+  padding: 21px;
+  background-color: #f7f8f9;
+  border-color: #eef2f4;
+}
+
+.utility.first {
+  margin-right: 2%;
+}
+
+.utility .tile-title {
+  font-size: 23px;
+  line-height: 26px;
+}
+
+.utility .tile-copy {
+  font-size: 13px;
+  line-height: 17px;
+}
+
+.footer {
+  display: flex;
+  width: 100%;
+  height: 7%;
+  margin-top: 13px;
+  padding-left: 12px;
+  padding-right: 12px;
+  box-sizing: border-box;
+  background-color: rgba(7, 18, 31, 0.92);
+  color: #c5d0d6;
+  align-items: center;
+  font-size: 14px;
+  border-top-width: 1px;
+  border-top-color: #29465a;
+}
+
+.footer-left {
+  width: 65%;
+}
+
+.footer-right {
+  width: 35%;
+  text-align: right;
+}
+
+.hint-key {
+  display: inline-block;
+  margin-right: 7px;
+  padding: 2px 7px;
+  background-color: var(--surface);
+  color: var(--ink);
+  border-radius: 8px;
+}
+
+.hint {
+  margin-right: 24px;
+}
+
+.version {
+  color: #8295a1;
+  letter-spacing: 1px;
+}

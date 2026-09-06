@@ -1,0 +1,359 @@
+body {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: "Fotbiler Sans";
+  color: #f5f7fb;
+}
+
+.runtime-screen {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #071523;
+}
+
+.runtime-bg-blue {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 34%;
+  height: 100%;
+  background-color: #163f5e;
+}
+
+.runtime-bg-light {
+  position: absolute;
+  left: 42%;
+  top: 0;
+  width: 30%;
+  height: 100%;
+  background-color: #edf1f4;
+}
+
+.runtime-bg-pink {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 35%;
+  height: 20%;
+  background-color: #d82f86;
+}
+
+.runtime-shell {
+  position: absolute;
+  left: 4.5%;
+  top: 4%;
+  width: 91%;
+  height: 92%;
+}
+
+.runtime-topbar {
+  display: flex;
+  width: 100%;
+  height: 8%;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.runtime-brand {
+  font-size: 24px;
+  font-weight: 900;
+  letter-spacing: 1px;
+}
+
+.runtime-brand-mark {
+  color: #20d0b5;
+}
+
+.runtime-meta {
+  color: #a9bac7;
+  font-size: 11px;
+  letter-spacing: 1.3px;
+}
+
+.runtime-heading {
+  display: block;
+  height: 12%;
+  padding-top: 1%;
+}
+
+.runtime-kicker {
+  display: block;
+  color: #93a8b8;
+  font-size: 11px;
+  letter-spacing: 1.2px;
+}
+
+.runtime-title {
+  display: block;
+  margin-top: 4px;
+  font-size: 31px;
+  font-weight: 900;
+  letter-spacing: .5px;
+}
+
+.runtime-subtitle {
+  display: block;
+  margin-top: 4px;
+  color: #a9bac7;
+  font-size: 13px;
+}
+
+.runtime-content {
+  display: flex;
+  width: 100%;
+  height: 70%;
+}
+
+.runtime-column-main {
+  width: 64%;
+  height: 100%;
+  margin-right: 2%;
+}
+
+.runtime-column-side {
+  width: 34%;
+  height: 100%;
+}
+
+.runtime-card {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  background-color: #f3f5f7;
+  color: #0b1d2d;
+  border-width: 1px;
+  border-color: #d3dce2;
+  padding: 18px 20px;
+}
+
+.runtime-card.dark {
+  background-color: #102b40;
+  color: #f8fafc;
+  border-color: #284d68;
+}
+
+.runtime-card.accent {
+  background-color: #20d0b5;
+  color: #061a27;
+  border-color: #20d0b5;
+}
+
+.runtime-card + .runtime-card {
+  margin-top: 12px;
+}
+
+.runtime-card-title {
+  display: block;
+  font-size: 19px;
+  font-weight: 900;
+  margin-bottom: 12px;
+}
+
+.runtime-card-kicker {
+  display: block;
+  color: #6f8797;
+  font-size: 10px;
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+}
+
+.dark .runtime-card-kicker {
+  color: #9db2c1;
+}
+
+.runtime-row {
+  display: flex;
+  min-height: 38px;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom-width: 1px;
+  border-bottom-color: #d6dfe5;
+}
+
+.dark .runtime-row {
+  border-bottom-color: #2d5068;
+}
+
+.runtime-row:last-child {
+  border-bottom-width: 0px;
+}
+
+.runtime-label {
+  display: block;
+  color: #657c8c;
+  font-size: 11px;
+  letter-spacing: .5px;
+}
+
+.dark .runtime-label {
+  color: #a9bac7;
+}
+
+.runtime-value {
+  display: block;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.runtime-nav-item {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 44px;
+  margin-bottom: 7px;
+  padding: 12px 14px;
+  background-color: #163a54;
+  color: #edf4f7;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.runtime-nav-item:focus {
+  background-color: #20d0b5;
+  color: #071523;
+}
+
+.runtime-nav-item.danger {
+  background-color: #6a2444;
+}
+
+.runtime-nav-item.danger:focus {
+  background-color: #e83d86;
+  color: #ffffff;
+}
+
+.runtime-stat {
+  display: flex;
+  height: 42px;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom-width: 1px;
+  border-bottom-color: #2c5068;
+}
+
+.runtime-stat-name {
+  display: block;
+  width: 42%;
+  text-align: center;
+  color: #a9bac7;
+  font-size: 11px;
+}
+
+.runtime-stat-value {
+  display: block;
+  width: 29%;
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.runtime-stat-value.away {
+  text-align: right;
+}
+
+.runtime-scoreline {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 120px;
+}
+
+.runtime-team {
+  display: block;
+  width: 34%;
+  text-align: center;
+  font-size: 21px;
+  font-weight: 900;
+}
+
+.runtime-score {
+  display: block;
+  width: 24%;
+  text-align: center;
+  font-size: 48px;
+  font-weight: 900;
+  color: #20d0b5;
+}
+
+.runtime-tabs {
+  display: flex;
+  height: 42px;
+  margin-bottom: 12px;
+}
+
+.runtime-tab {
+  display: block;
+  box-sizing: border-box;
+  min-width: 135px;
+  height: 42px;
+  padding: 13px 18px 10px 18px;
+  background-color: #18364b;
+  color: #a9bac7;
+  font-size: 11px;
+  font-weight: 900;
+  text-align: center;
+}
+
+.runtime-tab + .runtime-tab {
+  margin-left: 2px;
+}
+
+.runtime-tab.active,
+.runtime-tab:focus {
+  background-color: #20d0b5;
+  color: #071523;
+}
+
+.runtime-footer {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  height: 6%;
+  align-items: center;
+  justify-content: space-between;
+  color: #c6d2da;
+  font-size: 11px;
+}
+
+.runtime-hint {
+  margin-right: 18px;
+}
+
+.runtime-key {
+  margin-right: 5px;
+  padding: 3px 6px;
+  background-color: #f3f5f7;
+  color: #071523;
+  font-weight: 900;
+}
+
+.runtime-pill {
+  display: inline-block;
+  padding: 4px 7px;
+  background-color: #20d0b5;
+  color: #071523;
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.runtime-muted {
+  display: block;
+  color: #8ca1b1;
+}
+
+.runtime-big-number {
+  display: block;
+  font-size: 42px;
+  font-weight: 900;
+  color: #20d0b5;
+}
+
+.runtime-center {
+  text-align: center;
+}

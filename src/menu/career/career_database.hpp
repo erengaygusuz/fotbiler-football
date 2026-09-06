@@ -6,9 +6,10 @@
 #include <vector>
 
 #include "../../data/careerdata.hpp"
-#include "career_common.hpp"
-#include "career_persistence.hpp"
-#include "career_sim.hpp"
+#include "core/career/career_common.hpp"
+#include "core/career/career_fixture_session.hpp"
+#include "core/career/career_sim.hpp"
+#include "persistence/career/career_persistence.hpp"
 
 namespace blunted {
 
@@ -22,14 +23,6 @@ using SponsorDeal = ::SponsorDeal;
 using SimulatedMatch = ::SimulatedMatch;
 using FixtureResult = ::FixtureResult;
 using PlayerCareerState = ::PlayerCareerState;
-
-struct CareerPendingFixture {
-  bool hasFixture = false;
-  bool isHome = true;
-  int userTeamDBID = 0;
-  int opponentTeamDBID = 0;
-  std::string opponentName;
-};
 
 class CareerDatabase : public CareerCommon::CareerEvents {
 public:

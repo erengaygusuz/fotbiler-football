@@ -28,6 +28,14 @@ public:
   void GetContextSize(int& width, int& height, int& bpp);
   Vector3 GetContextSize();
 
+  // The single-process Fotbiler window can change resolution at runtime.
+  // Keep the legacy Gui2/HUD canvas aligned with the renderer/RmlUi drawable.
+  void SetContextSize(int newWidth, int newHeight, int newBpp) {
+    if (newWidth > 0) width = newWidth;
+    if (newHeight > 0) height = newHeight;
+    if (newBpp > 0) bpp = newBpp;
+  }
+
 protected:
   vector_Objects objects;
 

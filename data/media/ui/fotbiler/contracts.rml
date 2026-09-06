@@ -1,0 +1,44 @@
+<rml>
+<head>
+  <title>Fotbiler Contracts</title>
+  <link type="text/rcss" href="theme.rcss" />
+  <link type="text/rcss" href="career_shell.rcss" />
+  <link type="text/rcss" href="career_detail.rcss" />
+</head>
+<body>
+  <div class="career-screen">
+    <div class="career-bg-deep"></div><div class="career-bg-blue"></div><div class="career-bg-accent"></div>
+    <div class="career-shell">
+      <div class="career-topbar">
+        <div class="club-identity"><div class="club-crest">F</div><div class="club-copy"><div id="career-club-name" class="club-name">FOTBILER FC</div><div id="career-club-meta" class="club-meta">MANAGER CAREER · SEASON 2026/27</div></div></div>
+        <div class="career-status"><div class="status-block"><div class="status-label">EXPIRING SOON</div><div id="contracts-expiring-count" class="status-value">3</div></div><div class="status-block date-block"><div class="status-label">WEEKLY WAGES</div><div id="contracts-total-wages" class="status-value">€612K</div></div></div>
+      </div>
+      <div class="career-tabs"><div class="career-tab" tabindex="0" data-route="career-central">CENTRAL</div><div class="career-tab" tabindex="0" data-route="squad">SQUAD</div><div class="career-tab" tabindex="0" data-route="transfers">TRANSFERS</div><div class="career-tab active" tabindex="0" data-route="office">OFFICE</div><div class="career-tab" tabindex="0" data-route="season">SEASON</div></div>
+      <div class="career-detail-nav"><div class="career-detail-nav-item" tabindex="0" data-route="inbox">INBOX</div><div class="career-detail-nav-item" tabindex="0" data-route="finances">FINANCES</div><div class="career-detail-nav-item active" tabindex="0" data-route="contracts">CONTRACTS</div><div class="career-detail-nav-item" tabindex="0" data-route="staff">STAFF</div></div>
+
+      <div class="career-detail-content">
+        <div class="career-detail-main">
+          <div class="ui-card career-detail-card full" tabindex="0">
+            <div class="card-kicker">SQUAD AGREEMENTS</div><div class="career-detail-title">PLAYER CONTRACTS</div><div class="career-detail-subtitle">Players closest to expiry are shown first.</div>
+            <div class="detail-list-head"><span style="width:38%">PLAYER</span><span style="width:10%">POS</span><span style="width:10%">OVR</span><span style="width:18%">YEARS</span><span class="right" style="width:24%">WAGE</span></div>
+            <div class="detail-list-row active"><strong id="contract-name-0" style="width:38%">AHMET AKSOY</strong><span id="contract-pos-0" style="width:10%">CM</span><span id="contract-ovr-0" style="width:10%">77</span><span id="contract-years-0" style="width:18%">1</span><span id="contract-wage-0" class="right" style="width:24%">€55K</span></div>
+            <div class="detail-list-row"><strong id="contract-name-1" style="width:38%">MERT CAN</strong><span id="contract-pos-1" style="width:10%">RB</span><span id="contract-ovr-1" style="width:10%">73</span><span id="contract-years-1" style="width:18%">1</span><span id="contract-wage-1" class="right" style="width:24%">€40K</span></div>
+            <div class="detail-list-row"><strong id="contract-name-2" style="width:38%">OZAN KOC</strong><span id="contract-pos-2" style="width:10%">GK</span><span id="contract-ovr-2" style="width:10%">80</span><span id="contract-years-2" style="width:18%">2</span><span id="contract-wage-2" class="right" style="width:24%">€60K</span></div>
+            <div class="detail-list-row"><strong id="contract-name-3" style="width:38%">EMRE YILMAZ</strong><span id="contract-pos-3" style="width:10%">CAM</span><span id="contract-ovr-3" style="width:10%">81</span><span id="contract-years-3" style="width:18%">3</span><span id="contract-wage-3" class="right" style="width:24%">€75K</span></div>
+            <div class="detail-list-row"><strong id="contract-name-4" style="width:38%">KEREM KAYA</strong><span id="contract-pos-4" style="width:10%">ST</span><span id="contract-ovr-4" style="width:10%">78</span><span id="contract-years-4" style="width:18%">3</span><span id="contract-wage-4" class="right" style="width:24%">€62K</span></div>
+            <div class="detail-list-row"><strong id="contract-name-5" style="width:38%">TUNA CELIK</strong><span id="contract-pos-5" style="width:10%">CB</span><span id="contract-ovr-5" style="width:10%">79</span><span id="contract-years-5" style="width:18%">3</span><span id="contract-wage-5" class="right" style="width:24%">€58K</span></div>
+            <div class="detail-list-row"><strong id="contract-name-6" style="width:38%">ARDA GUNES</strong><span id="contract-pos-6" style="width:10%">CB</span><span id="contract-ovr-6" style="width:10%">78</span><span id="contract-years-6" style="width:18%">3</span><span id="contract-wage-6" class="right" style="width:24%">€54K</span></div>
+            <div class="detail-list-row"><strong id="contract-name-7" style="width:38%">DENIZ DEMIR</strong><span id="contract-pos-7" style="width:10%">LW</span><span id="contract-ovr-7" style="width:10%">75</span><span id="contract-years-7" style="width:18%">3</span><span id="contract-wage-7" class="right" style="width:24%">€46K</span></div>
+          </div>
+        </div>
+        <div class="career-detail-side">
+          <div class="ui-card career-detail-card top dark" tabindex="0"><div class="card-kicker">CONTRACT HEALTH</div><div class="detail-hero-number" id="contracts-expiring-count-copy">3</div><div class="detail-hero-label">NEED ATTENTION</div><div class="detail-copy">Review expiring agreements before players enter the final stages of their contracts.</div><span class="detail-action primary">NEGOTIATE</span><span class="detail-action">TRANSFER LIST</span></div>
+          <div class="ui-card career-detail-card bottom muted" tabindex="0"><div class="card-kicker">PAYROLL</div><div class="career-detail-title">WAGE CONTROL</div><div class="detail-stat-grid"><div class="detail-stat accent"><span>WEEKLY TOTAL</span><strong id="contracts-total-wages-copy">€612K</strong></div><div class="detail-stat"><span>STATUS</span><strong>ON PLAN</strong></div><div class="detail-stat"><span>RENEWALS</span><strong>3</strong></div></div></div>
+        </div>
+      </div>
+
+      <div class="career-control-strip"><div class="control-left"><span class="hint"><span class="hint-key">ENTER</span>Select</span><span class="hint"><span class="hint-key">ARROWS</span>Navigate</span><span class="hint"><span class="hint-key">ESC</span>Back</span></div><div class="control-right">OFFICE · CONTRACTS</div></div>
+    </div>
+  </div>
+</body>
+</rml>

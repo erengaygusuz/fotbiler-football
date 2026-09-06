@@ -278,6 +278,10 @@ class Renderer3DMessage_GetContextSize : public Command {
 public:
   Renderer3DMessage_GetContextSize() : Command("r3dmsg_GetContextSize") {};
 
+  int GetWidth() const { return width; }
+  int GetHeight() const { return height; }
+  int GetBpp() const { return bpp; }
+
 protected:
   virtual bool Execute(void* caller = nullptr) {
     static_cast<Renderer3D*>(caller)->GetContextSize(width, height, bpp);

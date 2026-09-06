@@ -117,7 +117,7 @@ public:
 
   void ResetSituation(const Vector3& focusPos);
 
-  void Pause(bool doPause) { pause = doPause; }
+  void Pause(bool doPause);
   bool GetPause() { return pause; }
   void SetMatchPhase(e_MatchPhase newMatchPhase);
   e_MatchPhase GetMatchPhase() const { return matchPhase; }
@@ -336,6 +336,12 @@ protected:
   unsigned long goalScoredTimer;
 
   bool pause;
+  bool scoreboardVisibleBeforePause = false;
+  bool playerHudVisibleBeforePause = false;
+  bool radarVisibleBeforePause = false;
+  bool tacticsDebugVisibleBeforePause = false;
+  bool messageVisibleBeforePause = false;
+  bool statsVisibleBeforePause = false;
   e_MatchPhase matchPhase;  // 0 - first half; 1 - second half; 2 - 1st extra time; 3 - 2nd extra
                             // time; 4 - penalties
   bool inPlay;

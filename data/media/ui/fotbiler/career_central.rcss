@@ -1,0 +1,403 @@
+.match-competition,
+.team-name,
+.match-day,
+.versus,
+.match-time,
+.card-link,
+.form-title,
+.news-date,
+.career-news-title,
+.career-news-copy,
+.news-footer,
+.office-number,
+.office-label,
+.office-item,
+.confidence-ring,
+.confidence-state {
+  display: block;
+}
+
+.career-content {
+  display: flex;
+  width: 100%;
+  height: 70%;
+  padding-top: 18px;
+}
+
+.career-primary {
+  width: 61%;
+  height: 100%;
+  margin-right: 2%;
+}
+
+.career-secondary {
+  width: 37%;
+  height: 100%;
+}
+
+.career-card {
+  position: relative;
+  box-sizing: border-box;
+  overflow: hidden;
+  background-color: #f7f8f9;
+  border-width: 2px;
+  border-color: #f7f8f9;
+  color: #10202d;
+  transition: transform border-color background-color 0.15s sine-out;
+  nav: auto;
+}
+
+.career-card:hover,
+.career-card:focus {
+  transform: translateY(-3px);
+  border-color: #ffffff;
+}
+
+.next-match {
+  width: 100%;
+  height: 56%;
+  padding: 26px 30px 0 30px;
+  background-color: #19d3b1;
+  border-color: #ffffff;
+}
+
+.next-match .card-kicker,
+.next-match .match-competition,
+.next-match .match-footer {
+  color: #17463e;
+}
+
+.match-competition {
+  margin-top: 5px;
+  font-size: 14px;
+  letter-spacing: 0.8px;
+}
+
+.match-stage {
+  display: flex;
+  width: 100%;
+  height: 63%;
+  margin-top: 10px;
+  align-items: center;
+}
+
+.team-side {
+  width: 38%;
+  text-align: center;
+}
+
+.versus-block {
+  width: 24%;
+  text-align: center;
+}
+
+.crest-large {
+  width: 78px;
+  height: 78px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 78px;
+  border-radius: 39px;
+  font-family: "Fotbiler Display";
+  font-size: 36px;
+  text-align: center;
+}
+
+.crest-home {
+  background-color: #07121f;
+  color: #19d3b1;
+}
+
+.crest-away {
+  background-color: #ffffff;
+  color: #214d70;
+}
+
+.team-name {
+  margin-top: 8px;
+  font-family: "Fotbiler Display";
+  font-size: 21px;
+  line-height: 23px;
+}
+
+.match-day {
+  color: #315c55;
+  font-size: 12px;
+  letter-spacing: 1px;
+}
+
+.versus {
+  margin-top: 3px;
+  font-family: "Fotbiler Display";
+  font-size: 36px;
+}
+
+.match-time {
+  margin-top: 1px;
+  font-family: "Fotbiler Display";
+  font-size: 18px;
+}
+
+.match-footer {
+  display: flex;
+  width: 100%;
+  padding-top: 8px;
+  border-top-width: 1px;
+  border-top-color: #58dfc8;
+  justify-content: space-between;
+  font-size: 12px;
+  letter-spacing: 0.8px;
+}
+
+.career-lower-row {
+  display: flex;
+  width: 100%;
+  height: 40%;
+  margin-top: 2%;
+}
+
+.league-table {
+  width: 61%;
+  height: 100%;
+  padding: 20px 22px;
+  margin-right: 2%;
+}
+
+.form-card {
+  width: 37%;
+  height: 100%;
+  padding: 20px 21px;
+  background-color: #dfe5e9;
+  border-color: #dfe5e9;
+}
+
+.card-header-row {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+}
+
+.card-link {
+  color: #467084;
+  font-size: 11px;
+  letter-spacing: 1px;
+}
+
+.table-head,
+.table-row {
+  display: flex;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.col-pos {
+  width: 13%;
+}
+
+.col-club {
+  width: 57%;
+}
+
+.col-pl,
+.col-pts {
+  width: 15%;
+  text-align: right;
+}
+
+.table-head {
+  margin-top: 11px;
+  padding-bottom: 5px;
+  color: #80909a;
+  border-bottom-width: 1px;
+  border-bottom-color: #d3dadd;
+  font-size: 10px;
+}
+
+.table-row {
+  padding-top: 5px;
+  padding-bottom: 5px;
+  border-bottom-width: 1px;
+  border-bottom-color: #e2e6e8;
+  font-size: 12px;
+}
+
+.table-row.current {
+  padding-left: 7px;
+  background-color: #19d3b1;
+  color: #10202d;
+}
+
+.form-title {
+  margin-top: 8px;
+  font-family: "Fotbiler Display";
+  font-size: 24px;
+  line-height: 26px;
+}
+
+.form-dots {
+  margin-top: 15px;
+  margin-bottom: 12px;
+}
+
+.form-dot {
+  display: inline-block;
+  width: 28px;
+  height: 28px;
+  margin-right: 4px;
+  line-height: 28px;
+  border-radius: 14px;
+  text-align: center;
+  font-family: "Fotbiler Display";
+  font-size: 13px;
+}
+
+.form-dot.win {
+  background-color: #19d3b1;
+  color: #10202d;
+}
+
+.form-dot.draw {
+  background-color: #214d70;
+  color: #ffffff;
+}
+
+.form-dot.empty {
+  background-color: #c8d0d5;
+  color: #71818b;
+}
+
+.form-stat {
+  display: flex;
+  width: 100%;
+  margin-top: 6px;
+  color: #687985;
+  font-size: 11px;
+  justify-content: space-between;
+}
+
+.form-stat strong {
+  color: #10202d;
+  font-family: "Fotbiler Display";
+  font-size: 15px;
+}
+
+.career-news {
+  width: 100%;
+  height: 56%;
+  padding: 26px 28px;
+  background-color: #17334a;
+  border-color: #17334a;
+  color: #ffffff;
+}
+
+.career-news:hover,
+.career-news:focus {
+  background-color: #214d8f;
+}
+
+.career-news .card-kicker {
+  color: #a9bbc6;
+}
+
+.news-accent-line {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 7px;
+  background-color: #dd3c91;
+}
+
+.news-date {
+  margin-top: 8px;
+  color: #8ea3af;
+  font-size: 11px;
+  letter-spacing: 0.9px;
+}
+
+.career-news-title {
+  width: 90%;
+  margin-top: 13px;
+  font-family: "Fotbiler Display";
+  font-size: 31px;
+  line-height: 33px;
+}
+
+.career-news-copy {
+  width: 89%;
+  margin-top: 12px;
+  color: #b6c4cc;
+  font-size: 14px;
+  line-height: 18px;
+}
+
+.news-footer {
+  position: absolute;
+  left: 28px;
+  bottom: 21px;
+  color: #ffffff;
+  font-size: 12px;
+  letter-spacing: 1px;
+}
+
+.office-card {
+  display: flex;
+  width: 100%;
+  height: 40%;
+  margin-top: 2%;
+  padding: 22px 24px;
+}
+
+.office-column {
+  width: 56%;
+}
+
+.board-column {
+  width: 42%;
+  text-align: center;
+}
+
+.office-divider {
+  width: 1px;
+  height: 86%;
+  margin-right: 3%;
+  background-color: #d6dde1;
+}
+
+.office-number {
+  margin-top: 5px;
+  font-family: "Fotbiler Display";
+  font-size: 43px;
+  line-height: 44px;
+}
+
+.office-label {
+  color: #6d7e88;
+  font-size: 11px;
+  letter-spacing: 0.8px;
+}
+
+.office-item {
+  margin-top: 8px;
+  color: #334b59;
+  font-size: 12px;
+}
+
+.confidence-ring {
+  width: 58px;
+  height: 58px;
+  margin: 8px auto 5px auto;
+  line-height: 58px;
+  border-radius: 29px;
+  background-color: #19d3b1;
+  color: #10202d;
+  font-family: "Fotbiler Display";
+  font-size: 24px;
+}
+
+.confidence-state {
+  margin-top: 8px;
+  color: #00a782;
+  font-size: 11px;
+  letter-spacing: 1px;
+}

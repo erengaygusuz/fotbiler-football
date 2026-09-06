@@ -1,0 +1,21 @@
+body { font-family: "Fotbiler Sans"; }
+
+.loading-shell { position: absolute; left: 5%; top: 4.5%; width: 90%; height: 91%; }
+.loading-topbar { display: flex; width: 100%; height: 9%; color: #ffffff; align-items: center; }
+.loading-brand { width: 65%; font-family: "Fotbiler Display"; font-size: 29px; letter-spacing: 1.6px; }
+.loading-state { width: 35%; text-align: right; color: #bcc9d1; font-size: 12px; letter-spacing: 1px; }
+.loading-stage { position: absolute; left: 0; right: 0; top: 16%; bottom: 11%; background-color: #f4f6f7; border-width: 1px; border-color: #ffffff; color: #10202d; box-sizing: border-box; padding: 42px 54px; }
+.loading-kicker { display: block; color: #657985; font-size: 11px; letter-spacing: 1.5px; text-align: center; }
+.loading-title { display: block; margin-top: 8px; font-family: "Fotbiler Display"; font-size: 39px; line-height: 42px; text-align: center; }
+.loading-fixture { display: flex; width: 100%; height: 48%; margin-top: 28px; align-items: center; }
+.loading-team { width: 40%; text-align: center; }
+.loading-crest { display: inline-block; width: 86px; height: 86px; box-sizing: border-box; padding-top: 23px; background-color: #19d3b1; border-width: 2px; border-color: #ffffff; color: #10202d; font-family: "Fotbiler Display"; font-size: 34px; text-align: center; }
+.loading-team.away .loading-crest { background-color: #17334a; color: #ffffff; }
+.loading-team-name { display: block; margin-top: 12px; font-family: "Fotbiler Display"; font-size: 23px; line-height: 25px; }
+.loading-vs { width: 20%; text-align: center; font-family: "Fotbiler Display"; font-size: 38px; color: #637784; }
+.loading-progress { width: 58%; height: 7px; margin: 18px auto 0 auto; background-color: #d5dde1; }
+.loading-progress-fill { width: 72%; height: 100%; background-color: #19d3b1; }
+.loading-copy { display: block; margin-top: 15px; color: #71838f; font-size: 12px; text-align: center; letter-spacing: 0.7px; }
+.loading-footer { position: absolute; left: 0; right: 0; bottom: 0; display: flex; height: 7%; padding: 0 12px; box-sizing: border-box; background-color: #07121f; color: #c5d0d6; align-items: center; font-size: 12px; }
+.loading-footer-left { width: 65%; }
+.loading-footer-right { width: 35%; text-align: right; color: #8295a1; letter-spacing: 1px; }

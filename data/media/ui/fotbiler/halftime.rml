@@ -1,0 +1,37 @@
+<rml>
+<head>
+  <title>Half Time</title>
+  <link type="text/rcss" href="theme.rcss" />
+  <link type="text/rcss" href="runtime_shell.rcss" />
+</head>
+<body>
+  <div class="runtime-screen">
+    <div class="runtime-bg-blue"></div><div class="runtime-bg-light"></div><div class="runtime-bg-pink"></div>
+    <div class="runtime-shell">
+      <div class="runtime-topbar"><div class="runtime-brand"><span class="runtime-brand-mark">F</span>OTBILER FOOTBALL</div><div class="runtime-meta">HALF-TIME · 45'</div></div>
+      <div class="runtime-heading"><div class="runtime-kicker">MATCHDAY</div><div class="runtime-title">HALF-TIME</div><div class="runtime-subtitle">Review the first half before returning to the pitch.</div></div>
+      <div class="runtime-content">
+        <div class="runtime-column-main">
+          <div class="runtime-card dark" style="height:100%;">
+            <div class="runtime-scoreline"><div class="runtime-team">REAL MADRID</div><div class="runtime-score">1 - 0</div><div class="runtime-team">FC BARCELONA</div></div>
+            <div class="runtime-stat"><div class="runtime-stat-value">54%</div><div class="runtime-stat-name">POSSESSION</div><div class="runtime-stat-value away">46%</div></div>
+            <div class="runtime-stat"><div class="runtime-stat-value">6</div><div class="runtime-stat-name">SHOTS</div><div class="runtime-stat-value away">4</div></div>
+            <div class="runtime-stat"><div class="runtime-stat-value">89%</div><div class="runtime-stat-name">PASS ACCURACY</div><div class="runtime-stat-value away">85%</div></div>
+            <div class="runtime-stat"><div class="runtime-stat-value">RONALDO 37'</div><div class="runtime-stat-name">GOALS</div><div class="runtime-stat-value away">—</div></div>
+          </div>
+        </div>
+        <div class="runtime-column-side">
+          <div class="runtime-card" style="height:100%;">
+            <div class="runtime-card-kicker">SECOND HALF</div><div class="runtime-card-title">TEAM TALK</div>
+            <div class="runtime-muted">Your side is ahead, but Barcelona are finding space between midfield and defence.</div>
+            <div class="runtime-nav-item" tabindex="0" autofocus data-action="continue-second-half" style="margin-top:18px;">CONTINUE MATCH</div>
+            <div class="runtime-nav-item" tabindex="0" data-route="team-management">TEAM MANAGEMENT</div>
+            <div class="runtime-nav-item" tabindex="0" data-route="match-stats">MATCH FACTS</div>
+          </div>
+        </div>
+      </div>
+      <div class="runtime-footer"><div><span class="runtime-hint"><span class="runtime-key">ENTER</span>Continue</span><span class="runtime-hint"><span class="runtime-key">Y</span>Team Management</span></div><div>M1C · HALF-TIME</div></div>
+    </div>
+  </div>
+</body>
+</rml>

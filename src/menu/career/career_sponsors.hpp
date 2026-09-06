@@ -1,25 +1,8 @@
-#ifndef CAREER_SPONSORS_HPP
-#define CAREER_SPONSORS_HPP
+#ifndef CAREER_SPONSORS_COMPAT_HPP
+#define CAREER_SPONSORS_COMPAT_HPP
 
-#include <string>
+// Transitional compatibility include for legacy menu/career consumers.
+// New code should include "core/career/career_sponsors.hpp" directly.
+#include "core/career/career_sponsors.hpp"
 
-#include "../../data/careerdata.hpp"
-#include "career_common.hpp"
-
-namespace blunted {
-namespace CareerSponsors {
-
-// Populates the list of available sponsor offers for the current reputation.
-void GenerateSponsorOffers(CareerSave& save);
-
-// Accepts an available offer (reputation permitting); returns whether it went
-// through.
-bool AcceptSponsorDeal(CareerSave& save, CareerCommon::CareerEvents& events, int dealIndex);
-
-void TerminateSponsorDeal(CareerSave& save, CareerCommon::CareerEvents& events,
-                          const std::string& sponsorName);
-
-}  // namespace CareerSponsors
-}  // namespace blunted
-
-#endif  // CAREER_SPONSORS_HPP
+#endif  // CAREER_SPONSORS_COMPAT_HPP

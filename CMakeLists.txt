@@ -203,6 +203,10 @@ if(GAMEPLAYFOOTBALL_BUILD_GAME)
   endif()
 endif()
 
+if(GAMEPLAYFOOTBALL_BUILD_GAME)
+  include(cmake/FotbilerRmlUi.cmake)
+endif()
+
 # Source files
 include(sources.cmake)
 

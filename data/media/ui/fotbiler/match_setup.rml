@@ -1,0 +1,52 @@
+<rml>
+<head>
+  <title>Fotbiler Match Setup</title>
+  <link type="text/rcss" href="theme.rcss" />
+  <link type="text/rcss" href="match_setup.rcss" />
+</head>
+<body>
+  <div class="screen">
+    <div class="bg-deep"></div><div class="bg-blue"></div><div class="bg-pink"></div>
+    <div class="match-shell">
+      <div class="match-topbar"><div class="match-brand"><span class="brand-mark">F</span>OTBILER FOOTBALL</div><div class="match-profile">KICK OFF · LOCAL MATCH</div></div>
+      <div class="match-heading"><span class="match-kicker">QUICK MATCH</span><span class="match-title">MATCH SETUP</span></div>
+      <div class="match-content">
+        <div class="match-row match-row-top">
+          <div class="match-card match-versus-card" tabindex="0" autofocus>
+            <span class="match-section-kicker">FIXTURE</span><span class="match-section-title">CHOOSE SIDES</span>
+            <div class="match-teams">
+              <div class="match-team"><span id="quick-home-crest" class="match-team-crest">H</span><span id="quick-home-name" class="match-team-name">HOME TEAM</span><span id="quick-home-meta" class="match-team-meta">HOME</span></div>
+              <div class="match-vs"><span class="match-vs-main">VS</span><span class="match-vs-copy">EXHIBITION</span></div>
+              <div class="match-team away"><span id="quick-away-crest" class="match-team-crest">A</span><span id="quick-away-name" class="match-team-name">AWAY TEAM</span><span id="quick-away-meta" class="match-team-meta">AWAY</span></div>
+            </div>
+          </div>
+          <div class="match-card dark match-side-top" tabindex="0">
+            <span class="match-section-kicker">ENVIRONMENT</span><span class="match-section-title">MATCH DAY</span>
+            <div class="match-setting-row"><span>TIME</span><strong>19:00</strong></div>
+            <div class="match-setting-row"><span>WEATHER</span><strong>CLEAR</strong></div>
+            <div class="match-setting-row"><span>SEASON</span><strong>SUMMER</strong></div>
+            <div class="match-setting-row"><span>REFEREE</span><strong>STRICT</strong></div>
+            <span class="match-note">Selected teams, match length, difficulty and controller side are handed directly to the 3D match engine.</span>
+            <span class="match-action" tabindex="0" data-action="start-quick-match">START MATCH</span>
+          </div>
+        </div>
+        <div class="match-row match-row-bottom">
+          <div class="match-card muted match-settings-card" tabindex="0">
+            <span class="match-section-kicker">MATCH RULES</span><span class="match-section-title">GAME SETTINGS</span>
+            <div class="match-setting-row" tabindex="0" data-action="cycle-half-length"><span>HALF LENGTH</span><strong id="quick-half-length">5 MIN</strong></div>
+            <div class="match-setting-row" tabindex="0" data-action="cycle-difficulty"><span>DIFFICULTY</span><strong id="quick-difficulty">PROFESSIONAL</strong></div>
+            <div class="match-setting-row"><span>GAME SPEED</span><strong>NORMAL</strong></div>
+            <div class="match-setting-row" tabindex="0" data-action="toggle-control-side"><span>CONTROL</span><strong id="quick-control-side">KEYBOARD · HOME</strong></div>
+          </div>
+          <div class="match-card match-side-bottom" tabindex="0">
+            <span class="match-section-kicker">QUICK LINKS</span><span class="match-section-title">BEFORE KICK-OFF</span>
+            <span class="match-action secondary" tabindex="0" data-action="change-home-team">CHANGE HOME TEAM</span>
+            <span class="match-action secondary" tabindex="0" data-action="change-away-team">CHANGE AWAY TEAM</span>
+          </div>
+        </div>
+      </div>
+      <div class="match-footer"><div class="match-footer-left"><span class="hint"><span class="hint-key">ENTER</span>Select</span><span class="hint"><span class="hint-key">ARROWS</span>Navigate</span><span class="hint"><span class="hint-key">ESC</span>Back</span></div><div class="match-footer-right">PLAY · MATCH SETUP</div></div>
+    </div>
+  </div>
+</body>
+</rml>

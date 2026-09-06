@@ -1,0 +1,68 @@
+body { font-family: "Fotbiler Sans"; }
+
+.transfer-content { display: flex; width: 100%; height: 70%; padding-top: 18px; }
+.transfer-main { width: 61%; height: 100%; margin-right: 2%; }
+.transfer-side { width: 37%; height: 100%; }
+.transfer-card { position: relative; box-sizing: border-box; overflow: hidden; background-color: #f7f8f9; border-width: 2px; border-color: #f7f8f9; color: #10202d; nav: auto; transition: transform border-color background-color 0.15s sine-out; }
+.transfer-card:hover, .transfer-card:focus { transform: translateY(-2px); border-color: #ffffff; }
+
+.featured-target { display: flex; width: 100%; height: 55%; padding: 26px 28px; background-color: #19d3b1; border-color: #ffffff; }
+.target-left { width: 23%; text-align: center; }
+.target-middle { width: 57%; padding-left: 24px; box-sizing: border-box; }
+.target-right { width: 20%; text-align: right; }
+.target-avatar { width: 118px; height: 118px; margin: 22px auto 12px auto; line-height: 118px; border-radius: 59px; background-color: #10283a; color: #19d3b1; font-family: "Fotbiler Display"; font-size: 42px; }
+.target-club { display: block; color: #17463e; font-size: 12px; letter-spacing: 1px; }
+.target-name { display: block; margin-top: 18px; font-family: "Fotbiler Display"; font-size: 42px; line-height: 44px; }
+.target-meta { display: block; margin-top: 4px; color: #315d55; font-size: 13px; letter-spacing: 1px; }
+.target-badges { margin-top: 12px; }
+.transfer-pill { display: inline-block; margin-right: 6px; padding: 5px 8px; background-color: #58dfc8; color: #17463e; font-size: 10px; letter-spacing: 0.7px; }
+.transfer-pill.accent { background-color: #10283a; color: #ffffff; }
+.target-summary { display: block; width: 90%; margin-top: 14px; color: #20483f; font-size: 14px; line-height: 18px; }
+.transfer-attributes { display: flex; flex-wrap: wrap; width: 100%; margin-top: 14px; }
+.transfer-stat { width: 30%; margin-right: 3%; margin-bottom: 7px; }
+.transfer-stat span { display: block; color: #315d55; font-size: 9px; letter-spacing: 0.7px; }
+.transfer-stat strong { display: block; margin-top: 1px; font-family: "Fotbiler Display"; font-size: 18px; }
+.target-overall { display: block; margin-top: 12px; font-family: "Fotbiler Display"; font-size: 58px; line-height: 56px; }
+.target-overall-label { display: block; color: #315d55; font-size: 10px; letter-spacing: 1px; }
+.target-value-label { display: block; margin-top: 28px; color: #315d55; font-size: 10px; letter-spacing: 0.8px; }
+.target-value { display: block; margin-top: 2px; font-family: "Fotbiler Display"; font-size: 24px; }
+.target-potential { display: block; margin-top: 12px; color: #17463e; font-size: 11px; letter-spacing: 0.8px; }
+
+.shortlist { width: 100%; height: 43%; margin-top: 2%; padding: 20px 22px; }
+.shortlist-header { display: flex; width: 100%; justify-content: space-between; }
+.shortlist-count { color: #66808f; font-size: 10px; letter-spacing: 0.8px; }
+.shortlist-head, .shortlist-row { display: flex; width: 100%; box-sizing: border-box; }
+.shortlist-head { margin-top: 10px; padding-bottom: 5px; border-bottom-width: 1px; border-bottom-color: #d4dbdf; color: #81919b; font-size: 9px; }
+.shortlist-row { padding-top: 7px; padding-bottom: 7px; border-bottom-width: 1px; border-bottom-color: #e1e6e8; font-size: 11px; }
+.shortlist-head span:nth-child(1), .shortlist-row span:nth-child(1) { width: 48%; }
+.shortlist-head span:nth-child(2), .shortlist-row span:nth-child(2) { width: 12%; }
+.shortlist-head span:nth-child(3), .shortlist-row span:nth-child(3) { width: 12%; text-align: right; }
+.shortlist-head span:nth-child(4), .shortlist-row span:nth-child(4) { width: 12%; text-align: right; }
+.shortlist-head span:nth-child(5), .shortlist-row span:nth-child(5) { width: 16%; text-align: right; }
+.shortlist-row.active { padding-left: 8px; background-color: #19d3b1; color: #10202d; }
+
+.negotiation-card { width: 100%; height: 56%; padding: 25px 27px; background-color: #17334a; border-color: #17334a; color: #ffffff; }
+.negotiation-accent { position: absolute; left: 0; bottom: 0; width: 100%; height: 7px; background-color: #dd3c91; }
+.negotiation-card .card-kicker { color: #a9bbc6; }
+.negotiation-title { display: block; margin-top: 7px; font-family: "Fotbiler Display"; font-size: 33px; line-height: 35px; }
+.negotiation-clubs { display: flex; width: 100%; margin-top: 16px; align-items: center; justify-content: space-between; }
+.mini-club { width: 38%; text-align: center; color: #d4dde2; font-size: 10px; }
+.mini-crest { display: block; width: 50px; height: 50px; margin: 0 auto 6px auto; line-height: 50px; border-radius: 25px; font-family: "Fotbiler Display"; font-size: 22px; }
+.mini-crest.ours { background-color: #19d3b1; color: #10202d; }
+.mini-crest.theirs { background-color: #ffffff; color: #214d70; }
+.negotiation-arrow { width: 20%; text-align: center; color: #19d3b1; font-family: "Fotbiler Display"; font-size: 30px; }
+.offer-row { display: flex; width: 100%; margin-top: 11px; padding-top: 8px; border-top-width: 1px; border-top-color: #34546a; justify-content: space-between; color: #a9bbc6; font-size: 11px; }
+.offer-row strong { color: #ffffff; font-family: "Fotbiler Display"; font-size: 15px; }
+.offer-row strong.offer-highlight { color: #19d3b1; }
+.negotiation-status { display: block; margin-top: 13px; color: #f28abe; font-size: 11px; letter-spacing: 1.2px; }
+
+.transfer-side-row { display: flex; width: 100%; height: 42%; margin-top: 2%; }
+.scout-card { width: 58%; height: 100%; margin-right: 2%; padding: 21px 22px; }
+.window-card { width: 40%; height: 100%; padding: 21px 20px; background-color: #dfe5e9; border-color: #dfe5e9; }
+.scout-title { display: block; margin-top: 7px; font-family: "Fotbiler Display"; font-size: 25px; }
+.scout-line { display: flex; width: 100%; margin-top: 12px; padding-top: 8px; border-top-width: 1px; border-top-color: #d6dde1; justify-content: space-between; color: #5f7481; font-size: 10px; }
+.scout-line strong { color: #10202d; font-family: "Fotbiler Display"; font-size: 12px; }
+.window-days { display: block; margin-top: 7px; font-family: "Fotbiler Display"; font-size: 54px; line-height: 52px; color: #10202d; }
+.window-label { display: block; color: #667681; font-size: 11px; letter-spacing: 1px; }
+.window-spend, .window-income { display: block; margin-top: 14px; color: #506874; font-size: 10px; }
+.window-income { margin-top: 5px; }

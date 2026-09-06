@@ -109,6 +109,7 @@ static LONG WINAPI CustomCrashHandler(EXCEPTION_POINTERS* pExceptionInfo) {
 #include "managers/resourcemanagerpool.hpp"
 #include "managers/scenemanager.hpp"
 #include "managers/systemmanager.hpp"
+#include "presentation/ui/rmlui/runtime_settings.hpp"
 #include "scene/objectfactory.hpp"
 #include "scene/scene2d/scene2d.hpp"
 #include "scene/scene3d/scene3d.hpp"
@@ -231,6 +232,29 @@ std::string ResolveConfigFilename(const std::string& requestedFilename) {
   return requestedFilename;
 }
 
+bool ModernFrontendAppActive() {
+  const char* value = std::getenv("FOTBILER_UI_MODERN_APP");
+  return value && value[0] != '\0' && std::string(value) != "0";
+}
+
+void ApplyModernStartupSettings(Properties& properties) {
+  if (!ModernFrontendAppActive()) return;
+
+  const blunted::ui::RuntimeSettings settings = blunted::ui::LoadRuntimeSettings();
+  properties.SetInt("context_x", settings.Width());
+  properties.SetInt("context_y", settings.Height());
+  properties.SetBool("context_fullscreen", settings.fullscreen);
+  properties.SetBool("context_vsync", settings.vsync);
+  properties.Set("match_difficulty",
+                 static_cast<float>(std::clamp(settings.difficultyStep, 0, 4)) * 0.25f);
+  properties.SetInt("fotbiler_game_speed", settings.gameSpeedStep);
+  properties.SetInt("fotbiler_master_volume", settings.volume);
+
+  std::printf("[fotbiler-ui] startup display settings: %dx%d %s, vsync=%d\n",
+              settings.Width(), settings.Height(), settings.fullscreen ? "fullscreen" : "windowed",
+              settings.vsync ? 1 : 0);
+}
+
 }  // namespace
 
 std::shared_ptr<Scene2D> GetScene2D() {
@@ -243,6 +267,10 @@ std::shared_ptr<Scene3D> GetScene3D() {
 
 GraphicsSystem* GetGraphicsSystem() {
   return graphicsSystem;
+}
+
+AudioSystem* GetAudioSystem() {
+  return audioSystem;
 }
 
 std::shared_ptr<GameTask> GetGameTask() {
@@ -319,8 +347,6 @@ int PredictFrameTimeToGo_ms(int frameCount) {
   int averageFrameTime_ms = GetGraphicsSystem()->GetAverageFrameTime_ms(frameCount);
   int timeSinceLastSwap_ms = GetGraphicsSystem()->GetTimeSinceLastSwap_ms();
   int timeToNextSwapPrediction_ms = averageFrameTime_ms - timeSinceLastSwap_ms;
-  // printf("super prediction! %i - %i = %i\n", averageFrameTime_ms, timeSinceLastSwap_ms,
-  // timeToNextSwapPrediction_ms);
   timeToNextSwapPrediction_ms = clamp(timeToNextSwapPrediction_ms, 0, 1000);
   return timeToNextSwapPrediction_ms;
 }
@@ -341,7 +367,7 @@ void InitDebugImage() {
   scene2D->CreateSystemObjects(debugImage);
   debugImage->SetImage(resource);
 
-  int contextW, contextH, bpp;  // context
+  int contextW, contextH, bpp;
   scene2D->GetContextSize(contextW, contextH, bpp);
   debugImage->SetPosition(contextW - 210, contextH - 160);
 
@@ -352,7 +378,7 @@ void InitDebugImage() {
 }
 
 void InitDebugOverlay() {
-  int contextW, contextH, bpp;  // context
+  int contextW, contextH, bpp;
   scene2D->GetContextSize(contextW, contextH, bpp);
 
   SDL_Surface* sdlSurface = CreateSDLSurface(contextW, contextH);
@@ -405,9 +431,6 @@ void RemoveGamepad(int gamepadID) {
     }
   }
 
-  // Dense-slot renumbering: UserEventManager packs the remaining joystick slots
-  // down on removal (see CompactJoystickSlots), so any gamepad that lived in a
-  // higher slot must track its new, one-lower slot.
   for (IHIDevice* device : controllers) {
     HIDGamepad* gp = dynamic_cast<HIDGamepad*>(device);
     if (gp && gp->GetGamepadID() > gamepadID) {
@@ -438,7 +461,6 @@ public:
       hud->Execute();
 
       SetState(e_ThreadState_Idle);
-
       std::this_thread::yield();
     }
   }
@@ -466,27 +488,23 @@ int main(int argc, const char** argv) {
     configFile = argv[1];
   configFile = ResolveConfigFilename(configFile);
   config->LoadFile(configFile.c_str());
+  ApplyModernStartupSettings(*config);
 
-  // Initialize localization using saved language preference (default: "en")
   Localization::GetInstance().Load(config->Get("locale_language", "en"));
 
   Initialize(*config);
 
   srand(time(nullptr));
-  rand();        // mingw32? buggy compiler? first value seems bogus
-  randomseed();  // for the boost random
+  rand();
+  randomseed();
   fastrandomseed();
 
   int timeStep_ms = config->GetInt("physics_frametime_ms", 10);
-
-  // database
 
   db = new Database();
   bool dbSuccess = db->Load("databases/default/database.sqlite");
   if (!dbSuccess)
     Log(e_FatalError, "main", "()", "Could not open database");
-
-  // initialize systems
 
   SystemManager* systemManager = SystemManager::GetInstancePtr();
 
@@ -503,11 +521,20 @@ int main(int argc, const char** argv) {
   printf("[MAIN] graphicsSystem->Initialize\n");
   fflush(stdout);
   graphicsSystem->Initialize(*config);
+
+  int contextWidth = 0;
+  int contextHeight = 0;
+  int contextBpp = 0;
+  graphicsSystem->GetContextSize(contextWidth, contextHeight, contextBpp);
+  config->SetInt("context_x", contextWidth);
+  config->SetInt("context_y", contextHeight);
+  config->SetInt("context_bpp", contextBpp);
+  config->SetBool("context_fullscreen", graphicsSystem->IsFullscreen());
+
   printf("[MAIN] audioSystem->Initialize\n");
   fflush(stdout);
   audioSystem->Initialize(*config);
 
-  // init scenes
   printf("[MAIN] init scenes\n");
   fflush(stdout);
 
@@ -530,7 +557,6 @@ int main(int argc, const char** argv) {
     threadHudThread = nullptr;
   }
 
-  // debug pilons
   printf("[MAIN] loading pilons\n");
   fflush(stdout);
 
@@ -607,27 +633,19 @@ int main(int argc, const char** argv) {
 
   geometry.reset();
 
-  // controllers
   printf("[MAIN] init controllers\n");
   fflush(stdout);
 
   HIDKeyboard* keyboard = new HIDKeyboard();
   controllers.push_back(keyboard);
 
-  // Headless "gamepad controls" smoke match: inject an autonomous scripted
-  // controller that drives a human team through the real input pipeline.
   if (config->GetBool("menu_smoke_test_gamepad_match", false)) {
     controllers.push_back(new ScriptedGamepad());
     printf("[main] Scripted gamepad controller injected (%zu total controllers)\n",
            controllers.size());
   }
 
-  // sequences
-
-  std::mutex
-      graphicsGameMutex;  // todo: this mutex seems necessary for visual fluency, doesn't this imply
-                          // that i'm setting positional stuff during something else than gametask
-                          // put? (or reading during something else than graphics get)
+  std::mutex graphicsGameMutex;
 
   printf("[MAIN] creating GameTask\n");
   fflush(stdout);
@@ -675,13 +693,10 @@ int main(int argc, const char** argv) {
 
   GetScheduler()->RegisterTaskSequence(graphicsSequence);
 
-  // fire!
   printf("[MAIN] calling Run()\n");
   fflush(stdout);
 
   Run();
-
-  // exit
 
   if (SuperDebug())
     scene2D->DeleteObject(debugImage);
@@ -725,8 +740,8 @@ int main(int argc, const char** argv) {
   }
   controllers.clear();
 
-  TTF_CloseFont(defaultFont);         // todo: better timed closefont?
-  TTF_CloseFont(defaultOutlineFont);  // todo: better timed closefont?
+  TTF_CloseFont(defaultFont);
+  TTF_CloseFont(defaultOutlineFont);
 
   delete db;
   delete config;
