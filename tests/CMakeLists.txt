@@ -105,6 +105,7 @@ add_executable(gameplayfootball_career_tests
   menu/slider_ux_test.cpp
   menu/ui_action_test.cpp
   menu/main_menu_parity_test.cpp
+  menu/settings_parity_test.cpp
   ${PROJECT_SOURCE_DIR}/src/data/careerdata.cpp
   ${PROJECT_SOURCE_DIR}/src/data/draftdata.cpp
   ${PROJECT_SOURCE_DIR}/src/data/scoutingdata.cpp
