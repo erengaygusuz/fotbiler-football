@@ -12,12 +12,12 @@
     <div class="shell">
       <div class="topbar">
         <div class="brand"><span class="brand-mark">F</span>OTBILER FOOTBALL</div>
-        <div class="profile">LEAGUE MODE</div>
+        <div id="league-profile" class="profile">LEAGUE MODE</div>
       </div>
 
       <div class="tabs">
         <div class="tab" tabindex="0" data-route="main-menu">HOME</div>
-        <div class="tab active">LEAGUE</div>
+        <div id="league-tab" class="tab active">LEAGUE</div>
       </div>
 
       <div class="content">
@@ -25,19 +25,19 @@
           <div class="tile hero" tabindex="0" autofocus>
             <div class="hero-number">L</div>
             <div class="tile-kicker">COMPETITION</div>
-            <div class="tile-title">LEAGUE MODE</div>
+            <div id="league-mode-title" class="tile-title">LEAGUE MODE</div>
             <div class="tile-copy">Build a season around a league competition, manage your team and play every matchday.</div>
           </div>
 
           <div class="row small-row">
             <div class="tile small first quick" tabindex="0">
               <div class="tile-kicker">NEW SEASON</div>
-              <div class="tile-title">NEW LEAGUE</div>
+              <div id="league-new-title" class="tile-title">NEW LEAGUE</div>
               <div class="tile-copy">Competition creation and team selection will be wired during the League parity phase.</div>
             </div>
             <div class="tile small league" tabindex="0">
               <div class="tile-kicker">CONTINUE</div>
-              <div class="tile-title">LOAD LEAGUE</div>
+              <div id="league-load-title" class="tile-title">LOAD LEAGUE</div>
               <div class="tile-copy">Legacy league save/load behavior is preserved until its modern workflow is connected.</div>
             </div>
           </div>
@@ -50,10 +50,12 @@
             <div class="tile-copy">This screen replaces the blocked Main Menu tile. Full League Start, New, Load and Central functionality is the dedicated M1B.4 migration slice.</div>
             <div class="news-stripe"></div>
           </div>
-          <div class="tile utility" tabindex="0" data-route="main-menu">
-            <div class="tile-kicker">NAVIGATION</div>
-            <div class="tile-title">BACK TO HOME</div>
-            <div class="tile-copy">Return to the Fotbiler Football main menu.</div>
+          <div class="row utility-row">
+            <div class="tile utility" tabindex="0" data-route="main-menu">
+              <div class="tile-kicker">NAVIGATION</div>
+              <div id="league-back-title" class="tile-title">BACK TO HOME</div>
+              <div class="tile-copy">Return to the Fotbiler Football main menu.</div>
+            </div>
           </div>
         </div>
       </div>
