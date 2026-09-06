@@ -28,19 +28,19 @@
           <div id="tile-career" class="tile hero" tabindex="0" autofocus data-route="career-mode-select">
             <div class="hero-number">26</div>
             <div class="tile-kicker">BUILD YOUR FOOTBALL WORLD</div>
-            <div class="tile-title">CAREER MODE</div>
+            <div id="main-career-title" class="tile-title">CAREER MODE</div>
             <div class="tile-copy">Choose your role, take control of a club and build a legacy across seasons.</div>
           </div>
 
           <div class="row small-row">
             <div id="tile-quick" class="tile small first quick" tabindex="0" data-route="match-setup">
               <div class="tile-kicker">KICK OFF</div>
-              <div class="tile-title">QUICK MATCH</div>
+              <div id="main-quick-title" class="tile-title">QUICK MATCH</div>
               <div class="tile-copy">Choose teams, match rules and play now.</div>
             </div>
             <div id="tile-league" class="tile small league" tabindex="0" data-route="league-start">
               <div class="tile-kicker">COMPETITION</div>
-              <div class="tile-title">LEAGUE MODE</div>
+              <div id="main-league-title" class="tile-title">LEAGUE MODE</div>
               <div class="tile-copy">Start, continue or load a complete league season.</div>
             </div>
           </div>
@@ -57,12 +57,12 @@
           <div class="row utility-row">
             <div id="tile-settings" class="tile utility first" tabindex="0" data-route="runtime-settings">
               <div class="tile-kicker">SYSTEM</div>
-              <div class="tile-title">SETTINGS</div>
+              <div id="main-settings-title" class="tile-title">SETTINGS</div>
               <div class="tile-copy">Gameplay, controls, video and audio.</div>
             </div>
             <div id="tile-more" class="tile utility" tabindex="0" data-route="credits">
               <div class="tile-kicker">FOTBILER</div>
-              <div class="tile-title">CREDITS</div>
+              <div id="main-credits-title" class="tile-title">CREDITS</div>
               <div class="tile-copy">The people, projects and open-source foundations behind Fotbiler Football.</div>
             </div>
           </div>
