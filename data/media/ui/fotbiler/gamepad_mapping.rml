@@ -1,0 +1,24 @@
+<rml>
+<head><title>Fotbiler Gamepad Mapping</title><link type="text/rcss" href="theme.rcss" /><link type="text/rcss" href="runtime_shell.rcss" /></head>
+<body><div class="runtime-screen"><div class="runtime-bg-blue"></div><div class="runtime-bg-light"></div><div class="runtime-bg-pink"></div><div class="runtime-shell">
+<div class="runtime-topbar"><div class="runtime-brand"><span class="runtime-brand-mark">F</span>OTBILER FOOTBALL</div><div class="runtime-meta">SETTINGS · PHYSICAL MAPPING</div></div>
+<div class="runtime-heading"><div class="runtime-kicker">GAMEPAD HARDWARE</div><div id="gamepad-mapping-title" class="runtime-title">PHYSICAL BUTTON MAPPING</div><div id="gamepad-mapping-status" class="runtime-subtitle">Select a logical button, then press a physical button or move an axis.</div></div>
+<div class="runtime-content"><div class="runtime-column-main"><div class="runtime-card dark" style="height:100%;"><div class="runtime-card-kicker">D-PAD &amp; FACE BUTTONS</div><div class="runtime-card-title">PRIMARY</div>
+<div class="runtime-row" tabindex="0" autofocus data-action="bind-gamepad-physical-0"><div class="runtime-label">DPAD UP</div><div id="gamepad-physical-0" class="runtime-value">-</div></div>
+<div class="runtime-row" tabindex="0" data-action="bind-gamepad-physical-1"><div class="runtime-label">DPAD RIGHT</div><div id="gamepad-physical-1" class="runtime-value">-</div></div>
+<div class="runtime-row" tabindex="0" data-action="bind-gamepad-physical-2"><div class="runtime-label">DPAD DOWN</div><div id="gamepad-physical-2" class="runtime-value">-</div></div>
+<div class="runtime-row" tabindex="0" data-action="bind-gamepad-physical-3"><div class="runtime-label">DPAD LEFT</div><div id="gamepad-physical-3" class="runtime-value">-</div></div>
+<div class="runtime-row" tabindex="0" data-action="bind-gamepad-physical-4"><div class="runtime-label">Y / TRIANGLE</div><div id="gamepad-physical-4" class="runtime-value">-</div></div>
+<div class="runtime-row" tabindex="0" data-action="bind-gamepad-physical-5"><div class="runtime-label">B / CIRCLE</div><div id="gamepad-physical-5" class="runtime-value">-</div></div>
+<div class="runtime-row" tabindex="0" data-action="bind-gamepad-physical-6"><div class="runtime-label">A / CROSS</div><div id="gamepad-physical-6" class="runtime-value">-</div></div>
+<div class="runtime-row" tabindex="0" data-action="bind-gamepad-physical-7"><div class="runtime-label">X / SQUARE</div><div id="gamepad-physical-7" class="runtime-value">-</div></div>
+</div></div><div class="runtime-column-side"><div class="runtime-card" style="height:100%;"><div class="runtime-card-kicker">SHOULDERS &amp; SYSTEM</div><div class="runtime-card-title">MORE BUTTONS</div>
+<div class="runtime-row" tabindex="0" data-action="bind-gamepad-physical-8"><div class="runtime-label">L1 / LB</div><div id="gamepad-physical-8" class="runtime-value">-</div></div>
+<div class="runtime-row" tabindex="0" data-action="bind-gamepad-physical-9"><div class="runtime-label">L2 / LT</div><div id="gamepad-physical-9" class="runtime-value">-</div></div>
+<div class="runtime-row" tabindex="0" data-action="bind-gamepad-physical-10"><div class="runtime-label">R1 / RB</div><div id="gamepad-physical-10" class="runtime-value">-</div></div>
+<div class="runtime-row" tabindex="0" data-action="bind-gamepad-physical-11"><div class="runtime-label">R2 / RT</div><div id="gamepad-physical-11" class="runtime-value">-</div></div>
+<div class="runtime-row" tabindex="0" data-action="bind-gamepad-physical-12"><div class="runtime-label">SELECT / BACK</div><div id="gamepad-physical-12" class="runtime-value">-</div></div>
+<div class="runtime-row" tabindex="0" data-action="bind-gamepad-physical-13"><div class="runtime-label">START / OPTIONS</div><div id="gamepad-physical-13" class="runtime-value">-</div></div>
+</div></div></div>
+<div class="runtime-footer"><div><span class="runtime-hint"><span class="runtime-key">ENTER / A</span>Remap</span><span class="runtime-hint"><span class="runtime-key">ESC / B</span>Back / Cancel Capture</span></div><div>M1B · PHYSICAL MAPPING</div></div>
+</div></div></body></rml>
