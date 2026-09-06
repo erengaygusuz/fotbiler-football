@@ -183,6 +183,41 @@ struct SingleProcessFrontend::Impl {
     ui.SetElementText("settings-language", Localization::GetLanguageDisplayName(language));
   }
 
+  void BindLocalizedText() {
+    auto& localization = Localization::GetInstance();
+    const auto bind = [this, &localization](const char* elementId, const char* key) {
+      ui.SetElementText(elementId, localization.Translate(key));
+    };
+
+    bind("main-career-title", "menu_careermode");
+    bind("main-quick-title", "menu_quickmatch");
+    bind("main-league-title", "menu_leaguemode");
+    bind("main-settings-title", "menu_settings");
+    bind("main-credits-title", "menu_credits");
+
+    bind("settings-title", "settings_title");
+    bind("settings-resolution-label", "graphics_resolution");
+    bind("settings-difficulty-label", "league_difficulty");
+    bind("settings-volume-label", "audio_volume");
+    bind("settings-language-label", "settings_language");
+    bind("settings-controls-title", "settings_controller");
+    bind("settings-keyboard-link", "controller_keyboard");
+
+    bind("controls-title", "controller_keyboard");
+    bind("controls-reset", "settings_reset_defaults");
+
+    bind("credits-profile", "menu_credits");
+    bind("credits-tab", "menu_credits");
+    bind("credits-back-title", "league_return_main_menu");
+
+    bind("league-profile", "menu_leaguemode");
+    bind("league-tab", "menu_league");
+    bind("league-mode-title", "menu_leaguemode");
+    bind("league-new-title", "league_start_new");
+    bind("league-load-title", "league_load_saved");
+    bind("league-back-title", "league_return_main_menu");
+  }
+
   void BindControlsSettings() {
     HIDKeyboard* keyboard = FindKeyboardController();
     for (std::size_t i = 0; i < kKeyboardBindingLabels.size(); ++i) {
@@ -194,9 +229,10 @@ struct SingleProcessFrontend::Impl {
     }
 
     const int gamepads = ConnectedGamepadCount();
+    const std::string gamepadLabel = Localization::GetInstance().Translate("controller_gamepads");
     ui.SetElementText("controls-gamepad-status",
-                      gamepads == 0 ? "GAMEPADS · NONE DETECTED"
-                                    : "GAMEPADS · " + std::to_string(gamepads) + " DETECTED");
+                      gamepads == 0 ? gamepadLabel + " · NONE DETECTED"
+                                    : gamepadLabel + " · " + std::to_string(gamepads) + " DETECTED");
 
     if (!capturingKeyIndex) {
       ui.SetElementText("controls-capture-status",
@@ -210,6 +246,7 @@ struct SingleProcessFrontend::Impl {
     BindCareerDetailViewModel(ui, detailView);
     BindQuickMatch();
     BindRuntimeSettings();
+    BindLocalizedText();
     BindControlsSettings();
   }
 
@@ -349,7 +386,7 @@ struct SingleProcessFrontend::Impl {
 
     GetConfiguration()->Set("locale_language", next);
     GetConfiguration()->SaveFile(GetConfigFilename());
-    BindRuntimeSettings();
+    BindAll();
   }
 
   void ProcessUiRequests() {
