@@ -4,33 +4,43 @@
   <link type="text/rcss" href="theme.rcss" />
   <link type="text/rcss" href="runtime_shell.rcss" />
 </head>
-<body>
-  <div class="runtime-screen">
-    <div class="runtime-bg-blue"></div><div class="runtime-bg-light"></div><div class="runtime-bg-pink"></div>
-    <div class="runtime-shell">
-      <div class="runtime-topbar"><div class="runtime-brand"><span class="runtime-brand-mark">F</span>OTBILER FOOTBALL</div><div class="runtime-meta">REPLAY · 18:42</div></div>
-      <div class="runtime-heading"><div class="runtime-kicker">MATCH MEDIA</div><div class="runtime-title">INSTANT REPLAY</div><div class="runtime-subtitle">Review the previous phase with broadcast controls.</div></div>
-      <div class="runtime-content">
-        <div class="runtime-column-main">
-          <div class="runtime-card dark" style="height:100%;">
-            <div style="height:310px; background-color:#1a4b38;"><div class="runtime-center" style="padding-top:138px; font-size:22px;">REPLAY CAMERA</div></div>
-            <div class="runtime-row" style="margin-top:14px;"><div class="runtime-label">TIMELINE</div><div class="runtime-value">00:08 / 00:16</div></div>
-            <div class="runtime-row"><div class="runtime-label">SPEED</div><div class="runtime-value">1.0×</div></div>
-          </div>
+<body class="replay-overlay-body">
+  <div class="replay-overlay-screen">
+    <div class="replay-status-badge">
+      <span class="replay-status-live">REPLAY</span>
+      <span class="replay-status-speed">1.0×</span>
+    </div>
+
+    <div class="replay-control-dock">
+      <div class="replay-dock-heading">
+        <span class="replay-dock-title">INSTANT REPLAY</span>
+        <span class="replay-dock-note">MATCH FOOTAGE REMAINS VISIBLE</span>
+      </div>
+
+      <div class="replay-controls">
+        <div class="replay-control" tabindex="0" autofocus data-action="replay-play-pause">
+          <span class="replay-control-key">A</span>
+          <span>PLAY / PAUSE</span>
         </div>
-        <div class="runtime-column-side">
-          <div class="runtime-card" style="height:100%;">
-            <div class="runtime-card-kicker">REPLAY CONTROLS</div><div class="runtime-card-title">BROADCAST</div>
-            <div class="runtime-nav-item" tabindex="0" autofocus data-action="replay-play-pause">PLAY / PAUSE</div>
-            <div class="runtime-nav-item" tabindex="0" data-action="replay-slow">SLOW MOTION</div>
-            <div class="runtime-nav-item" tabindex="0" data-action="replay-camera">CHANGE CAMERA</div>
-            <div class="runtime-nav-item" tabindex="0" data-action="replay-rewind">REWIND</div>
-            <div class="runtime-nav-item" tabindex="0" data-action="replay-forward">FAST FORWARD</div>
-            <div class="runtime-nav-item" tabindex="0" data-action="replay-exit">RETURN TO MATCH</div>
-          </div>
+        <div class="replay-control" tabindex="0" data-action="replay-cycle-speed">
+          <span class="replay-control-key">X</span>
+          <span>SPEED</span>
+        </div>
+        <div class="replay-control" tabindex="0" data-action="replay-cycle-camera">
+          <span class="replay-control-key">Y</span>
+          <span>CAMERA</span>
+        </div>
+        <div class="replay-control replay-control-exit" tabindex="0" data-action="replay-exit">
+          <span class="replay-control-key">B</span>
+          <span>RETURN TO MATCH</span>
         </div>
       </div>
-      <div class="runtime-footer"><div><span class="runtime-hint"><span class="runtime-key">SPACE</span>Play/Pause</span><span class="runtime-hint"><span class="runtime-key">ESC</span>Back</span></div><div>M1C · REPLAY</div></div>
+
+      <div class="replay-keyboard-hints">
+        <span><b>SPACE</b> PLAY / PAUSE</span>
+        <span><b>C</b> CAMERA</span>
+        <span><b>ESC</b> EXIT REPLAY</span>
+      </div>
     </div>
   </div>
 </body>
