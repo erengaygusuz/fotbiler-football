@@ -38,6 +38,7 @@
             <div class="runtime-row" tabindex="0" data-action="bind-key-16"><div class="runtime-label">SELECT</div><div id="control-key-16" class="runtime-value">F1</div></div>
             <div class="runtime-row" tabindex="0" data-action="bind-key-17"><div class="runtime-label">START</div><div id="control-key-17" class="runtime-value">RETURN</div></div>
             <div id="controls-reset" class="runtime-nav-item" tabindex="0" data-action="reset-keyboard-bindings" style="margin-top:10px;">RESET KEYBOARD DEFAULTS</div>
+            <div id="controls-gamepads-link" class="runtime-nav-item" tabindex="0" data-route="gamepad-list">GAMEPAD SETTINGS</div>
             <div id="controls-gamepad-status" class="runtime-muted">GAMEPADS · DETECTING</div>
           </div>
         </div>
