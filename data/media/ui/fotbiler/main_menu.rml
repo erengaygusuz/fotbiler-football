@@ -38,10 +38,10 @@
               <div class="tile-title">QUICK MATCH</div>
               <div class="tile-copy">Choose teams, match rules and play now.</div>
             </div>
-            <div id="tile-league" class="tile small league" tabindex="0">
+            <div id="tile-league" class="tile small league" tabindex="0" data-route="league-start">
               <div class="tile-kicker">COMPETITION</div>
               <div class="tile-title">LEAGUE MODE</div>
-              <div class="tile-copy">Play through a complete league season.</div>
+              <div class="tile-copy">Start, continue or load a complete league season.</div>
             </div>
           </div>
         </div>
@@ -60,10 +60,10 @@
               <div class="tile-title">SETTINGS</div>
               <div class="tile-copy">Gameplay, controls, video and audio.</div>
             </div>
-            <div id="tile-more" class="tile utility" tabindex="0">
+            <div id="tile-more" class="tile utility" tabindex="0" data-route="credits">
               <div class="tile-kicker">FOTBILER</div>
-              <div class="tile-title">MORE</div>
-              <div class="tile-copy">Credits and additional options.</div>
+              <div class="tile-title">CREDITS</div>
+              <div class="tile-copy">The people, projects and open-source foundations behind Fotbiler Football.</div>
             </div>
           </div>
         </div>
@@ -75,7 +75,7 @@
           <span class="hint"><span class="hint-key">ARROWS</span> Navigate</span>
           <span class="hint"><span class="hint-key">ESC</span> Exit Game</span>
         </div>
-        <div class="footer-right"><span class="version">M1A · FIFA-ERA 2D UI PROTOTYPE</span></div>
+        <div class="footer-right"><span class="version">M1B · MODERN UI FEATURE PARITY</span></div>
       </div>
     </div>
 
