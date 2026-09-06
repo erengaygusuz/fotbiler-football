@@ -3,6 +3,7 @@
 
 #include "career_sim.hpp"
 #include "core/match/match_engine.hpp"
+#include "core/match/runtime_match_telemetry.hpp"
 
 namespace blunted {
 
@@ -24,7 +25,12 @@ public:
     run.result.opponentShots = simulated.awayShots;
     run.result.userPossession = simulated.homePossession;
     run.result.userScorers = simulated.scorers;
+    run.result.shotsAvailable = true;
+    run.result.possessionAvailable = true;
+    run.result.scorersAvailable = true;
     run.result.completed = simulated.played;
+
+    RuntimeMatchTelemetry::GetInstance().RecordFastRun(run);
     return run;
   }
 
