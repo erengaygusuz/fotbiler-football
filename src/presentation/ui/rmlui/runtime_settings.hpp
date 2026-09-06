@@ -95,6 +95,10 @@ inline const char* RuntimeGameSpeedName(int step) {
   }
 }
 
+inline float RuntimeVolumeToLegacyAudio(int volume) {
+  return static_cast<float>(std::clamp(volume, 0, 100)) / 100.0f;
+}
+
 }  // namespace blunted::ui
 
 #endif  // FOTBILER_RUNTIME_SETTINGS_HPP
