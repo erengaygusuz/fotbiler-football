@@ -4,6 +4,8 @@
 #include <sqlite3.h>
 
 #include <algorithm>
+#include <array>
+#include <cmath>
 #include <cstdio>
 #include <cstdlib>
 #include <string>
@@ -11,8 +13,10 @@
 #include <vector>
 
 #include "gamedefines.hpp"
+#include "hid/gamepad.hpp"
 #include "hid/keyboard.hpp"
 #include "main.hpp"
+#include "managers/usereventmanager.hpp"
 #include "presentation/ui/rmlui/career_detail_binder.hpp"
 #include "presentation/ui/rmlui/career_detail_view_model.hpp"
 #include "presentation/ui/rmlui/career_ui_binder.hpp"
@@ -134,12 +138,18 @@ HIDKeyboard* FindKeyboardController() {
   return nullptr;
 }
 
-int ConnectedGamepadCount() {
-  int count = 0;
+std::vector<HIDGamepad*> ConnectedGamepads() {
+  std::vector<HIDGamepad*> result;
   for (IHIDevice* controller : GetControllers()) {
-    if (controller && controller->GetDeviceType() == e_HIDeviceType_Gamepad) ++count;
+    if (controller && controller->GetDeviceType() == e_HIDeviceType_Gamepad) {
+      result.push_back(static_cast<HIDGamepad*>(controller));
+    }
   }
-  return count;
+  return result;
+}
+
+int ConnectedGamepadCount() {
+  return static_cast<int>(ConnectedGamepads().size());
 }
 
 std::string KeyName(SDL_Keycode key) {
@@ -159,6 +169,14 @@ struct SingleProcessFrontend::Impl {
         detailView(BuildCareerDetailViewModel(careerSave)),
         router([this](const std::string& path) { return LoadDocument(path); }) {
     quickMatch.difficultyStep = settings.difficultyStep;
+    calibrationMin.fill(32768.0f);
+    calibrationMax.fill(-32767.0f);
+  }
+
+  HIDGamepad* SelectedGamepad() const {
+    if (!selectedGamepadOrdinal) return nullptr;
+    const std::vector<HIDGamepad*> gamepads = ConnectedGamepads();
+    return *selectedGamepadOrdinal < gamepads.size() ? gamepads[*selectedGamepadOrdinal] : nullptr;
   }
 
   bool LoadDocument(const std::string& path) {
@@ -205,6 +223,7 @@ struct SingleProcessFrontend::Impl {
 
     bind("controls-title", "controller_keyboard");
     bind("controls-reset", "settings_reset_defaults");
+    bind("controls-gamepads-link", "controller_gamepads");
 
     bind("credits-profile", "menu_credits");
     bind("credits-tab", "menu_credits");
@@ -241,6 +260,59 @@ struct SingleProcessFrontend::Impl {
     }
   }
 
+  void BindGamepadList() {
+    const std::vector<HIDGamepad*> gamepads = ConnectedGamepads();
+    ui.SetElementText("gamepad-list-status",
+                      gamepads.empty() ? "No gamepads detected. Connect a controller and it will appear here."
+                                       : std::to_string(gamepads.size()) + " gamepad(s) detected.");
+    for (std::size_t i = 0; i < 8; ++i) {
+      const std::string id = "gamepad-list-" + std::to_string(i);
+      if (i < gamepads.size()) {
+        ui.SetElementProperty(id, "display", "block");
+        ui.SetElementText(id, gamepads[i]->GetIdentifier() + " · " + gamepads[i]->GetControllerTypeName());
+      } else {
+        ui.SetElementProperty(id, "display", "none");
+      }
+    }
+  }
+
+  void BindGamepadSetup() {
+    HIDGamepad* gamepad = SelectedGamepad();
+    ui.SetElementText("gamepad-setup-name", gamepad ? gamepad->GetIdentifier() : "GAMEPAD UNAVAILABLE");
+    ui.SetElementText("gamepad-setup-type", gamepad ? gamepad->GetControllerTypeName() : "Reconnect the controller and select it again.");
+  }
+
+  void BindGamepadMapping() {
+    HIDGamepad* gamepad = SelectedGamepad();
+    if (!gamepad) {
+      ui.SetElementText("gamepad-mapping-status", "Selected gamepad is no longer connected.");
+      return;
+    }
+    if (!capturingGamepadPhysicalIndex) {
+      ui.SetElementText("gamepad-mapping-status",
+                        "Select a logical button, then press a physical button or move an axis.");
+    }
+    for (std::size_t i = 0; i < kControllerButtonLabels.size(); ++i) {
+      ui.SetElementText("gamepad-physical-" + std::to_string(i),
+                        DescribePhysicalGamepadBinding(
+                            gamepad->GetControllerMapping(static_cast<e_ControllerButton>(i))));
+    }
+  }
+
+  void BindGamepadFunctions() {
+    HIDGamepad* gamepad = SelectedGamepad();
+    if (!gamepad) return;
+    for (std::size_t i = 0; i < kKeyboardBindingLabels.size(); ++i) {
+      const e_ControllerButton button =
+          gamepad->GetFunctionMapping(static_cast<e_ButtonFunction>(i));
+      const std::size_t buttonIndex = static_cast<std::size_t>(button);
+      ui.SetElementText("gamepad-function-" + std::to_string(i),
+                        buttonIndex < kControllerButtonLabels.size()
+                            ? std::string(kControllerButtonLabels[buttonIndex])
+                            : "UNBOUND");
+    }
+  }
+
   void BindAll() {
     BindCareerUiViewModel(ui, careerView);
     BindCareerDetailViewModel(ui, detailView);
@@ -248,6 +320,10 @@ struct SingleProcessFrontend::Impl {
     BindRuntimeSettings();
     BindLocalizedText();
     BindControlsSettings();
+    BindGamepadList();
+    BindGamepadSetup();
+    BindGamepadMapping();
+    BindGamepadFunctions();
   }
 
   void BindQuickMatch() {
@@ -369,6 +445,117 @@ struct SingleProcessFrontend::Impl {
     BindControlsSettings();
   }
 
+  void SelectGamepad(std::size_t ordinal) {
+    const std::vector<HIDGamepad*> gamepads = ConnectedGamepads();
+    if (ordinal >= gamepads.size()) return;
+    selectedGamepadOrdinal = ordinal;
+    capturingGamepadPhysicalIndex.reset();
+    calibratingGamepad = false;
+    router.Navigate(ScreenId::GamepadSetup);
+  }
+
+  void BeginGamepadPhysicalCapture(std::size_t logicalIndex) {
+    if (!SelectedGamepad() || logicalIndex >= kControllerButtonLabels.size()) return;
+    capturingGamepadPhysicalIndex = logicalIndex;
+    ui.SetElementText("gamepad-mapping-status",
+                      "PRESS A BUTTON OR MOVE AN AXIS FOR " +
+                          std::string(kControllerButtonLabels[logicalIndex]) + " · ESC CANCELS");
+  }
+
+  void CancelGamepadPhysicalCapture() {
+    capturingGamepadPhysicalIndex.reset();
+    BindGamepadMapping();
+  }
+
+  void CommitGamepadPhysicalCapture(int physicalBinding) {
+    if (!capturingGamepadPhysicalIndex) return;
+    HIDGamepad* gamepad = SelectedGamepad();
+    if (!gamepad) {
+      CancelGamepadPhysicalCapture();
+      return;
+    }
+    gamepad->SetControllerMapping(
+        static_cast<e_ControllerButton>(*capturingGamepadPhysicalIndex), physicalBinding);
+    gamepad->SaveConfig();
+    capturingGamepadPhysicalIndex.reset();
+    BindGamepadMapping();
+  }
+
+  void CycleGamepadFunction(std::size_t functionIndex) {
+    HIDGamepad* gamepad = SelectedGamepad();
+    if (!gamepad || functionIndex >= kKeyboardBindingLabels.size()) return;
+    const e_ButtonFunction function = static_cast<e_ButtonFunction>(functionIndex);
+    const int current = static_cast<int>(gamepad->GetFunctionMapping(function));
+    const int next = (current + 1) % e_ControllerButton_Size;
+    gamepad->SetFunctionMapping(function, static_cast<e_ControllerButton>(next));
+    gamepad->SaveConfig();
+    BindGamepadFunctions();
+  }
+
+  void BeginGamepadCalibration() {
+    HIDGamepad* gamepad = SelectedGamepad();
+    if (!gamepad) return;
+    calibrationMin.fill(32768.0f);
+    calibrationMax.fill(-32767.0f);
+    calibratingGamepad = true;
+    if (router.Navigate(ScreenId::GamepadCalibration)) {
+      ui.SetElementText("gamepad-calibration-status",
+                        "LIVE CAPTURE ACTIVE · MOVE ALL STICKS/TRIGGERS, THEN RELEASE TO REST");
+    } else {
+      calibratingGamepad = false;
+    }
+  }
+
+  void SampleGamepadCalibration() {
+    if (!calibratingGamepad) return;
+    HIDGamepad* gamepad = SelectedGamepad();
+    if (!gamepad) {
+      ui.SetElementText("gamepad-calibration-status", "GAMEPAD DISCONNECTED · CANCEL AND SELECT AGAIN");
+      return;
+    }
+    for (int axis = 0; axis < _JOYSTICK_MAXAXES; ++axis) {
+      const float value =
+          UserEventManager::GetInstance().GetJoystickAxisRaw(gamepad->GetGamepadID(), axis);
+      calibrationMin[axis] = std::min(calibrationMin[axis], value);
+      calibrationMax[axis] = std::max(calibrationMax[axis], value);
+    }
+  }
+
+  void SaveGamepadCalibration() {
+    HIDGamepad* gamepad = SelectedGamepad();
+    if (!gamepad) {
+      calibratingGamepad = false;
+      return;
+    }
+
+    Properties* config = GetConfiguration();
+    for (int axis = 0; axis < _JOYSTICK_MAXAXES; ++axis) {
+      float min = calibrationMin[axis];
+      float max = calibrationMax[axis];
+      float rest = UserEventManager::GetInstance().GetJoystickAxisRaw(gamepad->GetGamepadID(), axis);
+      if (min > max) {
+        min = UserEventManager::GetInstance().GetJoystickAxisCalibrationMin(gamepad->GetGamepadID(), axis);
+        max = UserEventManager::GetInstance().GetJoystickAxisCalibrationMax(gamepad->GetGamepadID(), axis);
+        rest = UserEventManager::GetInstance().GetJoystickAxisCalibrationRest(gamepad->GetGamepadID(), axis);
+      }
+      UserEventManager::GetInstance().SetJoystickAxisCalibration(gamepad->GetGamepadID(), axis, min,
+                                                                 max, rest);
+      const std::string prefix = "input_gamepad_" + gamepad->GetIdentifier() + "_calibration_" +
+                                 std::to_string(axis);
+      config->Set((prefix + "_min").c_str(), min);
+      config->Set((prefix + "_max").c_str(), max);
+      config->Set((prefix + "_rest").c_str(), rest);
+    }
+    config->SaveFile(GetConfigFilename());
+    calibratingGamepad = false;
+    if (!router.Back()) router.Navigate(ScreenId::GamepadSetup);
+  }
+
+  void CancelGamepadCalibration() {
+    calibratingGamepad = false;
+    if (!router.Back()) router.Navigate(ScreenId::GamepadSetup);
+  }
+
   void CycleLanguage() {
     const std::vector<std::string> languages = Localization::GetAvailableLanguages();
     if (languages.empty()) return;
@@ -416,9 +603,27 @@ struct SingleProcessFrontend::Impl {
       BeginKeyboardCapture(*keyIndex);
       return;
     }
+    if (const auto gamepadIndex = ParseGamepadSelectAction(action)) {
+      SelectGamepad(*gamepadIndex);
+      return;
+    }
+    if (const auto physicalIndex = ParseGamepadPhysicalBindingAction(action)) {
+      BeginGamepadPhysicalCapture(*physicalIndex);
+      return;
+    }
+    if (const auto functionIndex = ParseGamepadFunctionAction(action)) {
+      CycleGamepadFunction(*functionIndex);
+      return;
+    }
 
     if (action == "reset-keyboard-bindings") {
       ResetKeyboardBindings();
+    } else if (action == "begin-gamepad-calibration") {
+      BeginGamepadCalibration();
+    } else if (action == "save-gamepad-calibration") {
+      SaveGamepadCalibration();
+    } else if (action == "cancel-gamepad-calibration") {
+      CancelGamepadCalibration();
     } else if (action == "cycle-language") {
       CycleLanguage();
     } else if (action == "change-home-team") {
@@ -522,6 +727,55 @@ struct SingleProcessFrontend::Impl {
       if (event.type == SDL_KEYUP || event.type == SDL_CONTROLLERBUTTONUP) return true;
     }
 
+    if (capturingGamepadPhysicalIndex) {
+      HIDGamepad* gamepad = SelectedGamepad();
+      if (event.type == SDL_KEYDOWN && event.key.repeat == 0 && event.key.keysym.sym == SDLK_ESCAPE) {
+        CancelGamepadPhysicalCapture();
+        return true;
+      }
+      if (event.type == SDL_CONTROLLERBUTTONDOWN && event.cbutton.button == SDL_CONTROLLER_BUTTON_B) {
+        CancelGamepadPhysicalCapture();
+        return true;
+      }
+      if (gamepad && event.type == SDL_JOYBUTTONDOWN &&
+          gamepad->GetJoystickInstanceId() == event.jbutton.which) {
+        CommitGamepadPhysicalCapture(static_cast<int>(event.jbutton.button));
+        return true;
+      }
+      if (gamepad && event.type == SDL_JOYAXISMOTION &&
+          gamepad->GetJoystickInstanceId() == event.jaxis.which) {
+        if (std::abs(static_cast<int>(event.jaxis.value)) >= 16000) {
+          CommitGamepadPhysicalCapture(
+              EncodeGamepadAxisDirection(static_cast<int>(event.jaxis.axis), event.jaxis.value > 0));
+        }
+        return true;
+      }
+      if (event.type == SDL_JOYBUTTONUP || event.type == SDL_JOYAXISMOTION) return true;
+    }
+
+    if (calibratingGamepad) {
+      HIDGamepad* gamepad = SelectedGamepad();
+      if (event.type == SDL_KEYDOWN && event.key.repeat == 0 && event.key.keysym.sym == SDLK_ESCAPE) {
+        CancelGamepadCalibration();
+        return true;
+      }
+      if (event.type == SDL_CONTROLLERBUTTONDOWN && event.cbutton.button == SDL_CONTROLLER_BUTTON_B) {
+        CancelGamepadCalibration();
+        return true;
+      }
+      if (gamepad && event.type == SDL_JOYBUTTONDOWN &&
+          gamepad->GetJoystickInstanceId() == event.jbutton.which) {
+        if (event.jbutton.button == 0 || event.jbutton.button == 7) {
+          SaveGamepadCalibration();
+          return true;
+        }
+        if (event.jbutton.button == 1 || event.jbutton.button == 6) {
+          CancelGamepadCalibration();
+          return true;
+        }
+      }
+    }
+
     bool consumed = false;
     bool activate = false;
 
@@ -590,6 +844,11 @@ struct SingleProcessFrontend::Impl {
   bool suspended = false;
   bool quitConfirmOpen = false;
   std::optional<std::size_t> capturingKeyIndex;
+  std::optional<std::size_t> selectedGamepadOrdinal;
+  std::optional<std::size_t> capturingGamepadPhysicalIndex;
+  bool calibratingGamepad = false;
+  std::array<float, _JOYSTICK_MAXAXES> calibrationMin;
+  std::array<float, _JOYSTICK_MAXAXES> calibrationMax;
 };
 
 SingleProcessFrontend::SingleProcessFrontend(RmlUiSystem& ui)
@@ -610,6 +869,10 @@ bool SingleProcessFrontend::HandleEvent(SDL_Event& event) { return impl->HandleE
 
 bool SingleProcessFrontend::UpdateAndRender() {
   if (!impl->initialized || impl->suspended) return false;
+  impl->SampleGamepadCalibration();
+  if (impl->router.Current() && *impl->router.Current() == ScreenId::GamepadList) {
+    impl->BindGamepadList();
+  }
   impl->ProcessUiRequests();
   return impl->ui.Update() && impl->ui.Render();
 }
