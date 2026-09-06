@@ -260,8 +260,24 @@ struct SingleProcessFrontend::Impl {
     if (!ui.FocusElement("tile-career")) ui.FocusDefaultElement();
   }
 
+  void PersistLegacyRuntimeSettings() {
+    Properties* config = GetConfiguration();
+    if (!config) return;
+    config->SetInt("context_x", settings.Width());
+    config->SetInt("context_y", settings.Height());
+    config->SetBool("context_fullscreen", settings.fullscreen);
+    config->SetBool("context_vsync", settings.vsync);
+    config->Set("match_difficulty",
+                static_cast<float>(std::clamp(settings.difficultyStep, 0, 4)) * 0.25f);
+    config->SetInt("fotbiler_game_speed", settings.gameSpeedStep);
+    config->SetInt("fotbiler_master_volume", settings.volume);
+    config->Set("audio_volume", RuntimeVolumeToLegacyAudio(settings.volume));
+    config->SaveFile(GetConfigFilename());
+  }
+
   void ApplyRuntimeSettings() {
     SaveRuntimeSettings(settings);
+    PersistLegacyRuntimeSettings();
 
     frontend::DisplaySettingsRequest request;
     request.width = settings.Width();
@@ -321,10 +337,14 @@ struct SingleProcessFrontend::Impl {
     if (languages.empty()) return;
 
     const std::string current = Localization::GetInstance().GetCurrentLanguage();
-    auto it = std::find(languages.begin(), languages.end(), current);
-    const std::size_t currentIndex =
-        it == languages.end() ? 0 : static_cast<std::size_t>(std::distance(languages.begin(), it));
-    const std::string& next = languages[(currentIndex + 1) % languages.size()];
+    std::size_t nextIndex = 0;
+    for (std::size_t i = 0; i < languages.size(); ++i) {
+      if (languages[i] == current) {
+        nextIndex = (i + 1) % languages.size();
+        break;
+      }
+    }
+    const std::string& next = languages[nextIndex];
     if (!Localization::GetInstance().Load(next)) return;
 
     GetConfiguration()->Set("locale_language", next);
